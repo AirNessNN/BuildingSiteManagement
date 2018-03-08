@@ -20,6 +20,12 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.DropMode;
 import javax.swing.SwingConstants;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
+import java.beans.VetoableChangeListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 public class Login extends JFrame{
 	
@@ -30,7 +36,7 @@ public class Login extends JFrame{
 	//µÇÂ¼½á¹û»Øµ÷
 	public ILoginResultCallback resultCallback=null;
 	interface ILoginResultCallback{
-		public void loginResult(boolean result);
+		public void loginResult(String user,String password);
 	}
 
 	/**
@@ -71,13 +77,14 @@ public class Login extends JFrame{
 				}
 			}
 		});
+		
 	}
 	
 	
 	public Login() {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(Login.class.getResource("/Resoure/login.png")));
 		setTitle("µÇÂ¼");
-		setSize(500, 301);
+		setSize(500, 289);
 		getContentPane().setBackground(Color.WHITE);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setResizable(false);
@@ -90,9 +97,10 @@ public class Login extends JFrame{
 		getContentPane().add(panel);
 		panel.setLayout(null);
 		
+		//ÃÜÂë¿ò
 		password = new JTextField();
 		password.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 17));
-		password.setBounds(122, 192, 227, 27);
+		password.setBounds(122, 192, 227, 21);
 		panel.add(password);
 		password.setColumns(10);
 		
@@ -109,25 +117,26 @@ public class Login extends JFrame{
 		
 		JLabel lblNewLabel_1 = new JLabel("\u6B63\u5728\u767B\u5F55...");
 		lblNewLabel_1.setForeground(Color.WHITE);
-		lblNewLabel_1.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 16));
+		lblNewLabel_1.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 13));
 		lblNewLabel_1.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblNewLabel_1.setBounds(327, 231, 155, 23);
 		panel.add(lblNewLabel_1);
 		panel.add(anImageButton);
 		
 		JLabel label = new JLabel("\u5BC6\u7801:");
-		label.setFont(new Font("Î¢ÈíÑÅºÚ", Font.BOLD, 17));
-		label.setBounds(35, 196, 72, 23);
+		label.setFont(new Font("Î¢ÈíÑÅºÚ", Font.BOLD, 15));
+		label.setBounds(35, 192, 72, 23);
 		panel.add(label);
 		
 		JLabel lblNewLabel = new JLabel("\u7528\u6237\u540D:");
-		lblNewLabel.setFont(new Font("Î¢ÈíÑÅºÚ", Font.BOLD, 17));
+		lblNewLabel.setFont(new Font("Î¢ÈíÑÅºÚ", Font.BOLD, 15));
 		lblNewLabel.setBounds(35, 149, 72, 23);
 		panel.add(lblNewLabel);
 		
+		//ÓÃ»§Ãû
 		user = new JTextField();
 		user.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 17));
-		user.setBounds(122, 150, 227, 27);
+		user.setBounds(122, 150, 227, 21);
 		panel.add(user);
 		user.setColumns(10);
 		
@@ -142,14 +151,11 @@ public class Login extends JFrame{
 	
 	
 	private void login() {
+		
 		if(resultCallback!=null) {
-			if(user.getText().equals("test")&&password.getText().equals("123456")) {
-				resultCallback.loginResult(true);
-			}else {
-				resultCallback.loginResult(false);
-				password.setText(null);
-				user.setText(null);
-			}
+			resultCallback.loginResult(user.getText(), password.getText());
 		}
 	}
+	
+	
 }

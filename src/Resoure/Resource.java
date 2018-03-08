@@ -14,9 +14,12 @@ public class Resource {
 	public final static String LAN_TING_HEI="·½ÕýÀ¼Í¤³¬Ï¸ºÚ¼òÌå";
 	
 	//Â·¾¶
-	public static String getDocumentDirectory() {
+	public static String getApplicationDirectoryPath() {
 		FileSystemView fileSystemView=FileSystemView.getFileSystemView();
-		return fileSystemView.getDefaultDirectory().getAbsolutePath();
+		return fileSystemView.getDefaultDirectory().getAbsolutePath()+"\\AnBuildingSiteMgr";
+	}
+	public static File getApplicationDirectoryFile() {
+		return new File(getApplicationDirectoryPath());
 	}
 	
 	

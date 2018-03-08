@@ -4,6 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import Main.Login.ILoginResultCallback;
+import Resoure.Resource;
 
 public class Application {
 	
@@ -12,7 +13,7 @@ public class Application {
 	//欢迎界面
 	private static StartWidnwo startWidnwo=null;
 
-	private JFrame frame;
+	private static MainWindow mainWindow=null;
 	
 	
 	
@@ -69,26 +70,48 @@ public class Application {
 				try {
 					//载入静态数据
 					initialize();
+					
+					//Debug
+					System.out.println(Resource.getApplicationDirectoryPath());
+					
 					//打开欢迎窗口
 					showStartWindow();
+					//读取数据库
+					
+					//复制到内存
+					
+					//准备数据
+					
+					//确认用户信息
+					
+					
+					setLoadMessage("确认用户信息");
 					Login login=new Login();
 					login.resultCallback=new ILoginResultCallback() {
 						
 						@Override
-						public void loginResult(boolean result) {
+						public void loginResult(String user, String password) {
 							// TODO Auto-generated method stub
-							if(result) {
-								login.dispose();
-								new MainWindow().setVisible(true);
+							if(user.equals("test")&&password.equals("123456")) {
+								//准备该用户数据
+								
+								//读取数据到内存
+								
+								//显示数据
+								
+								//完成登录
+								closeStartWindow();
+								mainWindow=new MainWindow();
+								mainWindow.setVisible(true);
 							}else {
-								JOptionPane.showMessageDialog(null, "用户名或密码错误!","提示消息",JOptionPane.INFORMATION_MESSAGE);
+								JOptionPane.showMessageDialog(null, "用户名或密码错误！", "登录提示", JOptionPane.INFORMATION_MESSAGE);
 							}
 						}
 					};
 					login.setVisible(true);
 					//开始载入数据
 					
-					closeStartWindow();
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
