@@ -1,4 +1,4 @@
-package Main;
+package application;
 
 import javax.swing.JFrame;
 import java.awt.Color;
@@ -7,31 +7,33 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
 import javax.swing.JPanel;
 
-import Compoent.AnImageButton;
-import Compoent.AnImageLabel;
-import Resoure.Resource;
+import compoent.AnActionListener;
+import compoent.AnImageButton;
+import compoent.AnImageLabel;
+import compoent.AnTextButton;
+import resource.Resource;
 
-import java.awt.BorderLayout;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
-import javax.swing.DropMode;
 import javax.swing.SwingConstants;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
-import java.beans.VetoableChangeListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import application.NewUserWindow.IUserCallback;
 
-public class Login extends JFrame{
+public class LoginWindow extends JFrame{
 	
-	
+	//◊Èº˛
 	private JPanel panel=null;
 	private AnImageButton anImageButton=null;
+	
+	private JLabel labRoadingMessage=null;
+	
+	private AnTextButton btnRegister=null;
+	private AnTextButton btnFindPassword=null;
 	
 	//µ«¬ºΩ·π˚ªÿµ˜
 	public ILoginResultCallback resultCallback=null;
@@ -81,8 +83,8 @@ public class Login extends JFrame{
 	}
 	
 	
-	public Login() {
-		setIconImage(Toolkit.getDefaultToolkit().getImage(Login.class.getResource("/Resoure/login.png")));
+	public LoginWindow() {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(LoginWindow.class.getResource("/resource/login.png")));
 		setTitle("µ«¬º");
 		setSize(500, 289);
 		getContentPane().setBackground(Color.WHITE);
@@ -96,6 +98,7 @@ public class Login extends JFrame{
 		panel.setBounds(0, 0, 494, 310);
 		getContentPane().add(panel);
 		panel.setLayout(null);
+		panel.setBackground(Color.white);
 		
 		//√‹¬ÎøÚ
 		password = new JTextField();
@@ -106,30 +109,30 @@ public class Login extends JFrame{
 		
 		anImageButton=new AnImageButton("µ«¬º ˝æ›ø‚");
 		anImageButton.setLocation(367, 149);
-		anImageButton.setImage(Util.getImageIcon(Resource.getResource("login_normal.png")),
-				Util.getImageIcon(Resource.getResource("login_press.png")), 
-				Util.getImageIcon(Resource.getResource("login_normal.png")));
+		anImageButton.setImage(AnUtils.getImageIcon(Resource.getResource("login_normal.png")),
+				AnUtils.getImageIcon(Resource.getResource("login_press.png")), 
+				AnUtils.getImageIcon(Resource.getResource("login_normal.png")));
 		
 		JLabel lblNewLabel_2 = new JLabel("An\u5DE5\u5730\u7BA1\u7406\u7CFB\u7EDF");
 		lblNewLabel_2.setFont(new Font("µ»œﬂ Light", Font.PLAIN, 45));
 		lblNewLabel_2.setBounds(35, 32, 391, 82);
 		panel.add(lblNewLabel_2);
 		
-		JLabel lblNewLabel_1 = new JLabel("\u6B63\u5728\u767B\u5F55...");
-		lblNewLabel_1.setForeground(Color.WHITE);
-		lblNewLabel_1.setFont(new Font("Œ¢»Ì—≈∫⁄", Font.PLAIN, 13));
-		lblNewLabel_1.setHorizontalAlignment(SwingConstants.RIGHT);
-		lblNewLabel_1.setBounds(327, 231, 155, 23);
-		panel.add(lblNewLabel_1);
+		labRoadingMessage = new JLabel("\u6B63\u5728\u767B\u5F55...");
+		labRoadingMessage.setForeground(Color.WHITE);
+		labRoadingMessage.setFont(new Font("Œ¢»Ì—≈∫⁄", Font.PLAIN, 13));
+		labRoadingMessage.setHorizontalAlignment(SwingConstants.RIGHT);
+		labRoadingMessage.setBounds(327, 231, 155, 23);
+		panel.add(labRoadingMessage);
 		panel.add(anImageButton);
 		
 		JLabel label = new JLabel("\u5BC6\u7801:");
-		label.setFont(new Font("Œ¢»Ì—≈∫⁄", Font.BOLD, 15));
+		label.setFont(new Font("Œ¢»Ì—≈∫⁄", Font.PLAIN, 15));
 		label.setBounds(35, 192, 72, 23);
 		panel.add(label);
 		
 		JLabel lblNewLabel = new JLabel("\u7528\u6237\u540D:");
-		lblNewLabel.setFont(new Font("Œ¢»Ì—≈∫⁄", Font.BOLD, 15));
+		lblNewLabel.setFont(new Font("Œ¢»Ì—≈∫⁄", Font.PLAIN, 15));
 		lblNewLabel.setBounds(35, 149, 72, 23);
 		panel.add(lblNewLabel);
 		
@@ -140,10 +143,71 @@ public class Login extends JFrame{
 		panel.add(user);
 		user.setColumns(10);
 		
+		//◊¢≤·
+		btnRegister=new AnTextButton("◊¢≤·");
+		btnRegister.setLocation(10, 234);
+		panel.add(btnRegister);
+		btnRegister.addActionListener(new AnActionListener() {
+			
+			@Override
+			public void actionPerformed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				NewUserWindow newUserWindow=NewUserWindow.getWindow();
+				newUserWindow.setVisible(true);
+				newUserWindow.setCallback(new IUserCallback() {
+					
+					@Override
+					public void callback(User user) {
+						// TODO Auto-generated method stub
+						if(user!=null) {
+							JOptionPane.showMessageDialog(null, "◊¢≤·ÕÍ≥…£¨ƒ˙œ÷‘⁄ø…“‘”√◊¢≤·µƒ’Àªßµ«¬º°£","◊¢≤·Ã· æ",JOptionPane.INFORMATION_MESSAGE);
+							Application.addUser(user);
+						}
+					}
+				});
+			}
+		});
+		//Õ¸º«√‹¬Î
+		btnFindPassword=new AnTextButton("Õ¸º«√‹¬Î");
+		btnFindPassword.setLocation(70, 234);
+		panel.add(btnFindPassword);
+		btnFindPassword.addActionListener(new AnActionListener() {
+			
+			@Override
+			public void actionPerformed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
 		AnImageLabel imageLabel=new AnImageLabel("login_bg.png");
 		imageLabel.setSize(494, 262);
-		imageLabel.setLocation(0, 0);
+		imageLabel.setLocation(0, 289/2);
 		panel.add(imageLabel);
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					Thread.sleep(500);
+					for(int i=289/2;i>0;i-=Math.log(i*10)) {
+						imageLabel.setLocation(0, i);
+						Thread.sleep(16);
+					}
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+			}
+		}).start();
+		
+		
+		
+		//’“ªÿ√‹¬Î
+		
 		
 		// TODO Auto-generated constructor stub
 		init();

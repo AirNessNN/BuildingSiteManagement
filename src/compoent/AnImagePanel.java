@@ -1,10 +1,10 @@
-package Compoent;
+package compoent;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
-import Main.Util;
+
+import application.AnUtils;
 
 
 public class AnImagePanel extends JPanel{
@@ -24,7 +24,7 @@ public class AnImagePanel extends JPanel{
 	
 	public AnImagePanel(String src) {
 		// TODO Auto-generated constructor stub
-		this.image=Util.getImage(src);
+		this.image=AnUtils.getImage(src);
 	}
 
 	@Override

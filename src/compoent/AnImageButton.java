@@ -1,4 +1,4 @@
-package Compoent;
+package compoent;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -11,7 +11,7 @@ public class AnImageButton extends JLabel{
 	 */
 	private static final long serialVersionUID = 1L;
 	//¸÷ÖÖ×´Ì¬µÄImage
-	private ImageIcon normal,press,enter,release;
+	private ImageIcon normal,press,enter;
 	
 	MouseAdapter mouseAdapter=new MouseAdapter() {
 		@Override

@@ -1,4 +1,4 @@
-package Compoent;
+package compoent;
 
 import java.awt.Font;
 
