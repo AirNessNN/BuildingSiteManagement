@@ -15,10 +15,10 @@ import dbManager.DBManager;
  */
 public class Application {
 	
-	public static final String VERSION="工程版";
+	static final String VERSION="工程版";
 	
 	//欢迎界面
-	private static StartWidnwo startWidnwo=null;
+	private static StartWindow startWindow =null;
 	//主窗口
 	private static MainWindow mainWindow=null;
 	//资源管理类
@@ -30,7 +30,7 @@ public class Application {
 	//初始化程序
 	private static void initialize() {
 		//初始化欢迎界面
-		startWidnwo=new StartWidnwo();
+		startWindow =new StartWindow();
 		
 		//初始化数据服务组件
 		try {
@@ -54,14 +54,14 @@ public class Application {
 	 * 开启欢迎界面
 	 */
 	public static void showStartWindow() {
-		startWidnwo.setVisible(true);
+		startWindow.setVisible(true);
 	}
 	
 	/**
 	 * 关闭欢迎界面
 	 */
 	public static void closeStartWindow() {
-		startWidnwo.setVisible(false);
+		startWindow.setVisible(false);
 	}
 	
 	/**
@@ -69,8 +69,8 @@ public class Application {
 	 * @param message
 	 */
 	public static void setLoadMessage(String message) {
-		if(startWidnwo!=null&&startWidnwo.isVisible()) {
-			startWidnwo.setText(message);
+		if(startWindow !=null&& startWindow.isVisible()) {
+			startWindow.setText(message);
 		}
 	}
 	

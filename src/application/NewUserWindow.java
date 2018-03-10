@@ -50,6 +50,7 @@ public class NewUserWindow extends JFrame{
 				window=null;
 			}
 		});
+		init();
 		getContentPane().setBackground(Color.WHITE);
 		setResizable(false);
 		setIconImage(Toolkit.getDefaultToolkit().getImage(NewUserWindow.class.getResource("/resource/login.png")));
@@ -71,87 +72,79 @@ public class NewUserWindow extends JFrame{
 		btnAchieve.setBounds(368, 297, 93, 23);
 		getContentPane().add(btnAchieve);
 		//确认事件
-		btnAchieve.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				String userName,password,passwordCheck,question,answer;
-				userName=boxUser.getText();
-				password=boxPassword.getText();
-				passwordCheck=boxCheckPassword.getText();
-				question=boxQuestion.getText();
-				answer=boxAnswer.getText();
-				
-				//用户名
-				if(userName.length()==0) {
-					boxUser.setErrorBorder();
-					JOptionPane.showMessageDialog(boxUser, "请填写用户名","注册提示",JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
-				//密码框
-				if(password.length()>=6) {
-					for(int i=0;i<password.length();i++) {
-						char c=password.charAt(i);
-						if(!(c>='a'&&c<='z'||c>='A'&&c<='Z'||c>='0'&&c<='9')) {
-							boxPassword.setErrorBorder();
-							JOptionPane.showMessageDialog(boxPassword, "密码不符合要求","注册提示",JOptionPane.ERROR_MESSAGE);
-							break;
-						}
-					}
-				}else {
-					boxPassword.setErrorBorder();
-					JOptionPane.showMessageDialog(boxPassword, "密码不符合要求","注册提示",JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				//确认密码框
-				if(!password.equals(passwordCheck)) {
-					boxCheckPassword.setErrorBorder();
-					JOptionPane.showMessageDialog(boxCheckPassword, "两次输入的密码不正确","注册提示",JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
-				//问题框
-				if(question.length()==0) {
-					boxQuestion.setErrorBorder();
-					JOptionPane.showMessageDialog(boxQuestion, "请填写问题","注册提示",JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
-				//答案框
-				if(answer.length()==0) {
-					boxAnswer.setErrorBorder();
-					JOptionPane.showMessageDialog(boxAnswer, "请填写问题","注册提示",JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
-				//全部已经检查完成
-				User user=new User();
-				user.userName=userName;
-				user.password=password;
-				user.question=question;
-				user.answer=answer;
-				if(callback!=null) {
-					callback.callback(user);
-				}
-				dispose();
-				window=null;
-			}
-		});
+		btnAchieve.addActionListener(e -> {
+            // TODO Auto-generated method stub
+            String userName,password,passwordCheck,question,answer;
+            userName=boxUser.getText();
+            password=boxPassword.getText();
+            passwordCheck=boxCheckPassword.getText();
+            question=boxQuestion.getText();
+            answer=boxAnswer.getText();
+
+            //用户名
+            if(userName.length()==0) {
+                boxUser.setErrorBorder();
+                JOptionPane.showMessageDialog(boxUser, "请填写用户名","注册提示",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            //密码框
+            if(password.length()>=6) {
+                for(int i=0;i<password.length();i++) {
+                    char c=password.charAt(i);
+                    if(!(c>='a'&&c<='z'||c>='A'&&c<='Z'||c>='0'&&c<='9')) {
+                        boxPassword.setErrorBorder();
+                        JOptionPane.showMessageDialog(boxPassword, "密码不符合要求","注册提示",JOptionPane.ERROR_MESSAGE);
+                        break;
+                    }
+                }
+            }else {
+                boxPassword.setErrorBorder();
+                JOptionPane.showMessageDialog(boxPassword, "密码不符合要求","注册提示",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            //确认密码框
+            if(!password.equals(passwordCheck)) {
+                boxCheckPassword.setErrorBorder();
+                JOptionPane.showMessageDialog(boxCheckPassword, "两次输入的密码不正确","注册提示",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            //问题框
+            if(question.length()==0) {
+                boxQuestion.setErrorBorder();
+                JOptionPane.showMessageDialog(boxQuestion, "请填写问题","注册提示",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            //答案框
+            if(answer.length()==0) {
+                boxAnswer.setErrorBorder();
+                JOptionPane.showMessageDialog(boxAnswer, "请填写问题","注册提示",JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            //全部已经检查完成
+            User user=new User();
+            user.userName=userName;
+            user.password=password;
+            user.question=question;
+            user.answer=answer;
+            if(callback!=null) {
+                callback.callback(user);
+            }
+            dispose();
+            window=null;
+        });
 		
 		MyButton btnCanncel = new MyButton("\u53D6\u6D88");
 		btnCanncel.setBounds(473, 297, 93, 23);
 		getContentPane().add(btnCanncel);
-		btnCanncel.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				dispose();
-				window=null;
-			}
-		});
+		btnCanncel.addActionListener(e -> {
+            // TODO Auto-generated method stub
+            dispose();
+            window=null;
+        });
 		
 		JLabel lblNewLabel = new JLabel("\u7528\u6237\u540D\uFF1A");
 		lblNewLabel.setFont(new Font("微软雅黑", Font.PLAIN, 14));
@@ -227,7 +220,7 @@ public class NewUserWindow extends JFrame{
 		boxAnswer.setColumns(10);
 		boxAnswer.setMaxLength(50);
 		// TODO Auto-generated constructor stub
-		init();
+
 	}
 	
 	

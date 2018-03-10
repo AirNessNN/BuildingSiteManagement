@@ -171,38 +171,30 @@ public class LoginWindow extends JFrame{
 		btnFindPassword=new AnTextButton("Íü¼ÇÃÜÂë");
 		btnFindPassword.setLocation(70, 234);
 		panel.add(btnFindPassword);
-		btnFindPassword.addActionListener(new AnActionListener() {
-			
-			@Override
-			public void actionPerformed(MouseEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+		btnFindPassword.addActionListener(e -> {
+            // TODO Auto-generated method stub
+
+        });
 		
 		AnImageLabel imageLabel=new AnImageLabel("login_bg.png");
 		imageLabel.setSize(494, 262);
 		imageLabel.setLocation(0, 289/2);
 		panel.add(imageLabel);
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				try {
-					Thread.sleep(500);
-					for(int i=289/2;i>0;i-=Math.log(i*10)) {
-						imageLabel.setLocation(0, i);
-						Thread.sleep(16);
-					}
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				
-			}
-		}).start();
+		new Thread(() -> {
+            // TODO Auto-generated method stub
+            try {
+                Thread.sleep(500);
+                for(int i=289/2;i>0;i-=Math.log(i*10)) {
+                    imageLabel.setLocation(0, i);
+                    Thread.sleep(16);
+                }
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+
+        }).start();
 		
 		
 		

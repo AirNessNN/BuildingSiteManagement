@@ -68,7 +68,7 @@ public class Resource {
 	
 	
 	public static InputStream getResource(String path) {
-		InputStream in=null;
+		InputStream in;
 		try {
 			in=Resource.class.getResourceAsStream("/resource/"+path);
 			return in;
