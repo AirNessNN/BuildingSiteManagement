@@ -7,13 +7,16 @@ import javax.swing.JLabel;
 
 public class AnImageButton extends JLabel{
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 	//¸÷ÖÖ×´Ì¬µÄImage
 	private ImageIcon normal,press,enter;
+
+	private AnActionListener actionListener=null;
+
 	
-	MouseAdapter mouseAdapter=new MouseAdapter() {
+	private MouseAdapter mouseAdapter=new MouseAdapter() {
 		@Override
 		public void mousePressed(MouseEvent e) {
 			// TODO Auto-generated method stub
@@ -37,6 +40,12 @@ public class AnImageButton extends JLabel{
 			// TODO Auto-generated method stub
 			super.mouseReleased(e);
 			setIcon(enter);
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if(actionListener!=null)
+				actionListener.actionPerformed(e);
 		}
 	};
 	
@@ -67,8 +76,17 @@ public class AnImageButton extends JLabel{
 		}
 		setIcon(normal);
 	}
+
+
 	
-	
+
+	public void setActionListener(AnActionListener I){
+		actionListener=I;
+	}
+
+	public void removeActionListener(){
+		actionListener=null;
+	}
 	
 	
 	

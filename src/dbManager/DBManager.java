@@ -23,6 +23,7 @@ public class DBManager {
 	public void setRunStateCallback(IRunStateCallback callback) {
 		runStateCallback=callback;
 	}
+
 	/**
 	 * 运行状态回调：判断是否第一次使用程序
 	 * @author AN
@@ -181,6 +182,21 @@ public class DBManager {
 			return userList;
 		}
 		return null;
+	}
+
+	public static boolean isExisitUserName(String name){
+		if(manager==null){
+			return false;
+		}
+		if(manager.userList==null){
+			return false;
+		}
+		for(User user:manager.userList){
+			if(user.userName.equals(name)){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	

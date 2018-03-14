@@ -1,5 +1,5 @@
 package application;
-import java.awt.EventQueue;
+import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,8 +19,6 @@ public class Application {
 	
 	//欢迎界面
 	private static StartWindow startWindow =null;
-	//主窗口
-	private static MainWindow mainWindow=null;
 	//资源管理类
 	private static DBManager dbManager=null; 
 	//用户管理类
@@ -28,11 +26,15 @@ public class Application {
 	
 	
 	//初始化程序
-	private static void initialize() {
+	private static void initialize() throws InterruptedException {
 		//初始化欢迎界面
-		startWindow =new StartWindow();
-		
-		//初始化数据服务组件
+
+
+        //打开欢迎窗口
+        showStartWindow();
+        Thread.sleep(1000);
+
+        //初始化数据服务组件
 		try {
 			dbManager=DBManager.prepareDataBase();
 		} catch (IOException e) {
@@ -41,6 +43,10 @@ public class Application {
 			Application.setLoadMessage("无法初始化组件");
 			Application.errorWindow("无法初始化组件");
 		}
+
+		Thread.sleep(1000);
+
+
 	}
 	
 	
@@ -54,7 +60,10 @@ public class Application {
 	 * 开启欢迎界面
 	 */
 	public static void showStartWindow() {
-		startWindow.setVisible(true);
+		new Thread(()->{
+            startWindow =new StartWindow();
+            startWindow.setVisible(true);
+        }).start();
 	}
 	
 	/**
@@ -69,9 +78,11 @@ public class Application {
 	 * @param message
 	 */
 	public static void setLoadMessage(String message) {
-		if(startWindow !=null&& startWindow.isVisible()) {
-			startWindow.setText(message);
-		}
+		new Thread(()->{
+            if(startWindow !=null&& startWindow.isVisible()) {
+                startWindow.setText(message);
+            }
+        }).start();
 	}
 	
 	
@@ -86,7 +97,14 @@ public class Application {
 			dbManager.addUser(user);
 		}
 	}
-	
+
+	public static void saveSetting(){
+
+    }
+
+    /**
+     * 在DB中更新用户数据到文件
+     */
 	public static void updateUserData() {
 		if(dbManager!=null) {
 			try {
@@ -108,9 +126,11 @@ public class Application {
 	 * 程序的弹窗提示
 	 */
 	public static void errorWindow(String message) {
+		Toolkit.getDefaultToolkit().beep();
 		JOptionPane.showMessageDialog(null, message,"错误",JOptionPane.ERROR_MESSAGE);
 	}
 	public static void informationWindow(String message) {
+		Toolkit.getDefaultToolkit().beep();
 		JOptionPane.showMessageDialog(null, message,"提示信息",JOptionPane.INFORMATION_MESSAGE);
 	}
 	
@@ -126,72 +146,49 @@ public class Application {
 		
 		//设置样式
 		AnUtils.setLookAndFeel(AnUtils.LOOK_AND_FEEL_DEFAULT);
-		
-		//事件列队
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					//载入静态数据
-					initialize();
-					
-					//Debug
-					//System.out.println(Resource.getApplicationDirectoryPath());
-					
-					
-					//打开欢迎窗口
-					showStartWindow();
-					//读取数据库
-					
-					//复制到内存
-					
-					//准备数据
-					
-					
-					setLoadMessage("确认用户信息");
-					
-					
-					
-					//确认用户信息
-					
-					
-					
-					
-					LoginWindow login=new LoginWindow();
-					login.resultCallback=new ILoginResultCallback() {
-						
-						@Override
-						public void loginResult(String user, String password) {
-							// TODO Auto-generated method stub
-							ArrayList<User>tmp=dbManager.getUserList();
-							for(User name:tmp) {
-								if(name.equals(user)&&name.password.equals(password)) {
-									//准备该用户数据
-									
-									//读取数据到内存
-									
-									//显示数据
-									
-									//完成登录
-									mainWindow=new MainWindow();
-									mainWindow.setVisible(true);
-									//关闭开始窗口
-									closeStartWindow();
-								}else {
-									JOptionPane.showMessageDialog(null, "用户名或密码错误！", "登录提示", JOptionPane.ERROR_MESSAGE);
-								}
-							}
-							
-						}
-					};
-					login.setVisible(true);
-					//开始载入数据
-					
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+
+
+        //载入静态数据
+        try {
+            initialize();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //Debug
+		MainWindow.getMainWindow(null).setVisible(true);
+        //System.out.println(Resource.getApplicationDirectoryPath());
+
+        //确认用户信息
+        setLoadMessage("确认用户信息");
+        LoginWindow login=new LoginWindow();
+        login.resultCallback= (user, password) -> {
+            // TODO Auto-generated method stub
+            if(user==null||user.equals("")||password==null||password.equals("")){
+                Application.errorWindow("请输入用户名或密码！");
+            }else {
+                boolean loginFlag=false;
+                User loginUser=null;
+                ArrayList<User>tmp=dbManager.getUserList();
+                for(User name:tmp) {
+                    if(name.equals(user)&&name.password.equals(password)) {
+                        loginFlag=true;
+                        //完成登录
+                        loginUser=name;
+                        //关闭开始窗口
+                        closeStartWindow();
+                    }
+                }
+                if(loginFlag){
+                    MainWindow.getMainWindow(loginUser).setVisible(true);
+                }else {
+                    Application.informationWindow("未找到用户，请注册。");
+                }
+            }
+        };
+        login.setVisible(true);
+        //开始载入数据
+
 	}
 
 	

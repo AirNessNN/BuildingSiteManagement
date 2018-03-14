@@ -9,7 +9,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import SwingTool.MyButton;
+import compoent.AnPasswordField;
 import compoent.AnTextField;
+import dbManager.DBManager;
 
 import java.awt.Font;
 import java.awt.Color;
@@ -31,8 +33,8 @@ public class NewUserWindow extends JFrame{
 	
 	private IUserCallback callback=null;
 	private AnTextField boxUser;
-	private AnTextField boxPassword;
-	private AnTextField boxCheckPassword;
+	private AnPasswordField boxPassword;
+	private AnPasswordField boxCheckPassword;
 	private AnTextField boxQuestion;
 	private AnTextField boxAnswer;
 	
@@ -87,24 +89,33 @@ public class NewUserWindow extends JFrame{
                 JOptionPane.showMessageDialog(boxUser, "请填写用户名","注册提示",JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            if(DBManager.isExisitUserName(userName)){
+            	boxUser.setText("");
+            	boxUser.setErrorBorder();
+            	Application.errorWindow("该用户已存在，请重新填写！");
+            	return;
+			}
 
             //密码框
             if(password.length()>=6) {
                 for(int i=0;i<password.length();i++) {
                     char c=password.charAt(i);
                     if(!(c>='a'&&c<='z'||c>='A'&&c<='Z'||c>='0'&&c<='9')) {
+                    	boxPassword.setText("");
                         boxPassword.setErrorBorder();
                         JOptionPane.showMessageDialog(boxPassword, "密码不符合要求","注册提示",JOptionPane.ERROR_MESSAGE);
                         break;
                     }
                 }
             }else {
+				boxPassword.setText("");
                 boxPassword.setErrorBorder();
                 JOptionPane.showMessageDialog(boxPassword, "密码不符合要求","注册提示",JOptionPane.ERROR_MESSAGE);
                 return;
             }
             //确认密码框
             if(!password.equals(passwordCheck)) {
+            	boxCheckPassword.setText("");
                 boxCheckPassword.setErrorBorder();
                 JOptionPane.showMessageDialog(boxCheckPassword, "两次输入的密码不正确","注册提示",JOptionPane.ERROR_MESSAGE);
                 return;
@@ -112,6 +123,7 @@ public class NewUserWindow extends JFrame{
 
             //问题框
             if(question.length()==0) {
+            	boxQuestion.setText("");
                 boxQuestion.setErrorBorder();
                 JOptionPane.showMessageDialog(boxQuestion, "请填写问题","注册提示",JOptionPane.ERROR_MESSAGE);
                 return;
@@ -119,6 +131,7 @@ public class NewUserWindow extends JFrame{
 
             //答案框
             if(answer.length()==0) {
+            	boxAnswer.setText("");
                 boxAnswer.setErrorBorder();
                 JOptionPane.showMessageDialog(boxAnswer, "请填写问题","注册提示",JOptionPane.ERROR_MESSAGE);
                 return;
@@ -158,7 +171,7 @@ public class NewUserWindow extends JFrame{
 		boxUser.setColumns(10);
 		boxUser.setMaxLength(10);
 		
-		boxPassword = new AnTextField();
+		boxPassword = new AnPasswordField();
 		boxPassword.setBounds(89, 144, 114, 22);
 		getContentPane().add(boxPassword);
 		boxPassword.setColumns(10);
@@ -173,7 +186,7 @@ public class NewUserWindow extends JFrame{
 		label_2.setBounds(10, 177, 80, 18);
 		getContentPane().add(label_2);
 		
-		boxCheckPassword = new AnTextField();
+		boxCheckPassword = new AnPasswordField();
 		boxCheckPassword.setBounds(89, 175, 114, 22);
 		getContentPane().add(boxCheckPassword);
 		boxCheckPassword.setColumns(10);

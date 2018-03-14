@@ -5,14 +5,11 @@ import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JPanel;
 
-import compoent.AnActionListener;
-import compoent.AnImageButton;
-import compoent.AnImageLabel;
-import compoent.AnTextButton;
+import compoent.*;
+import dbManager.DBManager;
 import resource.Resource;
 
 import javax.swing.JTextField;
@@ -20,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.Font;
+import java.io.IOException;
 import javax.swing.SwingConstants;
 
 import application.NewUserWindow.IUserCallback;
@@ -30,7 +28,7 @@ public class LoginWindow extends JFrame{
 	private JPanel panel=null;
 	private AnImageButton anImageButton=null;
 	
-	private JLabel labRoadingMessage=null;
+	private JLabel labRodingMessage =null;
 	
 	private AnTextButton btnRegister=null;
 	private AnTextButton btnFindPassword=null;
@@ -38,27 +36,22 @@ public class LoginWindow extends JFrame{
 	//登录结果回调
 	public ILoginResultCallback resultCallback=null;
 	interface ILoginResultCallback{
-		public void loginResult(String user,String password);
+		void loginResult(String user, String password);
 	}
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JTextField user;
-	private JTextField password;
+	private AnTextField user;
+	private AnPasswordField password;
 	
 	private void init() {
-		anImageButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				// TODO Auto-generated method stub
-				super.mouseClicked(e);
-				if(resultCallback!=null) {
-					login();
-				}
+		anImageButton.setActionListener((e)->{
+			if(resultCallback!=null) {
+				login();
 			}
-		} );
+		});
 		password.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
@@ -101,7 +94,7 @@ public class LoginWindow extends JFrame{
 		panel.setBackground(Color.white);
 		
 		//密码框
-		password = new JTextField();
+		password = new AnPasswordField();
 		password.setFont(new Font("微软雅黑", Font.PLAIN, 17));
 		password.setBounds(122, 192, 227, 21);
 		panel.add(password);
@@ -112,18 +105,21 @@ public class LoginWindow extends JFrame{
 		anImageButton.setImage(AnUtils.getImageIcon(Resource.getResource("login_normal.png")),
 				AnUtils.getImageIcon(Resource.getResource("login_press.png")), 
 				AnUtils.getImageIcon(Resource.getResource("login_normal.png")));
+		anImageButton.setActionListener((e)->{
+			login();
+		});
 		
 		JLabel lblNewLabel_2 = new JLabel("An\u5DE5\u5730\u7BA1\u7406\u7CFB\u7EDF");
 		lblNewLabel_2.setFont(new Font("等线 Light", Font.PLAIN, 45));
 		lblNewLabel_2.setBounds(35, 32, 391, 82);
 		panel.add(lblNewLabel_2);
 		
-		labRoadingMessage = new JLabel("\u6B63\u5728\u767B\u5F55...");
-		labRoadingMessage.setForeground(Color.WHITE);
-		labRoadingMessage.setFont(new Font("微软雅黑", Font.PLAIN, 13));
-		labRoadingMessage.setHorizontalAlignment(SwingConstants.RIGHT);
-		labRoadingMessage.setBounds(327, 231, 155, 23);
-		panel.add(labRoadingMessage);
+		labRodingMessage = new JLabel("\u6B63\u5728\u767B\u5F55...");
+		labRodingMessage.setForeground(Color.WHITE);
+		labRodingMessage.setFont(new Font("微软雅黑", Font.PLAIN, 13));
+		labRodingMessage.setHorizontalAlignment(SwingConstants.RIGHT);
+		labRodingMessage.setBounds(327, 231, 155, 23);
+		panel.add(labRodingMessage);
 		panel.add(anImageButton);
 		
 		JLabel label = new JLabel("\u5BC6\u7801:");
@@ -137,7 +133,7 @@ public class LoginWindow extends JFrame{
 		panel.add(lblNewLabel);
 		
 		//用户名
-		user = new JTextField();
+		user = new AnTextField();
 		user.setFont(new Font("微软雅黑", Font.PLAIN, 17));
 		user.setBounds(122, 150, 227, 21);
 		panel.add(user);
@@ -147,26 +143,19 @@ public class LoginWindow extends JFrame{
 		btnRegister=new AnTextButton("注册");
 		btnRegister.setLocation(10, 234);
 		panel.add(btnRegister);
-		btnRegister.addActionListener(new AnActionListener() {
-			
-			@Override
-			public void actionPerformed(MouseEvent e) {
+		btnRegister.addActionListener(e -> {
+            // TODO Auto-generated method stub
+            NewUserWindow newUserWindow=NewUserWindow.getWindow();
+            newUserWindow.setVisible(true);
+            newUserWindow.setCallback(user -> {
 				// TODO Auto-generated method stub
-				NewUserWindow newUserWindow=NewUserWindow.getWindow();
-				newUserWindow.setVisible(true);
-				newUserWindow.setCallback(new IUserCallback() {
-					
-					@Override
-					public void callback(User user) {
-						// TODO Auto-generated method stub
-						if(user!=null) {
-							JOptionPane.showMessageDialog(null, "注册完成，您现在可以用注册的账户登录。","注册提示",JOptionPane.INFORMATION_MESSAGE);
-							Application.addUser(user);
-						}
-					}
-				});
-			}
-		});
+				if(user!=null) {
+					JOptionPane.showMessageDialog(null, "注册完成，您现在可以用注册的账户登录。","注册提示",JOptionPane.INFORMATION_MESSAGE);
+					Application.addUser(user);
+					Application.updateUserData();//更新数据
+				}
+			});
+        });
 		//忘记密码
 		btnFindPassword=new AnTextButton("忘记密码");
 		btnFindPassword.setLocation(70, 234);
@@ -212,6 +201,4 @@ public class LoginWindow extends JFrame{
 			resultCallback.loginResult(user.getText(), password.getText());
 		}
 	}
-	
-	
 }

@@ -3,6 +3,13 @@ package application;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import compoent.AnCardPanel;
+import compoent.AnCardPanelItem;
 import compoent.AnImageButton;
 import compoent.AnImageLabel;
 import resource.Resource;
@@ -16,17 +23,57 @@ import resource.Resource;
 public class MainWindow extends JFrame {
 	
 	private JPanel panel = null;
-	private JPanel startBar=null;
-	private AnImageButton btnNewButton_3;
-	private AnImageButton btnSetting;
-	private AnImageButton btnPlaceManager;
-	private AnImageButton btnEmployeeManager;
-	private AnImageLabel bigScreen=null;
+	private AnCardPanel cardPanel=null;
+	private AnCardPanelItem workerItem=null;
+	private AnCardPanelItem buildSietItem=null;
+	private AnCardPanelItem settingItem=null;
+	private AnCardPanelItem resourceItem=null;
+	private AnCardPanelItem workItem=null;
+
+	private static MainWindow mainWindow;
 	
 	
 	
 
-	public MainWindow() {
+	private MainWindow() {
+		init();
+	}
+
+	private MainWindow(User user){
+		init();
+
+	}
+
+	private void initView() {
+		cardPanel=new AnCardPanel();
+		panel.add(cardPanel);
+
+		cardPanel.setSize(60,771);
+		setLocation(0,0);
+		cardPanel.setItemSize(60,60);
+
+		workerItem=new AnCardPanelItem();
+		workerItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("worker_normal.png")));
+		workerItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("worker_enter.png")));
+		workerItem.setSelectedImage(AnUtils.getImageIcon(Resource.getResource("worker_selected.png")));
+		cardPanel.addButton(workerItem);
+
+		buildSietItem=new AnCardPanelItem();
+		buildSietItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("resource_normal.png")));
+		buildSietItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("resource_enter.png")));
+		buildSietItem.setSelectedImage(AnUtils.getImageIcon(Resource.getResource("resource_selected.png")));
+		cardPanel.addButton(buildSietItem);
+
+		settingItem=new AnCardPanelItem();
+		settingItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("setting_normal.png")));
+		settingItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("setting_enter.png")));
+		settingItem.setSelectedImage(AnUtils.getImageIcon(Resource.getResource("setting_selected.png")));
+		cardPanel.addButton(settingItem);
+	}
+
+
+
+	private void init(){
 		this.setSize(1000, 800);
 		this.setLocationRelativeTo(null);
 		this.setResizable(false);
@@ -36,40 +83,24 @@ public class MainWindow extends JFrame {
 		getContentPane().add(panel, BorderLayout.CENTER);
 		panel.setLayout(null);
 
+		//窗口关闭事件（保存数据）
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				Application.updateUserData();
+				Application.saveSetting();
+			}
+		});
 		initView();
 	}
 
-	private void initView() {
-		
-		startBar = new JPanel();
-		startBar.setBounds(0, 660, 994, 100);
-		panel.add(startBar);
-		startBar.setLayout(null);
-		
-		bigScreen=new AnImageLabel(AnUtils.getImage(Resource.getResource("big_screen.png")));
-		bigScreen.setSize(994,660);
-		bigScreen.setLocation(0, 0);
-		panel.add(bigScreen);
-		
-		btnEmployeeManager = new AnImageButton("工人管理：维护账户内的所有工人");
-		btnEmployeeManager.setLocation(0, 0);
-		btnEmployeeManager.setImage(AnUtils.getImageIcon(Resource.getResource("employee_normal.png")), AnUtils.getImageIcon(Resource.getResource("employee_press.png")), AnUtils.getImageIcon(Resource.getResource("employee_enter.png")));
-		startBar.add(btnEmployeeManager);
 
-		btnPlaceManager = new AnImageButton("工地管理：维护工地的资产以及各种信息");
-		btnPlaceManager.setLocation(155, 0);
-		btnPlaceManager.setImage(AnUtils.getImageIcon(Resource.getResource("buildingSite_normal.png")), AnUtils.getImageIcon(Resource.getResource("buildingSite_press.png")), AnUtils.getImageIcon(Resource.getResource("buildingSite_enter.png")));
-		startBar.add(btnPlaceManager);
 
-		btnNewButton_3 = new AnImageButton("包工管理：管理包工信息");
-		btnNewButton_3.setLocation(310, 0);
-		btnNewButton_3.setImage(AnUtils.getImageIcon(Resource.getResource("employee_normal.png")), AnUtils.getImageIcon(Resource.getResource("employee_press.png")), AnUtils.getImageIcon(Resource.getResource("employee_enter.png")));
-		startBar.add(btnNewButton_3);
-
-		btnSetting = new AnImageButton("设置中心");
-		btnSetting.setLocation(844, 0);
-		btnSetting.setImage(AnUtils.getImageIcon(Resource.getResource("setting_normal.png")), AnUtils.getImageIcon(Resource.getResource("setting_press.png")), AnUtils.getImageIcon(Resource.getResource("setting_enter.png")));
-		startBar.add(btnSetting);
+	public static MainWindow getMainWindow(User user){
+		if(mainWindow==null){
+			mainWindow=new MainWindow(user);
+		}
+		return mainWindow;
 	}
 
 	/**

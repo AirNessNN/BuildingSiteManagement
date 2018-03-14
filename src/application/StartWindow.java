@@ -10,7 +10,7 @@ import compoent.AnLabel;
 import resource.Resource;
 
 /**
- * å¯åŠ¨æ¬¢è¿çª—å£çª—å£
+ * Æô¶¯»¶Ó­´°¿Ú´°¿Ú
  * @author Dell
  *
  */
@@ -29,7 +29,7 @@ public class StartWindow extends JFrame{
         label=new AnLabel(null);
         label.setBounds(38, 141, 77, 24);
         getContentPane().add(label);
-        setText("åˆå§‹åŒ–");
+        setText("³õÊ¼»¯");
     }
 
 
@@ -50,14 +50,14 @@ public class StartWindow extends JFrame{
     @Override
     public void paint(Graphics g) {
         // TODO Auto-generated method stub
-        g.drawImage(AnUtils.getImage(Resource.getResource("welcome.png")), 0, 0, null);
+        g.drawImage(AnUtils.getImage(Resource.getResource("welcome_start.png")), 0, 0, null);
         Graphics2D g2d=(Graphics2D)g;
         g2d.setColor(Color.white);
         g2d.setFont(new Font(Resource.FONT_WEI_RUAN_YA_HEI, 0, 18));
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        //ç»˜åˆ¶çŠ¶æ€æ–‡å­—
+        //»æÖÆ×´Ì¬ÎÄ×Ö
         g2d.drawString(label.getText(), 30, 180);
-        //ç»˜åˆ¶ç‰ˆæœ¬å·
+        //»æÖÆ°æ±¾ºÅ
         g2d.setFont(new Font(Resource.FONT_WEI_RUAN_YA_HEI, 0, 15));
         g2d.drawString(Application.VERSION, 540, 380);
     }
