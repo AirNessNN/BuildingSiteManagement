@@ -9,7 +9,13 @@ import java.util.ArrayList;
  */
 public class AnCardPanel extends JPanel{
 
-    interface OnSelectedListener{
+    private OnSelectedListener onSelectedListener=null;
+
+    public void setOnSelectedListener(OnSelectedListener onSelectedListener) {
+        this.onSelectedListener = onSelectedListener;
+    }
+
+    public interface OnSelectedListener{
         void onSelected(AnCardPanelItem item);
     }
 
@@ -37,6 +43,15 @@ public class AnCardPanel extends JPanel{
      */
     private Dimension itemSize=null;
     private int location=0;
+
+    /**
+     * 容器大小
+     */
+    private Dimension panelSize=null;
+
+
+
+
 
 
 
@@ -75,6 +90,10 @@ public class AnCardPanel extends JPanel{
             button.setLocation(0,location);
             location+=itemSize.getHeight();//location递增
             buttons.add(item1);
+            //设置容器大小
+            if(panelSize!=null){
+                item1.setPanelSize(panelSize);
+            }
 
             item1.I= (item) -> {
                 if(lastSelected!=null){
@@ -82,16 +101,18 @@ public class AnCardPanel extends JPanel{
                     if(!lastSelected.equals(item)){
                         lastSelected.cancel();
                     }
-
-
                 }
                 lastSelected=item;
                 //本次的操作
-                sourcePanel=item.getPanel();
-
+                replacePanel(item.getPanel());
+                if(onSelectedListener!=null){
+                    onSelectedListener.onSelected(item);
+                }
             };
         }
     }
+
+
 
     public void removeItem(AnCardPanelItem item){
         if(item!=null){
@@ -104,6 +125,40 @@ public class AnCardPanel extends JPanel{
         }
     }
 
+
+
+
+    public void setSourcePanel(JPanel panel){
+        if(panel!=null){
+            sourcePanel=panel;
+            sourcePanel.setLayout(new BorderLayout());
+            panelSize=sourcePanel.getSize();
+
+            //改变子控件尺寸，如果有的话
+            replacePanelSize();
+        }
+    }
+
+    private void replacePanel(JPanel panel){
+
+
+        if(sourcePanel==null||panel==null)
+            return;
+
+        //Debug
+
+
+        if(sourcePanel.getComponentCount()>0) {
+            sourcePanel.remove(0);
+        }
+        sourcePanel.add(panel);
+        sourcePanel.repaint();
+    }
+
+
+    /**
+     * 排序控件
+     */
     public void array(){
         location=0;
         if(buttons==null||buttons.size()==0){
@@ -113,6 +168,14 @@ public class AnCardPanel extends JPanel{
             AnCardPanelItem.Button button=item.getButton();
             button.setLocation(0,location);
             location+=itemSize.getHeight();//location递增
+        }
+    }
+
+    public void replacePanelSize(){
+        if(buttons!=null&&buttons.size()==0&&panelSize!=null){
+            for (AnCardPanelItem item:buttons){
+                item.setPanelSize(panelSize);
+            }
         }
     }
 

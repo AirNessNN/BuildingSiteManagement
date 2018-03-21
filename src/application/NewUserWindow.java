@@ -2,8 +2,6 @@ package application;
 
 import javax.swing.JFrame;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -12,6 +10,7 @@ import SwingTool.MyButton;
 import compoent.AnPasswordField;
 import compoent.AnTextField;
 import dbManager.DBManager;
+import dbManager.User;
 
 import java.awt.Font;
 import java.awt.Color;
@@ -89,7 +88,7 @@ public class NewUserWindow extends JFrame{
                 JOptionPane.showMessageDialog(boxUser, "请填写用户名","注册提示",JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            if(DBManager.isExisitUserName(userName)){
+            if(DBManager.isExistUserName(userName)){
             	boxUser.setText("");
             	boxUser.setErrorBorder();
             	Application.errorWindow("该用户已存在，请重新填写！");

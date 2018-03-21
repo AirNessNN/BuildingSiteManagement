@@ -8,17 +8,21 @@ import java.awt.event.MouseListener;
 
 public class AnCardPanelItem {
 
-    public AnCardPanel.OnSelectedListener I=null;
+    AnCardPanel.OnSelectedListener I=null;
 
     //附带的容器
     private JPanel panel=null;
 
+    //内建按钮
     private Button button=null;
+
+    //信息
+    public String TAG=this.getClass().getName();
 
 
     private void init(ImageIcon normal,ImageIcon enter,ImageIcon selected,boolean b){
         panel=new JPanel(null);
-        panel.setSize(100,100);
+        panel.setLocation(0,0);
         button=new Button(b);
         button.setNormalImage(normal);
         button.setEnterImage(enter);
@@ -34,6 +38,7 @@ public class AnCardPanelItem {
 
     public AnCardPanelItem(){
         panel=new JPanel(null);
+        panel.setLocation(0,0);
         button=new Button(false);
         button.setActionListener((e)->{
             if(I!=null){
@@ -60,6 +65,28 @@ public class AnCardPanelItem {
         }
     }
 
+
+    public void setPanel(JPanel panel){
+        if(panel==null)
+            return;
+        if(this.panel.getSize().width!=0&&this.panel.getSize().height!=0){
+            panel.setSize(this.panel.getSize());
+            this.panel=panel;
+            this.panel.setLocation(0,0);
+            return;
+        }
+        this.panel=panel;
+        this.panel.setLocation(0,0);
+        this.panel.setSize(0,0);
+    }
+
+
+    public void setPanelSize(Dimension dimension){
+        if(dimension==null)
+            return;
+        panel.setSize(dimension);
+    }
+
     public void setNormalImage(ImageIcon normalImage){
         button.setNormalImage(normalImage);
     }
@@ -70,7 +97,11 @@ public class AnCardPanelItem {
         button.setEnterImage(enterImage);
     }
 
-
+    public void setPanelVisable(boolean b){
+        if(panel!=null){
+            panel.setVisible(b);
+        }
+    }
 
 
 
@@ -142,16 +173,24 @@ public class AnCardPanelItem {
         }
 
 
-        public Button(boolean isSelected){
+        /**
+         * 私有构造
+         * @param isSelected
+         */
+        private Button(boolean isSelected){
             this.isSelected=isSelected;
             addMouseListener(this);
         }
 
-        public Button(ImageIcon normal,ImageIcon selected,ImageIcon enter){
+        private Button(ImageIcon normal,ImageIcon selected,ImageIcon enter){
             this.enter=enter;
             this.normal=normal;
             this.selected=selected;
         }
+
+
+
+
 
         public void setSelected(boolean b){
             this.isSelected=b;
@@ -178,12 +217,9 @@ public class AnCardPanelItem {
         public void setEnterImage(ImageIcon enter){
             this.enter=enter;
         }
+
         public void setSelectedImage(ImageIcon selected){
             this.selected=selected;
         }
-
-
-
     }
-
 }

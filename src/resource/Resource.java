@@ -1,7 +1,9 @@
 package resource;
 
-import java.awt.Color;
-import java.awt.SystemColor;
+import dbManager.Anbean;
+import dbManager.Info;
+
+import java.awt.*;
 import java.io.File;
 import java.io.InputStream;
 import javax.swing.filechooser.FileSystemView;
@@ -15,6 +17,7 @@ public class Resource {
 	//字体
 	public final static String FONT_WEI_RUAN_YA_HEI="微软雅黑";
 	public final static String FONT_LAN_TING_HEI="方正兰亭超细黑简体";
+	public final static Font FONT_TITLE=new Font(FONT_WEI_RUAN_YA_HEI,Font.PLAIN,40);
 	//颜色
 	public final static Color COLOR_LIGHT_BLUE=SystemColor.textHighlight;
 	
@@ -27,12 +30,29 @@ public class Resource {
 	 * 存放程序设置的文件
 	 */
 	public final static int FILE_SETTING=2;//设置文件
+
+
+
+
 	
 	//路径
 	public static String getApplicationDirectoryPath() {
 		FileSystemView fileSystemView=FileSystemView.getFileSystemView();
 		return fileSystemView.getDefaultDirectory().getAbsolutePath()+"\\AnBuildingSiteMgr";
 	}
+
+	public static String getDataDirectoryPath(){
+        FileSystemView fileSystemView=FileSystemView.getFileSystemView();
+        return fileSystemView.getDefaultDirectory().getAbsolutePath()+"\\AnBuildingSiteMgr\\Data";
+    }
+
+    /**
+     * 获取数据文件夹实例
+     * @return
+     */
+    public static File getDataDirectoryFile(){
+	    return new File(getDataDirectoryPath());
+    }
 	
 	/**
 	 * 获取该系统的文档位置的文件夹实例

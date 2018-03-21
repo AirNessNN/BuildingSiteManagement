@@ -5,8 +5,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
-import application.LoginWindow.ILoginResultCallback;
+
 import dbManager.DBManager;
+import dbManager.DateValueInfo;
+import dbManager.User;
+import dbManager.Worker;
 
 /**
  * 主程序类，控制程序各种组件运行
@@ -45,7 +48,6 @@ public class Application {
 		}
 
 		Thread.sleep(1000);
-
 
 	}
 	
@@ -146,6 +148,10 @@ public class Application {
 		
 		//设置样式
 		AnUtils.setLookAndFeel(AnUtils.LOOK_AND_FEEL_DEFAULT);
+
+
+		//Debug
+		System.out.println(new ArrayList<>().getClass().getName());
 
 
         //载入静态数据

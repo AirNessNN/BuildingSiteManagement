@@ -1,17 +1,14 @@
 package application;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.BorderLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import compoent.AnCardPanel;
 import compoent.AnCardPanelItem;
-import compoent.AnImageButton;
-import compoent.AnImageLabel;
+import compoent.ImagePanel;
+import dbManager.User;
 import resource.Resource;
 
 /**
@@ -21,18 +18,21 @@ import resource.Resource;
  *
  */
 public class MainWindow extends JFrame {
+
+	private User user=null;
 	
 	private JPanel panel = null;
 	private AnCardPanel cardPanel=null;
 	private AnCardPanelItem workerItem=null;
-	private AnCardPanelItem buildSietItem=null;
+	private AnCardPanelItem buildSiteItem =null;
 	private AnCardPanelItem settingItem=null;
 	private AnCardPanelItem resourceItem=null;
 	private AnCardPanelItem workItem=null;
+	private JPanel sourcePanel=null;
 
 	private static MainWindow mainWindow;
-	
-	
+
+
 	
 
 	private MainWindow() {
@@ -42,6 +42,7 @@ public class MainWindow extends JFrame {
 	private MainWindow(User user){
 		init();
 
+		this.user=user;
 	}
 
 	private void initView() {
@@ -51,19 +52,35 @@ public class MainWindow extends JFrame {
 		cardPanel.setSize(60,771);
 		setLocation(0,0);
 		cardPanel.setItemSize(60,60);
+		cardPanel.setSourcePanel(sourcePanel);
+		//点击动态加载panel
+		cardPanel.setOnSelectedListener(item -> {
 
+        });
+
+		//工人管理
 		workerItem=new AnCardPanelItem();
 		workerItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("worker_normal.png")));
 		workerItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("worker_enter.png")));
 		workerItem.setSelectedImage(AnUtils.getImageIcon(Resource.getResource("worker_selected.png")));
 		cardPanel.addButton(workerItem);
+		workerItem.TAG="工人管理";
 
-		buildSietItem=new AnCardPanelItem();
-		buildSietItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("resource_normal.png")));
-		buildSietItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("resource_enter.png")));
-		buildSietItem.setSelectedImage(AnUtils.getImageIcon(Resource.getResource("resource_selected.png")));
-		cardPanel.addButton(buildSietItem);
+		WorkerPanel workPanel=new WorkerPanel();
+		//sourcePanel.add(workPanel);
+		workerItem.setPanel(workPanel);
 
+
+
+		//工地管理
+		buildSiteItem =new AnCardPanelItem();
+		buildSiteItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("resource_normal.png")));
+		buildSiteItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("resource_enter.png")));
+		buildSiteItem.setSelectedImage(AnUtils.getImageIcon(Resource.getResource("resource_selected.png")));
+		cardPanel.addButton(buildSiteItem);
+
+		
+		//设置
 		settingItem=new AnCardPanelItem();
 		settingItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("setting_normal.png")));
 		settingItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("setting_enter.png")));
@@ -82,6 +99,10 @@ public class MainWindow extends JFrame {
 		panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.CENTER);
 		panel.setLayout(null);
+
+		sourcePanel=new JPanel(null);
+		sourcePanel.setBounds(60,0,934,771);
+		panel.add(sourcePanel);
 
 		//窗口关闭事件（保存数据）
 		this.addWindowListener(new WindowAdapter() {

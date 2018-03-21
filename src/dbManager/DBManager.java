@@ -1,15 +1,9 @@
 package dbManager;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import application.Application;
-import application.User;
 import resource.Resource;
 
 /**
@@ -20,6 +14,11 @@ import resource.Resource;
 public class DBManager {
 	
 	private IRunStateCallback runStateCallback=null;
+
+	/**
+	 * 设置运行状态回调
+	 * @param callback
+	 */
 	public void setRunStateCallback(IRunStateCallback callback) {
 		runStateCallback=callback;
 	}
@@ -30,7 +29,7 @@ public class DBManager {
 	 *
 	 */
 	interface IRunStateCallback{
-		public void runningState(boolean b);
+		void runningState(boolean b);
 	}
 	
 	
@@ -44,8 +43,28 @@ public class DBManager {
 	private boolean runningState=true;
 	
 	private ArrayList<User> userList=null;
-	
-	
+
+    /* =============================== 装载的数据 ===========================*/
+	private User user=null;
+
+    //工人属性
+    private Anbean workerProperty =null;
+    //工人数据
+    private ArrayList<Anbean> workerList=null;
+
+
+    //资产数据
+    private ArrayList<Assets> assetsArrayList=null;
+
+
+    //包工属性
+
+
+
+    /*
+    ===================================================================
+     */
+
 	
 	//私有构造
 	
@@ -75,7 +94,7 @@ public class DBManager {
 			readUserList();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 			if(JOptionPane.showConfirmDialog(null, "无法序列化该用户文件，文件已经损坏，是否用内存中的数据填补文件？","错误",
 					JOptionPane.OK_CANCEL_OPTION)==JOptionPane.OK_OPTION) {
 				updateUserListFile();
@@ -114,7 +133,7 @@ public class DBManager {
 	
 	
 	/**
-	 * 更新文件中的数据
+	 * 更新用户数据到文件中
 	 * @throws IOException
 	 */
 	public void updateUserListFile() throws IOException{
@@ -129,6 +148,50 @@ public class DBManager {
 			oos.close();
 		}
 	}
+
+    /**
+     * 更新用户工人属性到文件
+     */
+	public void updateUserData(){
+        if(user!=null){
+            if(workerProperty !=null){
+                try {
+                    writeObject(user.getWorkerPropertyPath(), workerProperty);
+                } catch (IOException e) {
+                    Application.errorWindow("无法写入工人数据到文件，请检查是否该目录有权限读写。"+e.getMessage());
+                }
+            }
+            if(assetsArrayList !=null){
+                try {
+                    writeObject(user.getAssetsPath(), assetsArrayList);
+                } catch (IOException e) {
+                    Application.errorWindow("无法写入资产数据到文件，请检查是否该目录有权限读写。"+e.getMessage());
+                }
+            }
+            if(workerList!=null){
+                try {
+                    writeObject(user.getWorkerListPath(),workerList);
+                }catch (IOException e){
+                    Application.errorWindow(e.toString());
+                }
+            }
+
+        }
+    }
+
+
+
+    public void loadUserData(){
+        if(user!=null){
+            try {
+                workerProperty =(Anbean) readObject(user.getAssetsPath());
+            } catch (IOException e) {
+                Application.errorWindow(e.toString());
+            } catch (ClassNotFoundException e) {
+                Application.errorWindow(e.toString());
+            }
+        }
+    }
 	
 	
 	
@@ -138,7 +201,43 @@ public class DBManager {
 		userList.add(user);
 	}
 	
-	
+
+	//User操作
+	public void loadUser(User user){
+
+	}
+
+    public void setWorkerProperty(Anbean bean){
+        if(bean!=null){
+            workerProperty =bean;
+        }
+    }
+
+    public void addWorkBeanInfo(Info info){
+        if(workerProperty !=null){
+            workerProperty.addInfo(info);
+        }
+    }
+
+    public void removeWorkBeanInfo(Info info){
+        if(workerProperty !=null){
+            workerProperty.removeInfo(info);
+        }
+    }
+
+    public Info getWorkerBeanInfo(int index){
+        if(workerProperty !=null){
+            return workerProperty.getAt(index);
+        }
+        return null;
+    }
+
+    public Info getWorkerBeanInfo(String name){
+        if(workerProperty !=null){
+            return workerProperty.get(name);
+        }
+        return null;
+    }
 	
 	
 	
@@ -184,7 +283,7 @@ public class DBManager {
 		return null;
 	}
 
-	public static boolean isExisitUserName(String name){
+	public static boolean isExistUserName(String name){
 		if(manager==null){
 			return false;
 		}
@@ -199,7 +298,26 @@ public class DBManager {
 		return false;
 	}
 	
-	
+	public static void writeObject(String path,Object object) throws IOException {
+	    File file=new File(path);
+	    if(!file.exists()){
+	        file.createNewFile();
+        }
+        FileOutputStream fos=new FileOutputStream(file);
+        ObjectOutputStream oos=new ObjectOutputStream(fos);
+        oos.writeObject(object);
+        oos.close();
+    }
+
+    public static Object readObject(String path) throws IOException, ClassNotFoundException {
+	    File file=new File(path);
+	    if(file.exists()){
+            FileInputStream fi=new FileInputStream(file);
+            ObjectInputStream ois=new ObjectInputStream(fi);
+            return ois.readObject();
+        }
+        return null;
+    }
 	
 	
 	

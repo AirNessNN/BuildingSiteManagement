@@ -56,7 +56,7 @@ public class AnImageLabel extends JLabel{
 		// TODO Auto-generated method stub
 		if(image==null)
 			return;
-		g.drawImage(image, 0, 0, null);
+		g.drawImage(image, 0, 0, this.getWidth(),this.getHeight(),null);
 	}
 
 }

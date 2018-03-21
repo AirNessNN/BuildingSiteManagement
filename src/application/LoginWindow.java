@@ -114,12 +114,14 @@ public class LoginWindow extends JFrame{
 		lblNewLabel_2.setBounds(35, 32, 391, 82);
 		panel.add(lblNewLabel_2);
 		
-		labRodingMessage = new JLabel("\u6B63\u5728\u767B\u5F55...");
+		labRodingMessage = new JLabel("ÕýÔÚµÇÂ¼...");
 		labRodingMessage.setForeground(Color.WHITE);
 		labRodingMessage.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 13));
 		labRodingMessage.setHorizontalAlignment(SwingConstants.RIGHT);
 		labRodingMessage.setBounds(327, 231, 155, 23);
+		labRodingMessage.setVisible(false);
 		panel.add(labRodingMessage);
+
 		panel.add(anImageButton);
 		
 		JLabel label = new JLabel("\u5BC6\u7801:");
@@ -193,10 +195,14 @@ public class LoginWindow extends JFrame{
 		// TODO Auto-generated constructor stub
 		init();
 	}
-	
+
+
+	private void showMesage(){
+		labRodingMessage.setVisible(true);
+	}
 	
 	private void login() {
-		
+		showMesage();
 		if(resultCallback!=null) {
 			resultCallback.loginResult(user.getText(), password.getText());
 		}
