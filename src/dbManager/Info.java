@@ -3,12 +3,12 @@ package dbManager;
 import java.io.Serializable;
 
 /**
- * ä¿¡æ¯ç±»ï¼Œå­˜æ”¾å­—ç¬¦å‹å˜é‡å’Œæ•°å­—å‹å˜é‡ï¼Œç”¨äºè‡ªå®šä¹‰ä¿¡æ¯
+ * ĞÅÏ¢Àà£¬´æ·Å×Ö·ûĞÍ±äÁ¿ºÍÊı×ÖĞÍ±äÁ¿£¬ÓÃÓÚ×Ô¶¨ÒåĞÅÏ¢
  */
 public class Info implements Serializable {
 
     /**
-     * ç±»å‹
+     * ÀàĞÍ 1 2 3 4
      */
     private final String[] TYPE_NAME={"","Double","String","Date","ArrayList"};
 
@@ -32,7 +32,7 @@ public class Info implements Serializable {
         setValue(value);
     }
 
-    //æ„é€ 
+    //¹¹Ôì
     public Info(){
     }
 
@@ -46,9 +46,15 @@ public class Info implements Serializable {
 
 
 
-    //æ–¹æ³•
+    //·½·¨
     public Object getValue(){
         return value;
+    }
+
+    public String getValueString(){
+        if(value==null)
+            return "";
+        return value.toString();
     }
 
     public void setValue(Object object){
@@ -95,9 +101,18 @@ public class Info implements Serializable {
         return colWidth;
     }
 
+    public boolean isShow(){
+        if (type.equals("ArrayList")){
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public String toString() {
-        return name+"ï¼š"+value.toString();
+        if(value==null)
+            return name+"£º"+"NULL";
+        return name+"£º"+value.toString();
     }
 
     @Override

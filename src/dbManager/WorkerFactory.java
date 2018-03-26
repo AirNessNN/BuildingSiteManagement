@@ -3,44 +3,44 @@ package dbManager;
 import java.util.ArrayList;
 
 /**
- * å·¥äººå·¥åŽ‚ï¼Œé™æ€è´Ÿè´£ç»´æŠ¤å·¥äººå±žæ€§ï¼Œå·¥åŽ‚åˆ›é€ å·¥äººçš„å®žä¾‹ï¼Œå±žæ€§å’Œé™æ€æ•°æ®åŒæ­¥ï¼Œå¹¶ä¸”æ”¯æŒåºåˆ—åŒ–æŒä¹…å‚¨å­˜
+ * ¹¤ÈË¹¤³§£¬¾²Ì¬¸ºÔðÎ¬»¤¹¤ÈËÊôÐÔ£¬¹¤³§´´Ôì¹¤ÈËµÄÊµÀý£¬ÊôÐÔºÍ¾²Ì¬Êý¾ÝÍ¬²½£¬²¢ÇÒÖ§³ÖÐòÁÐ»¯³Ö¾Ã´¢´æ
  */
 public class WorkerFactory {
 
 
     /**
-     * é¢„è®¾æ•°æ®ï¼šindex
-     * 0=åå­—
-     * 1=ä½å€
+     * Ô¤ÉèÊý¾Ý£ºindex
+     * 0=Ãû×Ö
+     * 1=×¡Ö·
      *
      */
     private static final Info[] data={
-            new Info(Info.TYPE_DOUBLE,"åºå·"),
-            new Info(Info.TYPE_STRING,"åå­—"),
-            new Info(Info.TYPE_STRING,"ä½å€"),
-            new Info(Info.TYPE_STRING,"è”ç³»æ–¹å¼"),
-            new Info(Info.TYPE_STRING,"èº«ä»½è¯"),
-            new Info(Info.TYPE_DOUBLE,"å¹´é¾„"),
-            new Info(Info.TYPE_DATE,"å‡ºç”Ÿæ—¥æœŸ"),
-            new Info(Info.TYPE_DOUBLE,"æ€§åˆ«"),
-            new Info(Info.TYPE_STRING,"æ°‘æ—"),
-            new Info(Info.TYPE_DATE,"å…¥èŒæ—¶é—´"),
-            new Info(Info.TYPE_DATE,"ç¦»èŒæ—¶é—´"),
-            new Info(Info.TYPE_STRING,"é“¶è¡Œå¡å·"),
-            new Info(Info.TYPE_STRING,"å¼€æˆ·åœ°å€"),
-            new Info(Info.TYPE_DOUBLE,"å·¥ç§"),
-            new Info(Info.TYPE_DOUBLE,"å·¥äººçŠ¶æ€"),
-            new Info(Info.TYPE_STRING,"å¤‡æ³¨"),
-            new Info(Info.TYPE_DOUBLE,"çº¦å®šæœˆå·¥èµ„"),
-            new Info(Info.TYPE_DOUBLE,"åˆè®¡å·¥æ—¥"),
-            new Info(Info.TYPE_DOUBLE,"ç»“ä½™å·¥èµ„"),
-            new Info(Info.TYPE_DATE_LIST,"å·¥èµ„é¢†å–ä¿¡æ¯"),
-            new Info(Info.TYPE_DATE_LIST,"å‡ºå‹¤ä¿¡æ¯"),
-            new Info(Info.TYPE_DATE_LIST,"ç”Ÿæ´»è´¹é¢†å–æƒ…å†µ")
+            new Info(Info.TYPE_DOUBLE,"ÐòºÅ"),
+            new Info(Info.TYPE_STRING,"Ãû×Ö"),
+            new Info(Info.TYPE_STRING,"×¡Ö·"),
+            new Info(Info.TYPE_STRING,"ÁªÏµ·½Ê½"),
+            new Info(Info.TYPE_STRING,"Éí·ÝÖ¤"),
+            new Info(Info.TYPE_DOUBLE,"ÄêÁä"),
+            new Info(Info.TYPE_DATE,"³öÉúÈÕÆÚ"),
+            new Info(Info.TYPE_DOUBLE,"ÐÔ±ð"),
+            new Info(Info.TYPE_STRING,"Ãñ×å"),
+            new Info(Info.TYPE_DATE,"ÈëÖ°Ê±¼ä"),
+            new Info(Info.TYPE_DATE,"ÀëÖ°Ê±¼ä"),
+            new Info(Info.TYPE_STRING,"ÒøÐÐ¿¨ºÅ"),
+            new Info(Info.TYPE_STRING,"¿ª»§µØÖ·"),
+            new Info(Info.TYPE_DOUBLE,"¹¤ÖÖ"),
+            new Info(Info.TYPE_DOUBLE,"¹¤ÈË×´Ì¬"),
+            new Info(Info.TYPE_STRING,"±¸×¢"),
+            new Info(Info.TYPE_DOUBLE,"Ô¼¶¨ÔÂ¹¤×Ê"),
+            new Info(Info.TYPE_DOUBLE,"ºÏ¼Æ¹¤ÈÕ"),
+            new Info(Info.TYPE_DOUBLE,"½áÓà¹¤×Ê"),
+            new Info(Info.TYPE_DATE_LIST,"¹¤×ÊÁìÈ¡ÐÅÏ¢"),
+            new Info(Info.TYPE_DATE_LIST,"³öÇÚÐÅÏ¢"),
+            new Info(Info.TYPE_DATE_LIST,"Éú»î·ÑÁìÈ¡Çé¿ö")
     };
 
     /**
-     * ç”¨æˆ·å®šä¹‰çš„æ•°æ®
+     * ÓÃ»§¶¨ÒåµÄÊý¾Ý
      */
     private static ArrayList<Info> userData=null;
 
@@ -48,8 +48,8 @@ public class WorkerFactory {
 
 
 
-    public static Worker createWorker(){
-        Worker worker=new Worker();
+    public static Anbean createWorker(){
+        Anbean worker=new Anbean();
         for(Info info:data){
             Info tmp=new Info(info.getType(),info.getName());
             worker.addInfo(tmp);
@@ -58,7 +58,6 @@ public class WorkerFactory {
             for(Info info:userData){
                 Info tmp=new Info(info.getType(),info.getName());
                 worker.addInfo(tmp);
-
             }
         }
         return worker;

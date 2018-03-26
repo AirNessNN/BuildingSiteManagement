@@ -16,7 +16,7 @@ public class AnLabel extends JLabel{
 	public AnLabel(String text) {
 		// TODO Auto-generated constructor stub
 		super(text);
-		setFont(new Font("Î¢ÈíÑÅºÚ", 0, 18));
+		setFont(new Font("Î¢ÈíÑÅºÚ", 0, 15));
 		setSize(AnUtils.getStringPx(text, getFont()));
 	}
 	

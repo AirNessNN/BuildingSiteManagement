@@ -84,7 +84,6 @@ public class User implements Serializable{
 			return false;
 		if(!user.password.equals(this.password))
 			return false;
-		
 		return true;
 	}
 }

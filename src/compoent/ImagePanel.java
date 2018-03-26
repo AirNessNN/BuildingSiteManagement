@@ -13,7 +13,6 @@ public class ImagePanel extends JPanel{
 
     private void init(){
         this.setLayout(null);
-        setBackground(Color.WHITE);
     }
 
 

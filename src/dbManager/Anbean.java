@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
-public abstract class Anbean implements Serializable {
+public class Anbean implements Serializable {
 
     private ArrayList<Info> valueList=null;
 
@@ -66,9 +66,19 @@ public abstract class Anbean implements Serializable {
 
     public Info[] getArray(){
         if(valueList!=null){
-            return (Info[]) valueList.toArray();
+            Info[] infoList=new Info[valueList.size()];
+            for(int i=0;i<valueList.size();i++){
+                infoList[i]=valueList.get(i);
+            }
+            return infoList;
         }
         return null;
+    }
+
+    public int getSize(){
+        if(valueList==null)
+            return 0;
+        return valueList.size();
     }
 
     public ArrayList<Info> getValueList() {

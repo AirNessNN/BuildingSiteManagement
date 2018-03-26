@@ -8,6 +8,7 @@ import java.awt.event.WindowEvent;
 import compoent.AnCardPanel;
 import compoent.AnCardPanelItem;
 import compoent.ImagePanel;
+import dbManager.DBManager;
 import dbManager.User;
 import resource.Resource;
 
@@ -41,7 +42,7 @@ public class MainWindow extends JFrame {
 
 	private MainWindow(User user){
 		init();
-
+		initView();
 		this.user=user;
 	}
 
@@ -112,15 +113,18 @@ public class MainWindow extends JFrame {
 				Application.saveSetting();
 			}
 		});
-		initView();
 	}
 
 
 
 	public static MainWindow getMainWindow(User user){
+		//准备数据
+		DBManager.getManager().loadUser(user);
+
 		if(mainWindow==null){
 			mainWindow=new MainWindow(user);
 		}
+
 		return mainWindow;
 	}
 

@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 
 import dbManager.DBManager;
-import dbManager.DateValueInfo;
 import dbManager.User;
-import dbManager.Worker;
 
 /**
  * 主程序类，控制程序各种组件运行
@@ -23,7 +21,7 @@ public class Application {
 	//欢迎界面
 	private static StartWindow startWindow =null;
 	//资源管理类
-	private static DBManager dbManager=null; 
+	private static DBManager dbManager=null;
 	//用户管理类
 	
 	
@@ -35,7 +33,7 @@ public class Application {
 
         //打开欢迎窗口
         showStartWindow();
-        Thread.sleep(1000);
+        Thread.sleep(500);
 
         //初始化数据服务组件
 		try {
@@ -47,8 +45,7 @@ public class Application {
 			Application.errorWindow("无法初始化组件");
 		}
 
-		Thread.sleep(1000);
-
+		Thread.sleep(500);
 	}
 	
 	
@@ -134,6 +131,11 @@ public class Application {
 	public static void informationWindow(String message) {
 		Toolkit.getDefaultToolkit().beep();
 		JOptionPane.showMessageDialog(null, message,"提示信息",JOptionPane.INFORMATION_MESSAGE);
+
+	}
+
+	public static void log(Object object){
+		System.out.println(object);
 	}
 	
 	
@@ -162,7 +164,8 @@ public class Application {
         }
 
         //Debug
-		MainWindow.getMainWindow(null).setVisible(true);
+		MainWindow.getMainWindow(new User("test","1234","","")).setVisible(true);
+
         //System.out.println(Resource.getApplicationDirectoryPath());
 
         //确认用户信息

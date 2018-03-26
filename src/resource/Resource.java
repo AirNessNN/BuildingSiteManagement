@@ -18,6 +18,7 @@ public class Resource {
 	public final static String FONT_WEI_RUAN_YA_HEI="Î¢ÈíÑÅºÚ";
 	public final static String FONT_LAN_TING_HEI="·½ÕýÀ¼Í¤³¬Ï¸ºÚ¼òÌå";
 	public final static Font FONT_TITLE=new Font(FONT_WEI_RUAN_YA_HEI,Font.PLAIN,40);
+	public final static Font FONT_TABLE_ITEM=new Font(FONT_WEI_RUAN_YA_HEI,Font.PLAIN,15);
 	//ÑÕÉ«
 	public final static Color COLOR_LIGHT_BLUE=SystemColor.textHighlight;
 	
