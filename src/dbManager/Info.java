@@ -1,53 +1,70 @@
 package dbManager;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 
 /**
- * ĞÅÏ¢Àà£¬´æ·Å×Ö·ûĞÍ±äÁ¿ºÍÊı×ÖĞÍ±äÁ¿£¬ÓÃÓÚ×Ô¶¨ÒåĞÅÏ¢
+ * ä¿¡æ¯ç±»ï¼Œå­˜æ”¾å­—ç¬¦å‹å˜é‡å’Œæ•°å­—å‹å˜é‡ï¼Œç”¨äºè‡ªå®šä¹‰ä¿¡æ¯
  */
-public class Info implements Serializable {
+public class Info<T> implements Serializable ,Cloneable{
 
     /**
-     * ÀàĞÍ 1 2 3 4
+     * ç±»å‹ 1 2 3 4
      */
-    private final String[] TYPE_NAME={"","Double","String","Date","ArrayList"};
+    private final String[] TYPE_NAME={"","Double","String","Date","ArrayList","Integer"};
 
     public static final int TYPE_DOUBLE=1;
     public static final int TYPE_STRING=2;
     public static final int TYPE_DATE=3;
-    public static final int TYPE_DATE_LIST=4;
+    public static final int TYPE_ARRAY_LIST =4;
+    public static final int TYPE_INTEGER=5;
 
 
-    private String name=null;
-    private Object value=null;
-    private String type=null;
-
-    private int colWidth=50;
-
+    private String name="";
+    private T value=null;
+    private String type="";
+    
 
 
-    private void init(int type,String name,Object value){
-       setType(type);
+
+    private void init(String name,T value){
         setName(name);
+        if (value==null)
+            return;
+        //è·å–type
+        for (int i=0;i<TYPE_NAME.length;i++){
+            if (value.getClass().getName().contains(TYPE_NAME[i])){
+                type=TYPE_NAME[i];
+            }
+        }
         setValue(value);
     }
 
-    //¹¹Ôì
+    //æ„é€ 
     public Info(){
     }
 
+    public Info(String name){
+        init(name,null);
+    }
+
     public Info(int type,String name){
-        init(type,name,null);
+        init(name,null);
+        try {
+            this.type=TYPE_NAME[type];
+        }catch (IndexOutOfBoundsException e){
+
+        }
     }
 
-    public Info(int type,String name,Object value){
-        init(type,name,value);
+    public Info(String name,T value){
+        init(name,value);
     }
 
 
 
-    //·½·¨
-    public Object getValue(){
+    //æ–¹æ³•
+    public T getValue(){
         return value;
     }
 
@@ -57,14 +74,10 @@ public class Info implements Serializable {
         return value.toString();
     }
 
-    public void setValue(Object object){
-        if(type==null)
+    public void setValue(T object){
+        if (object==null)
             return;
-        if(object==null)
-            return;
-        if(object.getClass().getName().contains(type)){
-            value=object;
-        }
+        value=object;
     }
 
     public int getType() {
@@ -74,13 +87,6 @@ public class Info implements Serializable {
             }
         }
         return 0;
-    }
-
-    public void setType(int type){
-        try{
-            this.type=TYPE_NAME[type];
-        }catch (Exception e){
-        }
     }
 
     public String getName() {
@@ -93,14 +99,6 @@ public class Info implements Serializable {
         }
     }
 
-    public void setColWidth(int colWidth) {
-        this.colWidth = colWidth;
-    }
-
-    public int getColWidth() {
-        return colWidth;
-    }
-
     public boolean isShow(){
         if (type.equals("ArrayList")){
             return false;
@@ -108,17 +106,28 @@ public class Info implements Serializable {
         return true;
     }
 
+    public boolean equalsValue(T object){
+        return object.equals(value);
+    }
+
+    public Type getValueType(){
+        if (null==value)
+            return null;
+        return value.getClass().getGenericSuperclass();
+    }
+
     @Override
     public String toString() {
         if(value==null)
-            return name+"£º"+"NULL";
-        return name+"£º"+value.toString();
+            return name+"ï¼š"+"NULL";
+        return name+"ï¼š"+value.toString();
     }
 
     @Override
     public boolean equals(Object obj) {
-        Info info=(Info)obj;
-
-        return info.name.equals(this.name)&&info.getType()==this.getType();
+        if (!obj.getClass().getName().equals(this.getClass().getName()))
+            return false;
+        Info<T> info=(Info<T>)obj;
+        return info.name.equals(this.name)&&info.getType()==this.getType()&&equalsValue(info.getValue());
     }
 }

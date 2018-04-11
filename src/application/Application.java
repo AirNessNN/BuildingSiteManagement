@@ -3,6 +3,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.JOptionPane;
 
@@ -10,39 +12,42 @@ import dbManager.DBManager;
 import dbManager.User;
 
 /**
- * Ö÷³ÌĞòÀà£¬¿ØÖÆ³ÌĞò¸÷ÖÖ×é¼şÔËĞĞ
+ * ä¸»ç¨‹åºç±»ï¼Œæ§åˆ¶ç¨‹åºå„ç§ç»„ä»¶è¿è¡Œ
  * @author AN
  *
  */
 public class Application {
 	
-	static final String VERSION="¹¤³Ì°æ";
+	static final String VERSION="å·¥ç¨‹ç‰ˆ";
+
+	private static ExecutorService executorService=null;
 	
-	//»¶Ó­½çÃæ
+	//æ¬¢è¿ç•Œé¢
 	private static StartWindow startWindow =null;
-	//×ÊÔ´¹ÜÀíÀà
+	//èµ„æºç®¡ç†ç±»
 	private static DBManager dbManager=null;
-	//ÓÃ»§¹ÜÀíÀà
+	//ç”¨æˆ·ç®¡ç†ç±»
 	
 	
 	
-	//³õÊ¼»¯³ÌĞò
+	//åˆå§‹åŒ–ç¨‹åº
 	private static void initialize() throws InterruptedException {
-		//³õÊ¼»¯»¶Ó­½çÃæ
 
+		executorService= Executors.newCachedThreadPool();
 
-        //´ò¿ª»¶Ó­´°¿Ú
+		//åˆå§‹åŒ–æ¬¢è¿ç•Œé¢
+        //æ‰“å¼€æ¬¢è¿çª—å£
         showStartWindow();
         Thread.sleep(500);
 
-        //³õÊ¼»¯Êı¾İ·şÎñ×é¼ş
+        //åˆå§‹åŒ–æ•°æ®æœåŠ¡ç»„ä»¶
 		try {
 			dbManager=DBManager.prepareDataBase();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Application.setLoadMessage("ÎŞ·¨³õÊ¼»¯×é¼ş");
-			Application.errorWindow("ÎŞ·¨³õÊ¼»¯×é¼ş");
+			Application.setLoadMessage("æ— æ³•åˆå§‹åŒ–ç»„ä»¶");
+			Application.errorWindow("æ— æ³•åˆå§‹åŒ–ç»„ä»¶");
 		}
 
 		Thread.sleep(500);
@@ -56,7 +61,7 @@ public class Application {
 	
 	
 	/**
-	 * ¿ªÆô»¶Ó­½çÃæ
+	 * å¼€å¯æ¬¢è¿ç•Œé¢
 	 */
 	public static void showStartWindow() {
 		new Thread(()->{
@@ -66,22 +71,22 @@ public class Application {
 	}
 	
 	/**
-	 * ¹Ø±Õ»¶Ó­½çÃæ
+	 * å…³é—­æ¬¢è¿ç•Œé¢
 	 */
 	public static void closeStartWindow() {
 		startWindow.setVisible(false);
 	}
 	
 	/**
-	 * ÉèÖÃ»¶Ó­Ò³ÃæÔØÈë×´Ì¬
+	 * è®¾ç½®æ¬¢è¿é¡µé¢è½½å…¥çŠ¶æ€
 	 * @param message
 	 */
 	public static void setLoadMessage(String message) {
-		new Thread(()->{
+		startService(() -> {
             if(startWindow !=null&& startWindow.isVisible()) {
                 startWindow.setText(message);
             }
-        }).start();
+        });
 	}
 	
 	
@@ -89,7 +94,7 @@ public class Application {
 	
 	
 	/*
-	 * DbManager²Ù×÷
+	 * DbManageræ“ä½œ
 	 */
 	public static void addUser(User user) {
 		if(dbManager!=null) {
@@ -102,7 +107,7 @@ public class Application {
     }
 
     /**
-     * ÔÚDBÖĞ¸üĞÂÓÃ»§Êı¾İµ½ÎÄ¼ş
+     * åœ¨DBä¸­æ›´æ–°ç”¨æˆ·æ•°æ®åˆ°æ–‡ä»¶
      */
 	public static void updateUserData() {
 		if(dbManager!=null) {
@@ -116,65 +121,68 @@ public class Application {
 	}
 	
 	
-	
-	
+
 	
 	
 	/*
 	 * 
-	 * ³ÌĞòµÄµ¯´°ÌáÊ¾
+	 * ç¨‹åºçš„å¼¹çª—æç¤º
 	 */
 	public static void errorWindow(String message) {
 		Toolkit.getDefaultToolkit().beep();
-		JOptionPane.showMessageDialog(null, message,"´íÎó",JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(null, message,"é”™è¯¯",JOptionPane.ERROR_MESSAGE);
 	}
 	public static void informationWindow(String message) {
 		Toolkit.getDefaultToolkit().beep();
-		JOptionPane.showMessageDialog(null, message,"ÌáÊ¾ĞÅÏ¢",JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(null, message,"æç¤ºä¿¡æ¯",JOptionPane.INFORMATION_MESSAGE);
 
 	}
 
-	public static void log(Object object){
-		System.out.println(object);
+
+	/**
+	 * çº¿ç¨‹æ“ä½œ
+	 * @param run
+	 */
+	public static void startService(Runnable run){
+		if (executorService==null){
+			new Thread(run).start();
+			return;
+		}
+		executorService.execute(run);
 	}
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		
-		//ÉèÖÃÑùÊ½
+		//è®¾ç½®æ ·å¼
 		AnUtils.setLookAndFeel(AnUtils.LOOK_AND_FEEL_DEFAULT);
 
-
-		//Debug
-		System.out.println(new ArrayList<>().getClass().getName());
-
-
-        //ÔØÈë¾²Ì¬Êı¾İ
+        //è½½å…¥é™æ€æ•°æ®
         try {
             initialize();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        //Debug
+		//Debug
 		MainWindow.getMainWindow(new User("test","1234","","")).setVisible(true);
 
-        //System.out.println(Resource.getApplicationDirectoryPath());
-
-        //È·ÈÏÓÃ»§ĞÅÏ¢
-        setLoadMessage("È·ÈÏÓÃ»§ĞÅÏ¢");
+        //ç¡®è®¤ç”¨æˆ·ä¿¡æ¯
+        setLoadMessage("ç¡®è®¤ç”¨æˆ·ä¿¡æ¯");
         LoginWindow login=new LoginWindow();
         login.resultCallback= (user, password) -> {
             // TODO Auto-generated method stub
             if(user==null||user.equals("")||password==null||password.equals("")){
-                Application.errorWindow("ÇëÊäÈëÓÃ»§Ãû»òÃÜÂë£¡");
+                Application.errorWindow("è¯·è¾“å…¥ç”¨æˆ·åæˆ–å¯†ç ï¼");
             }else {
                 boolean loginFlag=false;
                 User loginUser=null;
@@ -182,27 +190,27 @@ public class Application {
                 for(User name:tmp) {
                     if(name.equals(user)&&name.password.equals(password)) {
                         loginFlag=true;
-                        //Íê³ÉµÇÂ¼
+                        //å®Œæˆç™»å½•
                         loginUser=name;
-                        //¹Ø±Õ¿ªÊ¼´°¿Ú
+                        //å…³é—­å¼€å§‹çª—å£
                         closeStartWindow();
                     }
                 }
                 if(loginFlag){
                     MainWindow.getMainWindow(loginUser).setVisible(true);
                 }else {
-                    Application.informationWindow("Î´ÕÒµ½ÓÃ»§£¬Çë×¢²á¡£");
+                    Application.informationWindow("æœªæ‰¾åˆ°ç”¨æˆ·ï¼Œè¯·æ³¨å†Œã€‚");
                 }
             }
         };
         login.setVisible(true);
-        //¿ªÊ¼ÔØÈëÊı¾İ
+        //å¼€å§‹è½½å…¥æ•°æ®
 
 	}
 
 	
 	/**
-	 * ³ÌĞòÉèÖÃÀà
+	 * ç¨‹åºè®¾ç½®ç±»
 	 * @author AN
 	 *
 	 */

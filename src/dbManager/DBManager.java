@@ -8,7 +8,7 @@ import application.Application;
 import resource.Resource;
 
 /**
- * Êı¾İ¹ÜÀí·şÎñ
+ * æ•°æ®ç®¡ç†æœåŠ¡
  * @author AN
  *
  */
@@ -16,8 +16,8 @@ public class DBManager {
 	
 	private IRunStateCallback runStateCallback=null;
 
-	/**
-	 * ÉèÖÃÔËĞĞ×´Ì¬»Øµ÷
+	 /**
+	 * è®¾ç½®è¿è¡ŒçŠ¶æ€å›è°ƒ
 	 * @param callback
 	 */
 	public void setRunStateCallback(IRunStateCallback callback) {
@@ -25,7 +25,7 @@ public class DBManager {
 	}
 
 	/**
-	 * ÔËĞĞ×´Ì¬»Øµ÷£ºÅĞ¶ÏÊÇ·ñµÚÒ»´ÎÊ¹ÓÃ³ÌĞò
+	 * è¿è¡ŒçŠ¶æ€å›è°ƒï¼šåˆ¤æ–­æ˜¯å¦ç¬¬ä¸€æ¬¡ä½¿ç”¨ç¨‹åº
 	 * @author AN
 	 *
 	 */
@@ -39,31 +39,31 @@ public class DBManager {
 
 	
 	
-	//×é¼ş
-	//µ¥Àı
+	//ç»„ä»¶
+	//å•ä¾‹
 	private static DBManager manager=null;
 	
-	//³ÉÔ±×é¼ş
+	//æˆå‘˜ç»„ä»¶
 	private boolean runningState=true;
 
-	//ÓÃ»§ĞÅÏ¢
+	//ç”¨æˆ·ä¿¡æ¯
 	private ArrayList<User> userList=null;
 
 
 
 
-    /* =============================== ×°ÔØµÄÊı¾İ ===========================*/
-    //×°ÔØµÄÓÃ»§ÊµÀı
+    /* =============================== è£…è½½çš„æ•°æ® ===========================*/
+    //è£…è½½çš„ç”¨æˆ·å®ä¾‹
 	private User user=null;
 
-    //¹¤ÈËÊôĞÔ
+    //å·¥äººå±æ€§
 	private boolean workerPropertyLoaded=false;
-    private Anbean workerProperty =null;
-    //¹¤ÈËÊı¾İ
+    private AnArrayBean workerProperty =null;
+    //å·¥äººæ•°æ®
 	private boolean workerListLoaded=false;
     private ArrayList<Anbean> workerList=null;
 
-    //×Ê²úÊı¾İ
+    //èµ„äº§æ•°æ®
 	private boolean assetsArrayListLoaded=false;
     private ArrayList<Assets> assetsArrayList=null;
 
@@ -72,7 +72,7 @@ public class DBManager {
 
 
 
-    //°ü¹¤ÊôĞÔ
+    //åŒ…å·¥å±æ€§
 
 
 
@@ -80,8 +80,10 @@ public class DBManager {
     ===================================================================
      */
 
-	
-	//Ë½ÓĞ¹¹Ôì
+
+	/**
+	 * å•ä¾‹æ¨¡å¼çš„ç§æœ‰æ„é€ å‡½æ•°
+	 */
 	private DBManager() {
 		userList=new ArrayList<>();
 	}
@@ -89,31 +91,36 @@ public class DBManager {
 
 
 
-
-	//³õÊ¼»¯
+	/**
+	 * åˆå§‹åŒ–åº”ç”¨è·¯å¾„ï¼ŒæŸ¥æ‰¾åº”ç”¨è·¯å¾„ï¼Œä¸å­˜åœ¨åˆ™åˆ›å»ºï¼Œå½“åˆæ¬¡ä½¿ç”¨
+	 *
+	 * å‡†å¤‡ç”¨æˆ·åˆ—è¡¨ï¼Œä¾›ç™»å½•çª—å£ä½¿ç”¨
+	 *
+	 * @throws IOException
+	 */
 	private void init()throws IOException {
 		File applicationPath=Resource.getApplicationDirectoryFile();
-		//²»´æÔÚÂ·¾¶Ôò´´½¨
+		//ä¸å­˜åœ¨è·¯å¾„åˆ™åˆ›å»º
 		if(!applicationPath.exists()) {
 			applicationPath.mkdirs(); 
 			runningState=false;
 		}
-		//ÉèÖÃÍ¨Öª
-		Application.setLoadMessage("³õÊ¼»¯×é¼ş");
+		//è®¾ç½®é€šçŸ¥
+		Application.setLoadMessage("åˆå§‹åŒ–ç»„ä»¶");
 		
-		//·¢ËÍÊÂ¼ş
+		//å‘é€äº‹ä»¶
 		if(runStateCallback!=null) {
 			runStateCallback.runningState(runningState);
 		}
 		
-		//×¼±¸Êı¾İ
-		Application.setLoadMessage("×¼±¸Êı¾İ");
+		//å‡†å¤‡æ•°æ®
+		Application.setLoadMessage("å‡†å¤‡æ•°æ®");
 		try {
 			readUserList();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
-			if(JOptionPane.showConfirmDialog(null, "ÎŞ·¨ĞòÁĞ»¯¸ÃÓÃ»§ÎÄ¼ş£¬ÎÄ¼şÒÑ¾­Ëğ»µ£¬ÊÇ·ñÓÃÄÚ´æÖĞµÄÊı¾İÌî²¹ÎÄ¼ş£¿","´íÎó",
+			if(JOptionPane.showConfirmDialog(null, "æ— æ³•åºåˆ—åŒ–è¯¥ç”¨æˆ·æ–‡ä»¶ï¼Œæ–‡ä»¶å·²ç»æŸåï¼Œæ˜¯å¦ç”¨å†…å­˜ä¸­çš„æ•°æ®å¡«è¡¥æ–‡ä»¶ï¼Ÿ","é”™è¯¯",
 					JOptionPane.OK_CANCEL_OPTION)==JOptionPane.OK_OPTION) {
 				updateUserListFile();
 			}else {
@@ -129,7 +136,7 @@ public class DBManager {
 
 	
 	/**
-	 * ´ÓÎÄ¼şÖĞ¶ÁÈ¡ÓÃ»§ÁĞ±í
+	 * ä»æ–‡ä»¶ä¸­è¯»å–ç”¨æˆ·åˆ—è¡¨
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
@@ -148,7 +155,7 @@ public class DBManager {
 	}
 
 	/**
-	 * ¸üĞÂÓÃ»§Êı¾İµ½ÎÄ¼şÖĞ
+	 * æ›´æ–°ç”¨æˆ·æ•°æ®åˆ°æ–‡ä»¶ä¸­
 	 * @throws IOException
 	 */
 	public void updateUserListFile() throws IOException{
@@ -166,10 +173,8 @@ public class DBManager {
 
 
 
-
-
     /**
-     * ¸üĞÂ×°ÔØµÄÓÃ»§Êı¾İµ½ÎÄ¼ş
+     * æ›´æ–°è£…è½½çš„ç”¨æˆ·æ•°æ®åˆ°æ–‡ä»¶
      */
 	public void updateUserData(){
         if(user!=null){
@@ -178,7 +183,7 @@ public class DBManager {
                 try {
                     writeObject(user.getWorkerPropertyPath(), workerProperty);
                 } catch (IOException e) {
-                    Application.errorWindow("ÎŞ·¨Ğ´Èë¹¤ÈËÊı¾İµ½ÎÄ¼ş£¬Çë¼ì²éÊÇ·ñ¸ÃÄ¿Â¼ÓĞÈ¨ÏŞ¶ÁĞ´¡£"+e.getMessage());
+                    Application.errorWindow("æ— æ³•å†™å…¥å·¥äººæ•°æ®åˆ°æ–‡ä»¶ï¼Œè¯·æ£€æŸ¥æ˜¯å¦è¯¥ç›®å½•æœ‰æƒé™è¯»å†™ã€‚"+e.getMessage());
                 }
             }
 
@@ -186,7 +191,7 @@ public class DBManager {
                 try {
                     writeObject(user.getAssetsPath(), assetsArrayList);
                 } catch (IOException e) {
-                    Application.errorWindow("ÎŞ·¨Ğ´Èë×Ê²úÊı¾İµ½ÎÄ¼ş£¬Çë¼ì²éÊÇ·ñ¸ÃÄ¿Â¼ÓĞÈ¨ÏŞ¶ÁĞ´¡£"+e.getMessage());
+                    Application.errorWindow("æ— æ³•å†™å…¥èµ„äº§æ•°æ®åˆ°æ–‡ä»¶ï¼Œè¯·æ£€æŸ¥æ˜¯å¦è¯¥ç›®å½•æœ‰æƒé™è¯»å†™ã€‚"+e.getMessage());
                 }
             }
 
@@ -202,51 +207,186 @@ public class DBManager {
 
 
 	/**
-	 * ´ÓÎÄ¼şÖĞ×°ÔØ¹¤ÈËÊôĞÔ
+	 *åˆ›å»ºè®¾ç½®çš„é…ç½®æ–‡ä»¶
+	 * @throws IOException
+	 */
+	public void createNewSettingFile() throws IOException {
+		File file=Resource.getApplicationFile(Resource.FILE_SETTING);
+		file.createNewFile();
+	}
+	
+	
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	//User
+
+	/**
+	 *	åˆ›å»ºæ–°çš„å­˜æ”¾ç”¨æˆ·æ•°æ®çš„æ–‡ä»¶
+	 * @throws IOException
+	 */
+	public void createNewUserFile() throws IOException {
+		File file=Resource.getApplicationFile(Resource.FILE_USER);
+		file.createNewFile();
+
+		ArrayList<User>tmp=new ArrayList<>();
+
+		FileOutputStream fos=new FileOutputStream(file);
+		ObjectOutputStream oos=new ObjectOutputStream(fos);
+		oos.writeObject(tmp);
+		oos.close();
+	}
+
+	/**
+	 * å¢åŠ ç”¨æˆ·åˆ°å†…å­˜ä¸­
+	 * @param user
+	 */
+	public void addUser(User user) {
+		userList.add(user);
+	}
+
+	/**
+	 * è£…è½½Useræ•°æ®
+	 * @param user
+	 */
+	public void loadUser(User user){
+		this.user=user;
+		workerProperty=loadingWorkerProperty();
+		workerList=loadingWorkerList();
+		assetsArrayList=null;
+
+		//Debugï¼šè£…è½½æµ‹è¯•åˆ—è¡¨å·¥äºº
+		Random r=new Random();
+		for(int i=0;i<10;i++){
+			Anbean w= PropertyFactory.createWorker();
+			Info inf1=w.find("åå­—");
+			inf1.setValue("åå­—"+r.nextInt(456123));
+			Info inf2=w.find("èº«ä»½è¯");
+			inf2.setValue(String.valueOf(r.nextInt(10000)));
+			workerList.add(w);
+		}
+
+
+	}
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	//WorkerProperty
+
+	/**
+	 * å¢åŠ ä¸€æ¡å·¥äººå±æ€§
+	 * @param info
+	 */
+	public void addProperty(InfoArray info){
+		if(workerProperty !=null){
+			workerProperty.addInfoArray(info);
+		}
+	}
+
+	/**
+	 *	ç§»é™¤å·¥äººå±æ€§
+	 * @param info
+	 */
+	public void removeWorkerBeanInfo(InfoArray info){
+		if(workerProperty !=null){
+			workerProperty.removeInfoArray(info);
+		}
+	}
+
+	/**
+	 *	é€šè¿‡èŠ‚ç‚¹å·è·å–å·¥äººå±æ€§Info
+	 * @param index
 	 * @return
 	 */
-	public Anbean loadingWorkerProperty(){
-		//¿ÕÓÃ»§ÍË³ö
+	public InfoArray getWorkerBeanInfo(int index){
+		if(workerProperty !=null){
+			return workerProperty.findAt(index);
+		}
+		return null;
+	}
+
+	/**
+	 *	é€šè¿‡åç§°è·å–å·¥äººå±æ€§Info
+	 * @param name
+	 * @return
+	 */
+	public InfoArray getWorkerBeanInfo(String name){
+		if(workerProperty !=null){
+			return workerProperty.find(name);
+		}
+		return null;
+	}
+
+
+	/**
+	 * è£…è½½å·¥äººå±æ€§ï¼Œå…¨ç›˜æ›¿æ¢
+	 * @param bean
+	 */
+	public void setWorkerProperty(AnArrayBean bean){
+		if(bean!=null){
+			workerProperty =bean;
+		}
+	}
+
+	/**
+	 * ä»æ–‡ä»¶ä¸­è£…è½½å·¥äººå±æ€§
+	 * @return
+	 */
+	public AnArrayBean loadingWorkerProperty(){
+		//ç©ºç”¨æˆ·é€€å‡º
 		if(user==null)
 			return null;
-		//Æô¶¯¼ÓÔØ»òÕßµÚÒ»´Î¼ÓÔØ
-		if(user!=null&&!workerPropertyLoaded){
+		//å¯åŠ¨åŠ è½½æˆ–è€…ç¬¬ä¸€æ¬¡åŠ è½½
+		if(!workerPropertyLoaded){
 			try {
-				workerProperty =(Anbean) readObject(user.getWorkerPropertyPath());
-			} catch (IOException e) {
-				Application.errorWindow(e.toString());
-				workerProperty=WorkerFactory.createWorker();
-			} catch (ClassNotFoundException e) {
-				Application.errorWindow(e.toString());
-				workerProperty=WorkerFactory.createWorker();
-			}finally {
+				workerProperty =(AnArrayBean) readObject(user.getWorkerPropertyPath());
+			} catch (IOException | ClassNotFoundException exception) {
+				workerProperty= PropertyFactory.createWorkerProperty();
+			} finally {
 				workerPropertyLoaded=true;
 			}
 		}
-		//¶à´Î»ñÈ¡
+		//å¤šæ¬¡è·å–
 		return workerProperty;
 	}
 
+	/**
+	 * è·å–å±æ€§çš„å¤§å°
+	 * @return
+	 */
 	public int getWorkerPropertySize(){
 		if(workerPropertyLoaded)
 			return workerProperty.getSize();
 		return 0;
 	}
 
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 
+
+
+
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	//WorkerList
 
 	/**
-	 * ´ÓÎÄ¼şÖĞ×°ÔØ¹¤ÈË¶ÔÏó
+	 * ä»æ–‡ä»¶ä¸­è£…è½½å·¥äººå¯¹è±¡
 	 * @return
 	 */
 	public ArrayList<Anbean> loadingWorkerList() {
 
-		//¿Õ¶ÔÏó
+		//ç©ºå¯¹è±¡
 		if(user==null)
 			return null;
-		//Ê×´ÎÆô¶¯
+		//é¦–æ¬¡å¯åŠ¨
 		if(user!=null&&!workerListLoaded){
 			try {
 				workerList=(ArrayList<Anbean>)readObject(user.getWorkerListPath());
@@ -254,16 +394,16 @@ public class DBManager {
 					workerList=new ArrayList<>();
 				}
 			}catch (IOException e){
-				Application.errorWindow(e.toString());
+				//Application.errorWindow(e.toString());
 				workerList=new ArrayList<>();
 			}catch (ClassNotFoundException e){
-				Application.errorWindow(e.toString());
+				//Application.errorWindow(e.toString());
 				workerList=new ArrayList<>();
 			}finally {
 				workerListLoaded=true;
 			}
 		}
-		//¶à´Î¼ÓÔØ
+		//å¤šæ¬¡åŠ è½½
 		return workerList;
 	}
 
@@ -274,148 +414,57 @@ public class DBManager {
 		return 0;
 	}
 
-
-
-
-
-
-
-	/**
-	 * Ôö¼ÓÓÃ»§µ½ÄÚ´æÖĞ
-	 * @param user
-	 */
-	public void addUser(User user) {
-		userList.add(user);
-	}
-	
-
-	//User²Ù×÷
-
-	/**
-	 * ×°ÔØUserÊı¾İ
-	 * @param user
-	 */
-	public void loadUser(User user){
-		this.user=user;
-		workerProperty=loadingWorkerProperty();
-		workerList=loadingWorkerList();
-
-		//Debug£º×°ÔØ²âÊÔÁĞ±í¹¤ÈË
-		Random r=new Random();
-		for(int i=0;i<10;i++){
-			Anbean w=WorkerFactory.createWorker();
-			Info inf1=w.get("Ãû×Ö");
-			inf1.setValue("Ãû×Ö"+i);
-			Info inf2=w.get("Éí·İÖ¤");
-			inf2.setValue(String.valueOf(r.nextInt(10000)));
-			workerList.add(w);
+	public Anbean getWorker(int index){
+		if(workerListLoaded){
+			return workerList.get(index);
 		}
-
-
+		return null;
 	}
 
+	public ArrayList<Anbean> getWorkerListWhere(String name,Object value){
+		ArrayList<Anbean> tmpList=new ArrayList<>();
 
-
-
-
-
-
-
-	/**
-	 * ×°ÔØ¹¤ÈËÊôĞÔ£¬È«ÅÌÌæ»»
-	 * @param bean
-	 */
-    public void setWorkerProperty(Anbean bean){
-        if(bean!=null){
-            workerProperty =bean;
-        }
-    }
-
-
-
-
-
-
-
-	/**
-	 * Ôö¼ÓÒ»Ìõ¹¤ÈËÊôĞÔ
-	 * @param info
-	 */
-	public void addWorkerBeanInfo(Info info){
-        if(workerProperty !=null){
-            workerProperty.addInfo(info);
-        }
-    }
-
-	/**
-	 *
-	 * @param info
-	 */
-	public void removeWorkerBeanInfo(Info info){
-        if(workerProperty !=null){
-            workerProperty.removeInfo(info);
-        }
-    }
-
-	/**
-	 *
-	 * @param index
-	 * @return
-	 */
-	public Info getWorkerBeanInfo(int index){
-        if(workerProperty !=null){
-            return workerProperty.getAt(index);
-        }
-        return null;
-    }
-
-	/**
-	 *
-	 * @param name
-	 * @return
-	 */
-	public Info getWorkerBeanInfo(String name){
-        if(workerProperty !=null){
-            return workerProperty.get(name);
-        }
-        return null;
-    }
-
-
-	/**
-	 *
-	 * @throws IOException
-	 */
-	public void createNewUserFile() throws IOException {
-		File file=Resource.getApplicationFile(Resource.FILE_USER);
-		file.createNewFile();
-		
-		ArrayList<User>tmp=new ArrayList<>();
-		
-		FileOutputStream fos=new FileOutputStream(file);
-		ObjectOutputStream oos=new ObjectOutputStream(fos);
-		oos.writeObject(tmp);
-		oos.close();
+		if(workerListLoaded){
+			for(Anbean bean:workerList){
+				for (Info info: bean.getArray()){
+					if(info.getName().equals(name)&&info.equalsValue(value)){
+						tmpList.add(bean);
+					}
+				}
+			}
+		}
+		return tmpList;
 	}
 
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	//AssetList
+
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	//AssetPackage
+
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+	
+	
+	//é™æ€æ–¹æ³•
 	/**
-	 *0
-	 * @throws IOException
-	 */
-	public void createNewSettingFile() throws IOException {
-		File file=Resource.getApplicationFile(Resource.FILE_SETTING);
-		file.createNewFile();
-	}
-	
-	
-	
-	
-	
-	
-	//¾²Ì¬·½·¨
-	/**
-	 * ×¼±¸Êı¾İ
-	 * @return ×¼±¸ºÃµÄDBManager
+	 * å‡†å¤‡æ•°æ® å®ä¾‹åŒ–å•ä¾‹ï¼Œå¹¶ä¸”è¿”å›å¯¹è±¡
+	 * @return å‡†å¤‡å¥½çš„DBManager
 	 */
 	public static DBManager prepareDataBase()throws IOException {
 		if(manager==null) {
@@ -426,7 +475,7 @@ public class DBManager {
 	}
 
 	/**
-	 * Ö±½Ó·µ»ØÒÑ¾­ÊµÀı»¯µÄDBManager¶ÔÏó
+	 * ç›´æ¥è¿”å›å·²ç»å®ä¾‹åŒ–çš„DBManagerå¯¹è±¡
 	 * @return
 	 */
 	public static DBManager getManager(){
@@ -436,18 +485,18 @@ public class DBManager {
 	}
 
 	/**
-	 *
+	 *è·å–ç”¨æˆ·åˆ—è¡¨ å¦‚æœåˆ—è¡¨ä¸ºç©ºåˆ™ä¼šè¿”å›ä¸€ä¸ªå®ä¾‹åŒ–äº†çš„ç©ºåˆ—è¡¨
 	 * @return
 	 */
 	public ArrayList<User> getUserList() {
 		if(userList!=null) {
 			return userList;
 		}
-		return null;
+		return new ArrayList<>();
 	}
 
 	/**
-	 * ÊÇ·ñ´æÔÚÓÃ»§Ãû×Ö
+	 * æ˜¯å¦å­˜åœ¨ç”¨æˆ·åå­—
 	 * @param name
 	 * @return
 	 */
@@ -467,9 +516,9 @@ public class DBManager {
 	}
 
 	/**
-	 *Ğ´Èë¶ÔÏóµ½ÎÄ¼şÖĞ£¬¶ÁÈ¡ÎÄ¼şÂ·¾¶£¬Èç¹ûÃ»´´½¨»á×Ô¶¯´´½¨ÎÄ¼ş
-	 * @param path ÎÄ¼ş¾ø¶ÔÂ·¾¶
-	 * @param object ½«ÒªĞ´Èëµ½ÎÄ¼şµÄ¶ÔÏó
+	 *å†™å…¥å¯¹è±¡åˆ°æ–‡ä»¶ä¸­ï¼Œè¯»å–æ–‡ä»¶è·¯å¾„ï¼Œå¦‚æœæ²¡åˆ›å»ºä¼šè‡ªåŠ¨åˆ›å»ºæ–‡ä»¶
+	 * @param path æ–‡ä»¶ç»å¯¹è·¯å¾„
+	 * @param object å°†è¦å†™å…¥åˆ°æ–‡ä»¶çš„å¯¹è±¡
 	 * @throws IOException
 	 */
 	public static void writeObject(String path,Object object) throws IOException {

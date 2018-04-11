@@ -7,8 +7,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import SwingTool.MyButton;
-import compoent.AnPasswordField;
-import compoent.AnTextField;
+import component.AnPasswordField;
+import component.AnTextField;
 import dbManager.DBManager;
 import dbManager.User;
 
@@ -38,11 +38,11 @@ public class NewUserWindow extends JFrame{
 	private AnTextField boxAnswer;
 	
 	
-	//×é¼þ
+	//ç»„ä»¶
 	
 	
 	
-	//¹¹Ôì
+	//æž„é€ 
 	private NewUserWindow() {
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -60,19 +60,19 @@ public class NewUserWindow extends JFrame{
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		
 		JLabel label = new JLabel("\u6CE8\u518C\u7BA1\u7406\u8D26\u6237");
-		label.setFont(new Font("Î¢ÈíÑÅºÚ Light", Font.PLAIN, 30));
+		label.setFont(new Font("å¾®è½¯é›…é»‘ Light", Font.PLAIN, 30));
 		label.setBounds(10, 10, 305, 41);
 		getContentPane().add(label);
 		
-		JLabel label_1 = new JLabel("Äú¿ÉÒÔÊ¹ÓÃ´ËÕË»§¹ÜÀí¹¤µØµÄ×Ê²ú¡¢ÈËÔ±ºÍ¹¤×÷½ø¶È");
-		label_1.setFont(new Font("Î¢ÈíÑÅºÚ Light", Font.PLAIN, 12));
+		JLabel label_1 = new JLabel("æ‚¨å¯ä»¥ä½¿ç”¨æ­¤è´¦æˆ·ç®¡ç†å·¥åœ°çš„èµ„äº§ã€äººå‘˜å’Œå·¥ä½œè¿›åº¦");
+		label_1.setFont(new Font("å¾®è½¯é›…é»‘ Light", Font.PLAIN, 12));
 		label_1.setBounds(12, 60, 474, 15);
 		getContentPane().add(label_1);
 		
 		MyButton btnAchieve = new MyButton("\u5B8C\u6210");
 		btnAchieve.setBounds(368, 297, 93, 23);
 		getContentPane().add(btnAchieve);
-		//È·ÈÏÊÂ¼þ
+		//ç¡®è®¤äº‹ä»¶
 		btnAchieve.addActionListener(e -> {
             // TODO Auto-generated method stub
             String userName,password,passwordCheck,question,answer;
@@ -82,61 +82,61 @@ public class NewUserWindow extends JFrame{
             question=boxQuestion.getText();
             answer=boxAnswer.getText();
 
-            //ÓÃ»§Ãû
+            //ç”¨æˆ·å
             if(userName.length()==0) {
                 boxUser.setErrorBorder();
-                JOptionPane.showMessageDialog(boxUser, "ÇëÌîÐ´ÓÃ»§Ãû","×¢²áÌáÊ¾",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(boxUser, "è¯·å¡«å†™ç”¨æˆ·å","æ³¨å†Œæç¤º",JOptionPane.ERROR_MESSAGE);
                 return;
             }
             if(DBManager.isExistUserName(userName)){
             	boxUser.setText("");
             	boxUser.setErrorBorder();
-            	Application.errorWindow("¸ÃÓÃ»§ÒÑ´æÔÚ£¬ÇëÖØÐÂÌîÐ´£¡");
+            	Application.errorWindow("è¯¥ç”¨æˆ·å·²å­˜åœ¨ï¼Œè¯·é‡æ–°å¡«å†™ï¼");
             	return;
 			}
 
-            //ÃÜÂë¿ò
+            //å¯†ç æ¡†
             if(password.length()>=6) {
                 for(int i=0;i<password.length();i++) {
                     char c=password.charAt(i);
                     if(!(c>='a'&&c<='z'||c>='A'&&c<='Z'||c>='0'&&c<='9')) {
                     	boxPassword.setText("");
                         boxPassword.setErrorBorder();
-                        JOptionPane.showMessageDialog(boxPassword, "ÃÜÂë²»·ûºÏÒªÇó","×¢²áÌáÊ¾",JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(boxPassword, "å¯†ç ä¸ç¬¦åˆè¦æ±‚","æ³¨å†Œæç¤º",JOptionPane.ERROR_MESSAGE);
                         break;
                     }
                 }
             }else {
 				boxPassword.setText("");
                 boxPassword.setErrorBorder();
-                JOptionPane.showMessageDialog(boxPassword, "ÃÜÂë²»·ûºÏÒªÇó","×¢²áÌáÊ¾",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(boxPassword, "å¯†ç ä¸ç¬¦åˆè¦æ±‚","æ³¨å†Œæç¤º",JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            //È·ÈÏÃÜÂë¿ò
+            //ç¡®è®¤å¯†ç æ¡†
             if(!password.equals(passwordCheck)) {
             	boxCheckPassword.setText("");
                 boxCheckPassword.setErrorBorder();
-                JOptionPane.showMessageDialog(boxCheckPassword, "Á½´ÎÊäÈëµÄÃÜÂë²»ÕýÈ·","×¢²áÌáÊ¾",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(boxCheckPassword, "ä¸¤æ¬¡è¾“å…¥çš„å¯†ç ä¸æ­£ç¡®","æ³¨å†Œæç¤º",JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            //ÎÊÌâ¿ò
+            //é—®é¢˜æ¡†
             if(question.length()==0) {
             	boxQuestion.setText("");
                 boxQuestion.setErrorBorder();
-                JOptionPane.showMessageDialog(boxQuestion, "ÇëÌîÐ´ÎÊÌâ","×¢²áÌáÊ¾",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(boxQuestion, "è¯·å¡«å†™é—®é¢˜","æ³¨å†Œæç¤º",JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            //´ð°¸¿ò
+            //ç­”æ¡ˆæ¡†
             if(answer.length()==0) {
             	boxAnswer.setText("");
                 boxAnswer.setErrorBorder();
-                JOptionPane.showMessageDialog(boxAnswer, "ÇëÌîÐ´ÎÊÌâ","×¢²áÌáÊ¾",JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(boxAnswer, "è¯·å¡«å†™é—®é¢˜","æ³¨å†Œæç¤º",JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            //È«²¿ÒÑ¾­¼ì²éÍê³É
+            //å…¨éƒ¨å·²ç»æ£€æŸ¥å®Œæˆ
             User user=new User();
             user.userName=userName;
             user.password=password;
@@ -159,12 +159,12 @@ public class NewUserWindow extends JFrame{
         });
 		
 		JLabel lblNewLabel = new JLabel("\u7528\u6237\u540D\uFF1A");
-		lblNewLabel.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 14));
+		lblNewLabel.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 14));
 		lblNewLabel.setBounds(10, 113, 66, 18);
 		getContentPane().add(lblNewLabel);
 		
 		boxUser = new AnTextField();
-		boxUser.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 12));
+		boxUser.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 12));
 		boxUser.setBounds(89, 113, 114, 22);
 		getContentPane().add(boxUser);
 		boxUser.setColumns(10);
@@ -176,12 +176,12 @@ public class NewUserWindow extends JFrame{
 		boxPassword.setColumns(10);
 		
 		JLabel lblNewLabel_1 = new JLabel("\u5BC6\u7801\uFF1A");
-		lblNewLabel_1.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 14));
+		lblNewLabel_1.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 14));
 		lblNewLabel_1.setBounds(10, 146, 66, 18);
 		getContentPane().add(lblNewLabel_1);
 		
 		JLabel label_2 = new JLabel("\u786E\u8BA4\u5BC6\u7801\uFF1A");
-		label_2.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 14));
+		label_2.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 14));
 		label_2.setBounds(10, 177, 80, 18);
 		getContentPane().add(label_2);
 		
@@ -190,23 +190,23 @@ public class NewUserWindow extends JFrame{
 		getContentPane().add(boxCheckPassword);
 		boxCheckPassword.setColumns(10);
 		
-		JLabel lblNewLabel_2 = new JLabel("£¨²»³¬¹ý10¸ö×Ö·û£¬Îª·½±ãÄú¼Ç×¡£¬Çë¾¡Á¿Ê¹ÓÃÓ¢ÎÄ»òÊý×Ö£©");
-		lblNewLabel_2.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 12));
+		JLabel lblNewLabel_2 = new JLabel("ï¼ˆä¸è¶…è¿‡10ä¸ªå­—ç¬¦ï¼Œä¸ºæ–¹ä¾¿æ‚¨è®°ä½ï¼Œè¯·å°½é‡ä½¿ç”¨è‹±æ–‡æˆ–æ•°å­—ï¼‰");
+		lblNewLabel_2.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 12));
 		lblNewLabel_2.setBounds(221, 115, 345, 18);
 		getContentPane().add(lblNewLabel_2);
 		
 		JLabel label_3 = new JLabel("\uFF08\u5B57\u6BCD\u6216\u6570\u5B57\uFF0C\u4E0D\u8D85\u8FC720\u4E2A\uFF0C\u4E0D\u5C0F\u4E8E6\u4E2A\uFF09");
-		label_3.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 12));
+		label_3.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 12));
 		label_3.setBounds(221, 147, 345, 18);
 		getContentPane().add(label_3);
 		
 		JLabel label_4 = new JLabel("\uFF08\u786E\u8BA4\u60A8\u7684\u5BC6\u7801\uFF09");
-		label_4.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 12));
+		label_4.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 12));
 		label_4.setBounds(221, 179, 345, 18);
 		getContentPane().add(label_4);
 		
 		JLabel label_5 = new JLabel("\u95EE\u9898\uFF1A");
-		label_5.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 14));
+		label_5.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 14));
 		label_5.setBounds(10, 246, 60, 18);
 		getContentPane().add(label_5);
 		
@@ -217,12 +217,12 @@ public class NewUserWindow extends JFrame{
 		boxQuestion.setMaxLength(50);
 		
 		JLabel lblNewLabel_3 = new JLabel("\uFF08\u7528\u4E8E\u627E\u56DE\u5BC6\u7801\uFF09");
-		lblNewLabel_3.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 12));
+		lblNewLabel_3.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 12));
 		lblNewLabel_3.setBounds(10, 276, 131, 18);
 		getContentPane().add(lblNewLabel_3);
 		
 		JLabel label_6 = new JLabel("\u7B54\u6848\uFF1A");
-		label_6.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 14));
+		label_6.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 14));
 		label_6.setBounds(381, 246, 53, 18);
 		getContentPane().add(label_6);
 		
@@ -236,7 +236,7 @@ public class NewUserWindow extends JFrame{
 	}
 	
 	
-	//µ¥ÀýÄ£Ê½µÄ·½·¨
+	//å•ä¾‹æ¨¡å¼çš„æ–¹æ³•
 	public static NewUserWindow getWindow() {
 		if(window==null) {
 			window=new NewUserWindow();
@@ -247,19 +247,19 @@ public class NewUserWindow extends JFrame{
 	
 	
 	
-	//·½·¨
+	//æ–¹æ³•
 	/**
-	 * ³õÊ¼»¯
+	 * åˆå§‹åŒ–
 	 */
 	private void init() {
-		this.setTitle("ÐÂÓÃ»§×¢²á");
+		this.setTitle("æ–°ç”¨æˆ·æ³¨å†Œ");
 		this.setSize(584, 361);
 	}
 	
 	
 	
 	/**
-	 * ÉèÖÃÊý¾Ý»Øµ÷
+	 * è®¾ç½®æ•°æ®å›žè°ƒ
 	 * @param callback
 	 */
 	public void setCallback(IUserCallback callback) {
@@ -269,7 +269,7 @@ public class NewUserWindow extends JFrame{
 	
 	
 	/**
-	 * Çå¿Õ¿Ø¼þÊý¾Ý
+	 * æ¸…ç©ºæŽ§ä»¶æ•°æ®
 	 */
 	public void clearCompoent() {
 		boxAnswer.setText("");

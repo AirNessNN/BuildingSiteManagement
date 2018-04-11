@@ -1,4 +1,4 @@
-package compoent;
+package component;
 
 import resource.Resource;
 

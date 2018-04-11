@@ -1,30 +1,19 @@
 package application;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import javax.swing.JPanel;
 
-import compoent.*;
-import dbManager.DBManager;
+import component.*;
 import resource.Resource;
 
-import javax.swing.JTextField;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
 import java.awt.Font;
-import java.io.IOException;
-import javax.swing.SwingConstants;
-
-import application.NewUserWindow.IUserCallback;
 
 public class LoginWindow extends JFrame{
 	
-	//×é¼ş
+	//ç»„ä»¶
 	private JPanel panel=null;
 	private AnImageButton anImageButton=null;
 	
@@ -33,7 +22,7 @@ public class LoginWindow extends JFrame{
 	private AnTextButton btnRegister=null;
 	private AnTextButton btnFindPassword=null;
 	
-	//µÇÂ¼½á¹û»Øµ÷
+	//ç™»å½•ç»“æœå›è°ƒ
 	public ILoginResultCallback resultCallback=null;
 	interface ILoginResultCallback{
 		void loginResult(String user, String password);
@@ -78,7 +67,7 @@ public class LoginWindow extends JFrame{
 	
 	public LoginWindow() {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(LoginWindow.class.getResource("/resource/login.png")));
-		setTitle("µÇÂ¼");
+		setTitle("ç™»å½•");
 		setSize(500, 289);
 		getContentPane().setBackground(Color.WHITE);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -93,14 +82,14 @@ public class LoginWindow extends JFrame{
 		panel.setLayout(null);
 		panel.setBackground(Color.white);
 		
-		//ÃÜÂë¿ò
+		//å¯†ç æ¡†
 		password = new AnPasswordField();
-		password.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 17));
+		password.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 17));
 		password.setBounds(122, 192, 227, 21);
 		panel.add(password);
 		password.setColumns(10);
 		
-		anImageButton=new AnImageButton("µÇÂ¼Êı¾İ¿â");
+		anImageButton=new AnImageButton("ç™»å½•æ•°æ®åº“");
 		anImageButton.setLocation(367, 149);
 		anImageButton.setImage(AnUtils.getImageIcon(Resource.getResource("login_normal.png")),
 				AnUtils.getImageIcon(Resource.getResource("login_press.png")), 
@@ -110,13 +99,13 @@ public class LoginWindow extends JFrame{
 		});
 		
 		JLabel lblNewLabel_2 = new JLabel("An\u5DE5\u5730\u7BA1\u7406\u7CFB\u7EDF");
-		lblNewLabel_2.setFont(new Font("µÈÏß Light", Font.PLAIN, 45));
+		lblNewLabel_2.setFont(new Font("ç­‰çº¿ Light", Font.PLAIN, 45));
 		lblNewLabel_2.setBounds(35, 32, 391, 82);
 		panel.add(lblNewLabel_2);
 		
-		labRodingMessage = new JLabel("ÕıÔÚµÇÂ¼...");
+		labRodingMessage = new JLabel("æ­£åœ¨ç™»å½•...");
 		labRodingMessage.setForeground(Color.WHITE);
-		labRodingMessage.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 13));
+		labRodingMessage.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 13));
 		labRodingMessage.setHorizontalAlignment(SwingConstants.RIGHT);
 		labRodingMessage.setBounds(327, 231, 155, 23);
 		labRodingMessage.setVisible(false);
@@ -125,24 +114,24 @@ public class LoginWindow extends JFrame{
 		panel.add(anImageButton);
 		
 		JLabel label = new JLabel("\u5BC6\u7801:");
-		label.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 15));
+		label.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 15));
 		label.setBounds(35, 192, 72, 23);
 		panel.add(label);
 		
 		JLabel lblNewLabel = new JLabel("\u7528\u6237\u540D:");
-		lblNewLabel.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 15));
+		lblNewLabel.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 15));
 		lblNewLabel.setBounds(35, 149, 72, 23);
 		panel.add(lblNewLabel);
 		
-		//ÓÃ»§Ãû
+		//ç”¨æˆ·å
 		user = new AnTextField();
-		user.setFont(new Font("Î¢ÈíÑÅºÚ", Font.PLAIN, 17));
+		user.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 17));
 		user.setBounds(122, 150, 227, 21);
 		panel.add(user);
 		user.setColumns(10);
 		
-		//×¢²á
-		btnRegister=new AnTextButton("×¢²á");
+		//æ³¨å†Œ
+		btnRegister=new AnTextButton("æ³¨å†Œ");
 		btnRegister.setLocation(10, 234);
 		panel.add(btnRegister);
 		btnRegister.addActionListener(e -> {
@@ -152,14 +141,14 @@ public class LoginWindow extends JFrame{
             newUserWindow.setCallback(user -> {
 				// TODO Auto-generated method stub
 				if(user!=null) {
-					JOptionPane.showMessageDialog(null, "×¢²áÍê³É£¬ÄúÏÖÔÚ¿ÉÒÔÓÃ×¢²áµÄÕË»§µÇÂ¼¡£","×¢²áÌáÊ¾",JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(null, "æ³¨å†Œå®Œæˆï¼Œæ‚¨ç°åœ¨å¯ä»¥ç”¨æ³¨å†Œçš„è´¦æˆ·ç™»å½•ã€‚","æ³¨å†Œæç¤º",JOptionPane.INFORMATION_MESSAGE);
 					Application.addUser(user);
-					Application.updateUserData();//¸üĞÂÊı¾İ
+					Application.updateUserData();//æ›´æ–°æ•°æ®
 				}
 			});
         });
-		//Íü¼ÇÃÜÂë
-		btnFindPassword=new AnTextButton("Íü¼ÇÃÜÂë");
+		//å¿˜è®°å¯†ç 
+		btnFindPassword=new AnTextButton("å¿˜è®°å¯†ç ");
 		btnFindPassword.setLocation(70, 234);
 		panel.add(btnFindPassword);
 		btnFindPassword.addActionListener(e -> {
@@ -189,7 +178,7 @@ public class LoginWindow extends JFrame{
 		
 		
 		
-		//ÕÒ»ØÃÜÂë
+		//æ‰¾å›å¯†ç 
 		
 		
 		// TODO Auto-generated constructor stub

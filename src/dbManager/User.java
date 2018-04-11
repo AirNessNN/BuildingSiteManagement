@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * ÓÃ»§Àà
+ * ç”¨æˆ·ç±»
  * @author Dell
  *
  */
@@ -43,26 +43,26 @@ public class User implements Serializable{
 	
 	
 	/*
-	 * ======================²Ù×÷Dirs============================
+	 * ======================æ“ä½œDirs============================
 	 */
-    //AnBeanÊı¾İ
+    //AnBeanæ•°æ®
 	public String getWorkerPropertyPath(){
 		return Resource.getDataDirectoryPath()+"\\"+userName+"workerproperty.ab";
 	}
 
-	//ArrayListÊı¾İ
+	//ArrayListæ•°æ®
 	public String getAssetsPath(){
 		return Resource.getDataDirectoryPath()+"\\"+userName+"assetslist.lst";
 	}
 
-	//ArrayListÊı¾İ
+	//ArrayListæ•°æ®
     public String getWorkerListPath() {
         return Resource.getDataDirectoryPath()+"\\"+userName+"_workerlist.lst";
     }
 
 
 
-    //ÖØĞ´
+    //é‡å†™
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub

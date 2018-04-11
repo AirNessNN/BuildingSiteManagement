@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -20,7 +21,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import resource.Resource;
 
 /**
- * An¹¤¾ß°ü
+ * Anå·¥å…·åŒ…
  * @author AN
  *
  */
@@ -32,6 +33,7 @@ public class AnUtils {
 	public static final int LOOK_AND_FEEL_DEFAULT=4;
 	public static final int LOOK_AND_FEEL_CrossPlatform=5;
 	public static final int LOOK_AND_FEEL_MOTIF=6;
+	public static final int LOOK_AND_FEEL_NIMBUS=7;
 	
 	
 	public static BufferedImage getImage(String src) {
@@ -42,7 +44,7 @@ public class AnUtils {
 				return image;
 			}catch (Exception e) {
 				// TODO: handle exception
-				JOptionPane.showMessageDialog(null, e.getMessage(),"´íÎó",JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, e.getMessage(),"é”™è¯¯",JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
 	}
@@ -53,7 +55,7 @@ public class AnUtils {
 			return image;
 		} catch (Exception e) {
 			// TODO: handle exception
-			JOptionPane.showMessageDialog(null, e.getMessage(),"´íÎó",JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, e.getMessage(),"é”™è¯¯",JOptionPane.ERROR_MESSAGE);
 			return null;
 		}
 	}
@@ -70,7 +72,7 @@ public class AnUtils {
 	}
 	
 	/**
-	 * »ñÈ¡ImageIconÍ¼±ê
+	 * è·å–ImageIconå›¾æ ‡
 	 * @param src
 	 * @return
 	 */
@@ -114,14 +116,14 @@ public class AnUtils {
 	}
 	
 	/**
-	 * »ñµÃÎÄ±¾äÖÈ¾µÄÏñËØ´óĞ¡
+	 * è·å¾—æ–‡æœ¬æ¸²æŸ“çš„åƒç´ å¤§å°
 	 * @param text
 	 * @param font
 	 * @return
 	 */
 	public static Dimension getStringPx(String text,Font font) {
 		
-		//¼ÆËã×é¼şSize
+		//è®¡ç®—ç»„ä»¶Size
 		int enc=0,chc=0;
 		if(text==null) {
 			return new Dimension(0, 0);
@@ -141,7 +143,7 @@ public class AnUtils {
 	}
 	
 	/**
-	 * ·´ĞòÁĞ»¯Æ÷
+	 * ååºåˆ—åŒ–å™¨
 	 * @param bytes
 	 * @return
 	 */
@@ -163,7 +165,7 @@ public class AnUtils {
 	
 	
 	/**
-	 * ¶ÔÏóĞòÁĞ»¯
+	 * å¯¹è±¡åºåˆ—åŒ–
 	 * @param obj
 	 * @return
 	 */
@@ -211,6 +213,9 @@ public class AnUtils {
 				lookAndFeel = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
 				UIManager.setLookAndFeel(lookAndFeel);
 				break;
+			case 7:
+				lookAndFeel ="com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
+				UIManager.setLookAndFeel(lookAndFeel);
 			default:
 				break;
 			}
@@ -221,5 +226,69 @@ public class AnUtils {
 		}
 		
 	}
-	
+
+	/**
+	 * Logæ‰“å°
+	 * @param className è°ƒç”¨çš„ç±»å¯¹è±¡
+	 * @param object è¾“å…¥çš„å¯¹è±¡
+	 */
+	public static void log(Object className,Object object){
+		System.out.println(className.getClass().getName()+"ï¼š"+object);
+	}
+
+	/**
+	 * å°†æ•°ç»„è½¬æˆäºŒç»´å‘é‡
+	 * @param data
+	 * @return
+	 */
+	public static Vector<Vector>conventToVector(Object[][] data){
+		Vector<Vector> tmpData=new Vector<>();
+		for (Object[] objects:data){
+
+			Vector v=new Vector();
+			for (Object object:objects){
+				v.add(object);
+			}
+			tmpData.add(v);
+		}
+		return tmpData;
+	}
+
+	/**
+	 * å°†äºŒç»´å‘é‡è½¬ä¸ºäºŒç»´æ•°ç»„
+	 * @param data
+	 * @return
+	 */
+	public static Object[][] conventToArrays(Vector<Vector> data){
+		int length=0;
+		for (Vector v:data){
+			if (v.size()>length)
+				length=v.size();
+		}
+
+		Object[][] tmp=new Object[data.size()][length];
+
+		for (int i=0;i<data.size();i++){
+			for (int j=0;j<length;j++){
+				try {
+					tmp[i][j]=data.get(i).get(j);
+				}catch (IndexOutOfBoundsException e){
+					continue;
+				}
+			}
+		}
+		return tmp;
+	}
+
+
+    /**
+     * æ£€æŸ¥å¯¹è±¡çš„ç±»å‹
+     * @param object
+     * @param name
+     * @return
+     */
+	public static boolean isObjectContains(Object object,String name){
+        return object.getClass().getName().contains(name);
+    }
+
 }

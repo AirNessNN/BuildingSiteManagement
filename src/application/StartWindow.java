@@ -4,17 +4,17 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import javax.swing.JFrame;
+import javax.swing.*;
 
-import compoent.AnLabel;
+import component.AnLabel;
 import resource.Resource;
 
 /**
- * Æô¶¯»¶Ó­´°¿Ú´°¿Ú
+ * å¯åŠ¨æ¬¢è¿çª—å£çª—å£
  * @author Dell
  *
  */
-public class StartWindow extends JFrame{
+public class StartWindow extends JDialog{
 
     private AnLabel label=null;
     private static final long serialVersionUID = 1L;
@@ -29,7 +29,7 @@ public class StartWindow extends JFrame{
         label=new AnLabel(null);
         label.setBounds(38, 141, 77, 24);
         getContentPane().add(label);
-        setText("³õÊ¼»¯");
+        setText("åˆå§‹åŒ–");
     }
 
 
@@ -55,9 +55,9 @@ public class StartWindow extends JFrame{
         g2d.setColor(Color.white);
         g2d.setFont(new Font(Resource.FONT_WEI_RUAN_YA_HEI, 0, 18));
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        //»æÖÆ×´Ì¬ÎÄ×Ö
+        //ç»˜åˆ¶çŠ¶æ€æ–‡å­—
         g2d.drawString(label.getText(), 30, 180);
-        //»æÖÆ°æ±¾ºÅ
+        //ç»˜åˆ¶ç‰ˆæœ¬å·
         g2d.setFont(new Font(Resource.FONT_WEI_RUAN_YA_HEI, 0, 15));
         g2d.drawString(Application.VERSION, 540, 380);
     }

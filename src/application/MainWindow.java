@@ -5,15 +5,14 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import compoent.AnCardPanel;
-import compoent.AnCardPanelItem;
-import compoent.ImagePanel;
+import component.AnCardPanel;
+import component.AnCardPanelItem;
 import dbManager.DBManager;
 import dbManager.User;
 import resource.Resource;
 
 /**
- * 工地管理系统的主窗口
+ * 宸ュ湴绠＄悊绯荤粺鐨勪富绐楀彛
  * 
  * @author Dell
  *
@@ -41,6 +40,7 @@ public class MainWindow extends JFrame {
 	}
 
 	private MainWindow(User user){
+
 		init();
 		initView();
 		this.user=user;
@@ -54,18 +54,18 @@ public class MainWindow extends JFrame {
 		setLocation(0,0);
 		cardPanel.setItemSize(60,60);
 		cardPanel.setSourcePanel(sourcePanel);
-		//点击动态加载panel
+		//鐐瑰嚮鍔ㄦ�佸姞杞絧anel
 		cardPanel.setOnSelectedListener(item -> {
 
         });
 
-		//工人管理
+		//宸ヤ汉绠＄悊
 		workerItem=new AnCardPanelItem();
 		workerItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("worker_normal.png")));
 		workerItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("worker_enter.png")));
 		workerItem.setSelectedImage(AnUtils.getImageIcon(Resource.getResource("worker_selected.png")));
 		cardPanel.addButton(workerItem);
-		workerItem.TAG="工人管理";
+		workerItem.TAG="宸ヤ汉绠＄悊";
 
 		WorkerPanel workPanel=new WorkerPanel();
 		//sourcePanel.add(workPanel);
@@ -73,7 +73,7 @@ public class MainWindow extends JFrame {
 
 
 
-		//工地管理
+		//宸ュ湴绠＄悊
 		buildSiteItem =new AnCardPanelItem();
 		buildSiteItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("resource_normal.png")));
 		buildSiteItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("resource_enter.png")));
@@ -81,7 +81,7 @@ public class MainWindow extends JFrame {
 		cardPanel.addButton(buildSiteItem);
 
 		
-		//设置
+		//璁剧疆
 		settingItem=new AnCardPanelItem();
 		settingItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("setting_normal.png")));
 		settingItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("setting_enter.png")));
@@ -92,11 +92,12 @@ public class MainWindow extends JFrame {
 
 
 	private void init(){
-		this.setSize(1000, 800);
+		setTitle("绠＄悊涓績");
+		this.setSize(1000, 700);
 		this.setLocationRelativeTo(null);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		// 实例容器
+		// 瀹炰緥瀹瑰櫒
 		panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.CENTER);
 		panel.setLayout(null);
@@ -105,7 +106,7 @@ public class MainWindow extends JFrame {
 		sourcePanel.setBounds(60,0,934,771);
 		panel.add(sourcePanel);
 
-		//窗口关闭事件（保存数据）
+		//绐楀彛鍏抽棴浜嬩欢锛堜繚瀛樻暟鎹級
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -118,7 +119,7 @@ public class MainWindow extends JFrame {
 
 
 	public static MainWindow getMainWindow(User user){
-		//准备数据
+		//鍑嗗鏁版嵁
 		DBManager.getManager().loadUser(user);
 
 		if(mainWindow==null){

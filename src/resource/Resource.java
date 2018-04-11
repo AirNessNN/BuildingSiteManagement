@@ -9,34 +9,34 @@ import java.io.InputStream;
 import javax.swing.filechooser.FileSystemView;
 
 /**
- * ³ÌĞòµÄ×ÊÔ´Àà£¬ÓÃÓÚ¹ÜÀí³ÌĞòÖĞËùÓĞ×ÊÔ´£¬°üÀ¨ÅäÖÃÎÄ¼ş£¬ÓÃ»§ÎÄ¼ş£¬Êı¾İ£¬Í¼Ïñ×ÊÔ´
+ * ç¨‹åºçš„èµ„æºç±»ï¼Œç”¨äºç®¡ç†ç¨‹åºä¸­æ‰€æœ‰èµ„æºï¼ŒåŒ…æ‹¬é…ç½®æ–‡ä»¶ï¼Œç”¨æˆ·æ–‡ä»¶ï¼Œæ•°æ®ï¼Œå›¾åƒèµ„æº
  * @author AN
  *
  */
 public class Resource {
-	//×ÖÌå
-	public final static String FONT_WEI_RUAN_YA_HEI="Î¢ÈíÑÅºÚ";
-	public final static String FONT_LAN_TING_HEI="·½ÕıÀ¼Í¤³¬Ï¸ºÚ¼òÌå";
+	//å­—ä½“
+	public final static String FONT_WEI_RUAN_YA_HEI="å¾®è½¯é›…é»‘";
+	public final static String FONT_LAN_TING_HEI="æ–¹æ­£å…°äº­è¶…ç»†é»‘ç®€ä½“";
 	public final static Font FONT_TITLE=new Font(FONT_WEI_RUAN_YA_HEI,Font.PLAIN,40);
 	public final static Font FONT_TABLE_ITEM=new Font(FONT_WEI_RUAN_YA_HEI,Font.PLAIN,15);
-	//ÑÕÉ«
+	//é¢œè‰²
 	public final static Color COLOR_LIGHT_BLUE=SystemColor.textHighlight;
 	
-	//ÏµÍ³ÎÄ¼ş
+	//ç³»ç»Ÿæ–‡ä»¶
 	/**
-	 * ´æ·ÅÓÃ»§µÄ¶ÔÏóÎÄ¼ş
+	 * å­˜æ”¾ç”¨æˆ·çš„å¯¹è±¡æ–‡ä»¶
 	 */
-	public final static int FILE_USER=1;//ÓÃ»§ÎÄ¼ş
+	public final static int FILE_USER=1;//ç”¨æˆ·æ–‡ä»¶
 	/**
-	 * ´æ·Å³ÌĞòÉèÖÃµÄÎÄ¼ş
+	 * å­˜æ”¾ç¨‹åºè®¾ç½®çš„æ–‡ä»¶
 	 */
-	public final static int FILE_SETTING=2;//ÉèÖÃÎÄ¼ş
+	public final static int FILE_SETTING=2;//è®¾ç½®æ–‡ä»¶
 
 
 
 
 	
-	//Â·¾¶
+	//è·¯å¾„
 	public static String getApplicationDirectoryPath() {
 		FileSystemView fileSystemView=FileSystemView.getFileSystemView();
 		return fileSystemView.getDefaultDirectory().getAbsolutePath()+"\\AnBuildingSiteMgr";
@@ -48,7 +48,7 @@ public class Resource {
     }
 
     /**
-     * »ñÈ¡Êı¾İÎÄ¼ş¼ĞÊµÀı
+     * è·å–æ•°æ®æ–‡ä»¶å¤¹å®ä¾‹
      * @return
      */
     public static File getDataDirectoryFile(){
@@ -56,7 +56,7 @@ public class Resource {
     }
 	
 	/**
-	 * »ñÈ¡¸ÃÏµÍ³µÄÎÄµµÎ»ÖÃµÄÎÄ¼ş¼ĞÊµÀı
+	 * è·å–è¯¥ç³»ç»Ÿçš„æ–‡æ¡£ä½ç½®çš„æ–‡ä»¶å¤¹å®ä¾‹
 	 * @return
 	 */
 	public static File getApplicationDirectoryFile() {
@@ -66,7 +66,7 @@ public class Resource {
 	
 	
 	/**
-	 * »ñµÃ³ÌĞòÊı¾İÎÄ¼ş
+	 * è·å¾—ç¨‹åºæ•°æ®æ–‡ä»¶
 	 * @param type
 	 * @return
 	 */

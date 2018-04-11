@@ -1,51 +1,65 @@
 package application;
 
-import compoent.*;
-import dbManager.Anbean;
-import dbManager.DBManager;
-import dbManager.Info;
+import component.*;
+import dbManager.*;
 import resource.Resource;
 import java.awt.Color;
 import javax.swing.*;
 import java.awt.Font;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
 import SwingTool.MyButton;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
 
 
 public class WorkerPanel extends ImagePanel implements Loadable, TableModelListener{
 
-    //ËÑË÷¿ò
-	private AnTextField searchBox;
-	//¹¤ÈËÁĞ±íÄ£ĞÍ
-	private AnList<AnInfoListDataModel> list=null;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	//å·¥äººå±æ€§äºŒç»´æ•°ç»„
+    private final String[] tableHeader={"æ•°æ®ç±»å‹","é¡¹ç›®å€¼"};
 
-	//¹¤ÈËÊôĞÔ¶şÎ¬Êı×é
-    private final String[] tableHeader={"Êı¾İÀàĞÍ","ÏîÄ¿Öµ"};
-
-	private volatile boolean isSearching=false;//ËÑË÷Ïß³ÌÔËĞĞ±ê¼Ç
-    private volatile int textChanged=0;//ÎÄ×ÖÊÇ·ñ·¢Éú¸Ä±ä  -1ÊÇÉ¾³ı   0ÊÇÎ´¸Ä±ä   1Ôö¼Ó
+	private volatile boolean isSearching=false;//æœç´¢çº¿ç¨‹è¿è¡Œæ ‡è®°
+    private volatile int textChanged=0;//æ–‡å­—æ˜¯å¦å‘ç”Ÿæ”¹å˜  -1æ˜¯åˆ é™¤   0æ˜¯æœªæ”¹å˜   1å¢åŠ 
     private Runnable searchTask=null;
     private Runnable searchStateChangeTask=null;
 
-    private ExecutorService  executorService=null;//Ïß³Ì³Ø
-    private JTable table;
+    private AnTable table;//è¡¨å•
 
-    //ÁĞ±í¿ØÖÆ===============
-    private int selectedIndex=-1;//Ñ¡ÖĞµÄÁĞ±íÏî
-    private DefaultTableModel listModel=null;
+    //åˆ—è¡¨æ§åˆ¶===============
+    private int selectedIndex=-1;//é€‰ä¸­çš„åˆ—è¡¨é¡¹
 
+    private Vector<Vector> data=null;//è¡¨å•ä¸­çš„æ•°æ®
+    //æ§ä»¶
+    private MyButton btnSave;
+    private AnTextField searchBox;
+    private AnList<AnInfoListDataModel> list=null;
+    private MyButton btnEntry;
+    private MyButton btnLeave;
+    private MyButton btnPrint;
+    private MyButton btnRefresh;
+    private MyButton button;
+
+    private AnComboBoxEditor cobSex =null;
+    private AnComboBoxEditor cobNation =null;
+    private AnComboBoxEditor cobWorkerState =null;
+    private AnComboBoxEditor cobWorkerType =null;
+    private AnComboBoxEditor cobSiteFrom=null;
+    private JComboBox cobBuildingSite;
 
 
 
@@ -54,94 +68,109 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
 
 
     /**
-     * ÔØÈë¿Ø¼ş²¼¾ÖºÍÊÂ¼ş
+     * è½½å…¥æ§ä»¶å¸ƒå±€å’Œäº‹ä»¶
      */
     private void initView(){
-        this.setSize(934,771);
+        this.setSize(934,671);
         setIcon(AnUtils.getImageIcon(Resource.getResource("workpanel.png")));
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportBorder(new EmptyBorder(0, 0, 0, 0));
-        scrollPane.setBounds(10, 114, 357, 647);
+        scrollPane.setBounds(10, 147, 357, 514);
         add(scrollPane);
         
         list=new AnList<>(new AnInfoCellRenderer(),355,60);
         scrollPane.setViewportView(list);
 
-        AnLabel lblTitle = new AnLabel("¹¤ÈË¹ÜÀí");
+        AnLabel lblTitle = new AnLabel("å·¥äººç®¡ç†");
         lblTitle.setBounds(10, 10, 175, 52);
-        lblTitle.setFont(new Font("·½ÕıÀ¼Í¤³¬Ï¸ºÚ¼òÌå", Font.PLAIN, 40));
+        lblTitle.setFont(new Font("æ–¹æ­£å…°äº­è¶…ç»†é»‘ç®€ä½“", Font.PLAIN, 40));
         lblTitle.setForeground(Color.WHITE);
         add(lblTitle);
         
         searchBox = new AnTextField();
-        searchBox.setText("ÊäÈëÃû×Ö»òÉí·İÖ¤ĞÅÏ¢²éÕÒ");
-        searchBox.setBounds(10, 84, 357, 23);
+        searchBox.setText("è¾“å…¥åå­—æˆ–èº«ä»½è¯ä¿¡æ¯æŸ¥æ‰¾");
+        searchBox.setBounds(10, 83, 357, 23);
         add(searchBox);
 
-        //Éí·İÖ¤µÄ×Ö·ûÏŞÖÆ
+        //èº«ä»½è¯çš„å­—ç¬¦é™åˆ¶
         searchBox.setColumns(18);
 
-        MyButton btnPrint = new MyButton("\u6253\u5370\u8868");
-        btnPrint.setBounds(583, 84, 76, 23);
+        btnPrint = new MyButton("\u6253\u5370\u8868");
+        btnPrint.setToolTipText("\u5C06\u6240\u6709\u5DE5\u4EBA\u4FE1\u606F\u6253\u5370\u5230\u8868\u4E2D");
+        btnPrint.setBounds(647, 84, 76, 23);
         add(btnPrint);
 
 
-        MyButton btnEntry = new MyButton("\u5165\u804C\u767B\u8BB0");
-        btnEntry.setBounds(377, 84, 93, 23);
+        btnEntry = new MyButton("\u5165\u804C\u767B\u8BB0");
+        btnEntry.setToolTipText("\u589E\u52A0\u65B0\u5458\u5DE5\u5230\u6570\u636E\u5E93\u4E2D");
+        btnEntry.setBounds(377, 84, 80, 23);
         add(btnEntry);
-        btnEntry.addActionListener((e)->{
-            list.addElement(new AnInfoListDataModel("±êÌâ","ÄÚÈİ"));
-        });
         
-        MyButton btnLeave = new MyButton("\u79BB\u804C\u767B\u8BB0");
-        btnLeave.setBounds(480, 84, 93, 23);
+        btnLeave = new MyButton("\u79BB\u804C\u767B\u8BB0");
+        btnLeave.setToolTipText("\u9009\u5B9A\u7684\u5DE5\u4EBA\u5C06\u4F1A\u79BB\u804C");
+        btnLeave.setBounds(467, 84, 80, 23);
         add(btnLeave);
         
-        MyButton btnRefresh = new MyButton("\u5237\u65B0");
-        btnRefresh.setBounds(669, 84, 76, 23);
+        btnRefresh = new MyButton("\u5237\u65B0");
+        btnRefresh.setBounds(733, 84, 63, 23);
         add(btnRefresh);
         
         JScrollPane scrollPane_1 = new JScrollPane();
-        scrollPane_1.setBounds(377, 162, 547, 599);
+        scrollPane_1.setBounds(377, 114, 547, 547);
         add(scrollPane_1);
 
-        //±íµ¥
-        table = new JTable();
+        //è¡¨å•
+        table=new AnTable();
         table.setRowHeight(30);
         table.setFont(Resource.FONT_TABLE_ITEM);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         scrollPane_1.setViewportView(table);
 
-        //¶¨Òå±íµ¥Ä£ĞÍ
-        listModel=new DefaultTableModel(null,tableHeader){
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                if(column==0)
-                    return false;
-                return true;
-            }
-        };
-        table.setModel(listModel);
+        //å®šä¹‰è¡¨å•æ¨¡å‹
+        table.setCellColumnEdited(0,false);
+        
+        btnSave = new MyButton("\u5237\u65B0");
+        btnSave.setEnabled(false);
+        btnSave.setText("\u4FDD\u5B58");
+        btnSave.setBounds(861, 84, 63, 23);
+        add(btnSave);
+        
+        button = new MyButton("\u5C5E\u6027\u4FEE\u6539");
+        button.setToolTipText("\u6DFB\u52A0\u6216\u5220\u9664\u5DE5\u4EBA\u7684\u5C5E\u6027");
+        button.setBounds(557, 84, 80, 23);
+        add(button);
+        
+        cobBuildingSite = new JComboBox();
+        cobBuildingSite.setBounds(83, 116, 284, 21);
+        add(cobBuildingSite);
+        cobBuildingSite.addItem("å…¨éƒ¨");
+        cobBuildingSite.addItem("æ‰€æœ‰");//Debug
+        
+        JLabel label = new JLabel("\u6240\u5C5E\u5DE5\u5730");
+        label.setFont(new Font("å¾®è½¯é›…é»‘", Font.PLAIN, 14));
+        label.setBounds(10, 120, 63, 15);
+        add(label);
+
+        table.setColumn(tableHeader);
         table.getColumnModel().getColumn(0).setPreferredWidth(261);
         table.getColumnModel().getColumn(1).setPreferredWidth(318);
         table.getTableHeader().setReorderingAllowed(false);
         table.getTableHeader().setFont(new Font(Resource.FONT_WEI_RUAN_YA_HEI,Font.PLAIN,17));
         table.getTableHeader().setResizingAllowed(false);
 
-        
-        AnLabel btnSave = new AnLabel("\u5DE5\u4EBA\u4FE1\u606F");
-        btnSave.setBounds(377, 137, 76, 15);
-        add(btnSave);
-        
-        JButton btnNewButton = new JButton("New button");
-        btnNewButton.setBounds(480, 134, 93, 23);
-        add(btnNewButton);
+        cobSex=new AnComboBoxEditor();
+        cobSex.setEditable(false);
+        cobNation=new AnComboBoxEditor();
+        cobWorkerState=new AnComboBoxEditor();
+        cobWorkerType=new AnComboBoxEditor();
+        cobSiteFrom=new AnComboBoxEditor();
+        cobSiteFrom.setEditable(false);
 
     }
 
     private void initEvent(){
-        //ËÑË÷¿ò½¹µãÂß¼­
+        //æœç´¢æ¡†ç„¦ç‚¹é€»è¾‘
         searchBox.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -151,15 +180,34 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
             @Override
             public void focusLost(FocusEvent e) {
                 if(searchBox.getText().equals("")){
-                    searchBox.setText("ÊäÈëÃû×Ö»òÉí·İÖ¤ĞÅÏ¢²éÕÒ");
+                    searchBox.setText("è¾“å…¥åå­—æˆ–èº«ä»½è¯ä¿¡æ¯æŸ¥æ‰¾");
                 }
             }
         });
-        //ËÑË÷¿òÂß¼­
+
+        //å…¥èŒç™»è®°
+        btnEntry.addActionListener((e)->{
+
+        });
+
+        //ä¿å­˜è¡¨å•
+        btnSave.addActionListener((e)->{
+            saveToMemory();
+        });
+
+        //åˆ·æ–°åˆ—è¡¨
+        btnRefresh.addActionListener((e)->{
+            loadingProperty();
+            loadingList();
+            list.revalidate();
+            list.requestFocus();
+        });
+
+        //æœç´¢æ¡†é€»è¾‘
         searchBox.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                if(searchBox.getText().equals("ÊäÈëÃû×Ö»òÉí·İÖ¤ĞÅÏ¢²éÕÒ"))
+                if(searchBox.getText().equals("è¾“å…¥åå­—æˆ–èº«ä»½è¯ä¿¡æ¯æŸ¥æ‰¾"))
                     return;
                 search(1);
             }
@@ -174,13 +222,12 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
             }
         });
 
+        //è¡¨æ ¼æ•°æ®ç›‘å¬
+        table.getListModel().addTableModelListener(this);
 
-        //±í¸ñÊı¾İ¼àÌı
-        listModel.addTableModelListener(this);
-
-        //ËÑË÷Ïß³Ì·½·¨
+        //æœç´¢çº¿ç¨‹æ–¹æ³•
         searchTask= () -> {
-            //Ëø×¡List
+            //é”ä½List
             synchronized (list){
                 list.clear();
                 String value=searchBox.getText();
@@ -188,15 +235,15 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
 
                     if(textChanged==-1){
                         list.clear();
-                        i=0;//¸´Î»ËÑË÷
+                        i=0;//å¤ä½æœç´¢
                         textChanged=0;
                     }
 
                     Anbean anbean=DBManager.getManager().loadingWorkerList().get(i);
-                    //»ñÈ¡InfoÊôĞÔ
-                    Info name=anbean.get("Ãû×Ö");
-                    Info number=anbean.get("Éí·İÖ¤");
-                    //»ñÈ¡Öµ
+                    //è·å–Infoå±æ€§
+                    Info name=anbean.find("åå­—");
+                    Info number=anbean.find("èº«ä»½è¯");
+                    //è·å–å€¼
                     String strName=(String) name.getValue();
                     String strNum=(String)number.getValue();
                     if(strName.contains(value)||strNum.contains(value)){
@@ -212,7 +259,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
             isSearching=false;
         };
 
-        //ËÑË÷×´Ì¬¸ü¸ÄÏß³Ì
+        //æœç´¢çŠ¶æ€æ›´æ”¹çº¿ç¨‹
         searchStateChangeTask=()->{
 
             synchronized (list){
@@ -233,21 +280,47 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
             textChanged=0;
         };
 
-
-        //Listµã»÷
+        //Listç‚¹å‡»
         list.addListSelectionListener(e -> {
-            
-            if(list.hasFocus()){
-                addTableData(list.getElementAt(list.getSelectedIndex()));
+
+            AnInfoListDataModel tmpModel=list.getElementAt(list.getSelectedIndex());
+            //ä¿å­˜æŒ‰é’®å¼€å¯ï¼Œæ„å‘³ç€æœ‰æ•°æ®æ”¹åŠ¨ï¼ˆæ•°æ®æ”¹åŠ¨ç”±æ–¹æ³•æ§åˆ¶ï¼Œæ˜¯å¦å¼€å¯ä¿å­˜æŒ‰é’®ç”±ç›‘å¬äº‹ä»¶æ§åˆ¶ï¼‰
+            if(btnSave.isEnabled()){
+                int opa=JOptionPane.showConfirmDialog(WorkerPanel.this,"æœ‰æ”¹åŠ¨çš„æ•°æ®ï¼Œæ˜¯å¦ä¿å­˜ï¼Ÿ","ä¿å­˜æç¤º",JOptionPane.YES_NO_OPTION);
+                if(opa==JOptionPane.YES_OPTION){
+                    saveToMemory();
+                    fillTableData(tmpModel);
+                }else{
+                    //èˆå¼ƒå¡«å……
+                    btnSave.setEnabled(false);
+                    fillTableData(tmpModel);
+                }
+                list.requestFocus();
             }
+            //åœ¨å­˜åœ¨ç„¦ç‚¹çš„æƒ…å†µä¸‹æ‰ä¼šå¡«å……æ•°æ®ï¼Œä¸ºäº†é˜²æ­¢åœ¨loading listçš„æ—¶å€™è§¦å‘
+            if(list.hasFocus()){
+                fillTableData(tmpModel);
+            }
+        });
+
+        //å·¥åœ°ç­›é€‰äº‹ä»¶
+        cobBuildingSite.addItemListener(e -> {
+            loadingList();
         });
     }
 
-    private void initData(){
-        executorService= Executors.newFixedThreadPool(3);
+    public void initData(){
         loading(null);
     }
 
+
+    /**
+     *
+     *
+     * æ„é€ å‡½æ•°
+     *
+     *
+     */
     public WorkerPanel(){
         initView();
         initEvent();
@@ -256,31 +329,31 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
 
 
     /**
-     * ËÑË÷¹¤ÈË
+     * æœç´¢å·¥äºº
      * @param state
      */
     public void search(int state){
         if(list==null)
             return;
 
-        //ÉèÖÃ×´Ì¬
+        //è®¾ç½®çŠ¶æ€
         textChanged=state;
 
         if(isSearching){
-            //ËÑË÷Ïß³ÌÆô¶¯
-            executorService.execute(searchStateChangeTask);
+            //æœç´¢çº¿ç¨‹å¯åŠ¨
+            Application.startService(searchStateChangeTask);
         }else{
-            //Ïß³ÌÎ´Æô¶¯
-            executorService.execute(searchTask);
+            //çº¿ç¨‹æœªå¯åŠ¨
+            Application.startService(searchTask);
         }
     }
 
 
     /**
-     * Ìî³ä¹¤ÈËÊı¾İµ½ÁĞ±í
+     * å¡«å……å·¥äººæ•°æ®åˆ°åˆ—è¡¨
      * @param listDataModel
      */
-    public void addTableData(AnInfoListDataModel listDataModel){
+    public void fillTableData(AnInfoListDataModel listDataModel){
         if(list.getItemSize()<=0)
             return;
         if(listDataModel==null)
@@ -288,20 +361,20 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
        if(table==null)
            return;
 
-        //´ÓÔ­±íÖĞËÑË÷µ½Bean
+        //ä»åŸè¡¨ä¸­æœç´¢åˆ°Bean
         Anbean bean=null;
         for(Anbean anbean:DBManager.getManager().loadingWorkerList()){
-            if(anbean.get("Ãû×Ö").getValue().equals(listDataModel.getTitle())&&anbean.get("Éí·İÖ¤").getValue().equals(listDataModel.getInfo())){
+            if(anbean.find(PropertyFactory.LABEL_NAME).getValue().equals(listDataModel.getTitle())&&
+                    anbean.find(PropertyFactory.LABEL_ID_CARD).getValue().equals(listDataModel.getInfo())){
                 bean=anbean;
                 selectedIndex=DBManager.getManager().loadingWorkerList().indexOf(anbean);
-                System.out.println(selectedIndex);
                 break;
             }
         }
 
-       //¶¨ÒåÊı¾İ
-       Vector<Vector> data=new Vector<>();
-       //»ñÈ¡ÁĞ±íÖĞµÄÊı¾İ
+       //å®šä¹‰æ•°æ®
+       data=new Vector<>();
+       //è·å–åˆ—è¡¨ä¸­çš„æ•°æ®
         for(Info info : bean.getArray()){
             if(!info.isShow()){
                 continue;
@@ -315,68 +388,166 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         name.add(tableHeader[0]);
         name.add(tableHeader[1]);
 
-
-        //Ìî³ä±íµ¥²¢ÉèÖÃÏà¹ØÊôĞÔ
-        listModel.setDataVector(data,name);
+        //å¡«å……è¡¨å•å¹¶è®¾ç½®ç›¸å…³å±æ€§
+        table.getListModel().setDataVector(data,name);
     }
 
 
     /**
-     * ¶ÁÈ¡DBManagerÖĞµÄÒÑ¾­×°ÔØºÃµÄ
+     * è¯»å–DBManagerä¸­çš„å·²ç»è£…è½½å¥½çš„
      */
     public void loadingList(){
         if(list!=null)
             list.clear();
-        //¶ÁÈ¡¹¤ÈËÁĞ±í
-        for(Anbean anbean :DBManager.getManager().loadingWorkerList()){
-            //»ñÈ¡InfoÊôĞÔ
-            Info name=anbean.get("Ãû×Ö");
-            Info number=anbean.get("Éí·İÖ¤");
-            //»ñÈ¡Öµ
+        //è¯»å–å·¥äººåˆ—è¡¨
+        ArrayList<Anbean> beans;
+       if (cobBuildingSite==null){
+            beans=DBManager.getManager().loadingWorkerList();
+       }else if(cobBuildingSite.getSelectedItem().equals("å…¨éƒ¨")){
+           beans=DBManager.getManager().loadingWorkerList();
+       }else{
+           String value =(String)cobBuildingSite.getSelectedItem();
+           beans=DBManager.getManager().getWorkerListWhere("æ‰€å±å·¥åœ°",value);
+       }
+       for(Anbean anbean :beans){
+            //è·å–Infoå±æ€§
+            Info name=anbean.find("åå­—");
+            Info number=anbean.find("èº«ä»½è¯");
+            //è·å–å€¼
             String strName=(String) name.getValue();
             String strNum=(String)number.getValue();
-            //×ª»»³ÉÁĞ±íÄ£ĞÍ
+            //è½¬æ¢æˆåˆ—è¡¨æ¨¡å‹
             AnInfoListDataModel model=new AnInfoListDataModel(strName,strNum);
-            //Ìí¼Óµ½ÁĞ±í
+            //æ·»åŠ åˆ°åˆ—è¡¨
             list.addElement(model);
         }
-        if(list.getItemSize()>0){
-            list.setSelectedIndex(0);
-            addTableData(list.getElementAt(list.getSelectedIndex()));
-            repaint();
+    }
+
+
+    public void loadingProperty(){
+        //è¯»å–å·¥äººå±æ€§
+        AnArrayBean property=DBManager.getManager().loadingWorkerProperty();
+        if (property==null)
+            return;
+        InfoArray<String> infoArray=property.find(PropertyFactory.LABEL_SITE);
+        if (infoArray==null)
+            return;
+
+        for (String value:infoArray.getValues()){
+            cobBuildingSite.addItem(value);
+            cobSiteFrom.addItem(value);
         }
+        cobBuildingSite.setSelectedIndex(0);
+        table.addComponentCell(cobSiteFrom,22,1);
+
+        InfoArray<String> sex=property.find(PropertyFactory.LABEL_SEX);
+        cobSex.addItem(sex.getValues().get(0));
+        cobSex.addItem(sex.getValues().get(1));
+        table.addComponentCell(cobSex,7,1);
+
+        InfoArray<String> nation=property.find(PropertyFactory.LABEL_NATION);
+        for (String value:nation.getValues()){
+            cobNation.addItem(value);
+        }
+        table.addComponentCell(cobNation,8,1);
+
+        InfoArray<String> workerState=property.find(PropertyFactory.LABEL_WORKER_STATE);
+        for (String value:workerState.getValues())
+            cobWorkerState.addItem(value);
+        table.addComponentCell(cobWorkerState,14,1);
+
+        InfoArray<String> workerType=property.find(PropertyFactory.LABEL_WORKER_TYPE);
+        for (String value:workerType.getValues())
+            cobWorkerType.addItem(value);
+        table.addComponentCell(cobWorkerType,13,1);
     }
 
 
-
+    /**
+     * å°†æ–‡ä»¶å‚¨å­˜åˆ°æ–‡ä»¶ä¸­ï¼Œè°ƒç”¨DBçš„updateçš„æ–¹æ³•
+     */
     public void saveToFile(){
-
+        DBManager.getManager().updateUserData();
     }
 
-    public void saveToMemery(){
+    /**
+     * å°†è¡¨å•æ•°æ®å‚¨å­˜åˆ°DBä¸­
+     */
+    public void saveToMemory(){
 
+        for(int i=0;i<data.size();i++){
+            String tmp= (String) data.get(i).get(1);
+            Anbean tmpBean=DBManager.getManager().getWorker(selectedIndex);
+            Info tmpInfo=tmpBean.find(data.get(i).get(0).toString());
+            //åœ¨æ•°æ®éç©ºä¸”æœ‰æ„ä¹‰çš„æƒ…å†µä¸‹ï¼Œå†™å…¥åˆ°DBä¸­
+            if(tmp!=null&&!tmp.equals("")){
+                tmpInfo.setValue(tmp);
+            }
+        }
+        btnSave.setEnabled(false);
+        loadingList();
     }
 
     public void deleteAt(int index){
 
     }
 
+    /**
+     * å…¨ç›˜å¯¹æ¯”DBä¸­çš„æ•°æ®ï¼Œæ˜¯å¦ç›¸åŒ
+     * @return å‘ç°æ”¹åŠ¨è¿”å›True
+     */
+    public boolean isTableChange(){
+
+        for(int i=0;i<data.size();i++){
+            String origin= (String) DBManager.getManager().getWorker(selectedIndex).find(data.get(i).get(0).toString()).getValue();
+            String tmp= (String) data.get(i).get(1);
+            if (tmp==null&&origin==null){
+                continue;
+            }
+            if(!tmp.equals(origin)){
+                if(tmp.equals("")&&origin==null){
+                    continue;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
 
     @Override
     public void loading(Object data) {
-        new Thread(()->{
+        Application.startService(() -> {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             loadingList();
-        }).start();
+            loadingProperty();
+        });
     }
 
-    //±í¸ñÊı¾İ¼àÌı
+
+
+
+    //è¡¨æ ¼æ•°æ®ç›‘å¬
     @Override
     public void tableChanged(TableModelEvent e) {
-
+        if(e.getFirstRow()==-1)
+            return;
+        if (selectedIndex==-1)
+            return;
+        //åˆ¤æ–­æ˜¯å¦æœ‰æ•°æ®æ›´æ”¹
+        if(isTableChange()) {
+            AnUtils.log(this,"è¡¨å•æ•°æ®æ›´æ”¹");
+            btnSave.setEnabled(true);
+        }
+        else{
+            AnUtils.log(this,"è¡¨å•æ•°æ®æœªæ›´æ”¹");
+            btnSave.setEnabled(false);
+        }
     }
 }

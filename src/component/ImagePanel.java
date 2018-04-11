@@ -1,6 +1,4 @@
-package compoent;
-
-import resource.Resource;
+package component;
 
 import java.awt.*;
 
