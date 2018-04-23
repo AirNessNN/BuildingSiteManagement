@@ -8,12 +8,8 @@ import javax.swing.*;
 import java.awt.Font;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Vector;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -529,8 +525,6 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
             loadingProperty();
         });
     }
-
-
 
 
     //表格数据监听
