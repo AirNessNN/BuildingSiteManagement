@@ -60,6 +60,9 @@ public class User implements Serializable{
         return Resource.getDataDirectoryPath()+"\\"+userName+"_workerlist.lst";
     }
 
+	//BuildingSiteList数据
+    public String getBuildingSitePath(){return Resource.getDataDirectoryPath()+"\\"+userName+"_buildingSite.lst";}
+
 
 
     //重写

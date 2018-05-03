@@ -2,10 +2,16 @@ package dbManager;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+/**
+ * 封装拥有名字集合和它对应的集合值的集合，
+ * 例如：属性封装器，封装工地中所有工地
+ */
 public class AnArrayBean implements Serializable{
 
     private ArrayList<InfoArray> values;
+    private String name="";
 
     public ArrayList<InfoArray> getValues() {
         if (values==null)
@@ -23,19 +29,25 @@ public class AnArrayBean implements Serializable{
     public AnArrayBean(){
         values=new ArrayList<>();
     }
-
+    public AnArrayBean(String name){
+        values=new ArrayList<>();
+        this.name=name;
+    }
     public AnArrayBean(InfoArray<?> ... arrays){
         values=new ArrayList<>();
-        for(InfoArray array:arrays){
-            values.add(array);
-        }
+        values.addAll(Arrays.asList(arrays));
     }
 
 
     //方法
-    public void addInfoArray(InfoArray<?> e){
+    public void addInfoArray(InfoArray<?> e) throws Exception {
         if(values==null)
             return;
+        //属性名不能相同
+        for (InfoArray infoArray :values){
+            if (e.getName().equals(infoArray.getName()))
+                throw new Exception("属性名称不能相同");
+        }
         values.add(e);
     }
 
@@ -98,6 +110,13 @@ public class AnArrayBean implements Serializable{
         return values.get(index);
     }
 
+    public int indexOf(InfoArray values){
+        for (int i=0;i<this.values.size();i++){
+            if (values.getName().equals(this.values.get(i).getName()))
+                return i;
+        }
+        return -1;
+    }
 
     public int getSize(){
         if (null==values)
@@ -105,4 +124,11 @@ public class AnArrayBean implements Serializable{
         return values.size();
     }
 
+    public String getName(){
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

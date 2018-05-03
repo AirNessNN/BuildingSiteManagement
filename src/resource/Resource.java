@@ -1,8 +1,5 @@
 package resource;
 
-import dbManager.Anbean;
-import dbManager.Info;
-
 import java.awt.*;
 import java.io.File;
 import java.io.InputStream;
@@ -73,10 +70,10 @@ public class Resource {
 	public static File getApplicationFile(int type) {
 		File file=null;
 		switch(type) {
-		case 1:
+		case FILE_USER:
 			file=new File(getApplicationDirectoryPath()+"\\user.anl");
 			break;
-		case 2:
+		case FILE_SETTING:
 			file=new File(getApplicationDirectoryPath()+"\\setting.anl");
 			break;
 			default :

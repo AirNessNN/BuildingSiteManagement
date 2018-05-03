@@ -1,9 +1,5 @@
 package dbManager;
 
-import application.AnUtils;
-import application.Application;
-
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -34,6 +30,7 @@ public class PropertyFactory {
     public static final String LABEL_DUTY_ARR="出勤信息";
     public static final String LABEL_COST_OF_LIVING_ARR="生活费领取情况";
     public static final String LABEL_SITE="所属工地";
+    public static final String LABEL_PHONE="电话号码";
 
 
     /**
@@ -42,12 +39,13 @@ public class PropertyFactory {
      * 1=住址
      *
      */
-    private static final Info<?>[] data={
+    private static final Info<?>[] WORKER_MODEL={
             new Info<Integer>(Info.TYPE_INTEGER,"序号"),
             new Info<String>(Info.TYPE_STRING,"名字"),
             new Info<String>(Info.TYPE_STRING,"住址"),
             new Info<String>(Info.TYPE_STRING,"联系方式"),
             new Info<String>(Info.TYPE_STRING,"身份证"),
+            new Info<String>(Info.TYPE_STRING,"电话号码"),
             new Info<Integer>(Info.TYPE_INTEGER,"年龄"),
             new Info<Date>(Info.TYPE_DATE,"出生日期"),
             new Info<String>(Info.TYPE_STRING,"性别"),
@@ -65,7 +63,7 @@ public class PropertyFactory {
             new Info<ArrayList<? extends DateValue<?>>>(Info.TYPE_ARRAY_LIST,"工资领取信息"),
             new Info<ArrayList<? extends DateValue<?>>>(Info.TYPE_ARRAY_LIST,"出勤信息"),
             new Info<ArrayList<? extends DateValue<?>>>(Info.TYPE_ARRAY_LIST,"生活费领取情况"),
-            new Info<String>(Info.TYPE_STRING,"所属工地")
+            new Info<ArrayList<String>>(Info.TYPE_STRING,"所属工地")
     };
     /**
      * 预设的工人属性，可以
@@ -78,15 +76,16 @@ public class PropertyFactory {
     private static ArrayList<Info> userData=null;
 
 
-
-
-
-    public static Anbean createWorker(){
-        Anbean worker=new Anbean();
-        for(Info info:data){
+    /**
+     * 创建一个空的工人
+     * @return
+     */
+    static AnBean createWorker(){
+        AnBean worker=new AnBean();
+        for(Info info:WORKER_MODEL){
             switch (info.getType()){
                 case Info.TYPE_ARRAY_LIST:{
-                    Info<ArrayList<DateValue<?>>> tmp=new Info<>(info.getName());
+                    Info<ArrayList> tmp=new Info<>(info.getName());
                     worker.addInfo(tmp);
                     break;
                 }
@@ -116,62 +115,107 @@ public class PropertyFactory {
         }
         if(userData!=null){
             for(Info info:userData){
-                Info<String> tmp=new Info(info.getName());
+                Info tmp=new Info(info.getName());
                 worker.addInfo(tmp);
             }
         }
         return worker;
     }
 
-    public static AnArrayBean createWorkerProperty(){
+    /**
+     * 创建一个空的属性，用于收集所有工人属性的值
+     * @return
+     */
+    static AnArrayBean createWorkerProperty(){
         AnArrayBean tmpBean=new AnArrayBean();
-        for (Info info:data){
-            switch (info.getType()){
-                case Info.TYPE_ARRAY_LIST:{
-                    InfoArray<ArrayList> tmp=new InfoArray<>(info.getName());
-                    tmpBean.addInfoArray(tmp);
-                    break;
-                }
-                case Info.TYPE_DATE:{
-                    InfoArray<Date> tmp=new InfoArray<>(info.getName());
-                    tmpBean.addInfoArray(tmp);
-                    break;
-                }
-                case Info.TYPE_DOUBLE:{
-                    InfoArray<Double> tmp=new InfoArray<>(info.getName());
-                    tmpBean.addInfoArray(tmp);
-                    break;
-                }
-                case Info.TYPE_INTEGER:{
-                    InfoArray<Integer> tmp=new InfoArray<>(info.getName());
-                    tmpBean.addInfoArray(tmp);
-                    break;
-                }
-                default:
-                    InfoArray<String> tmp=new InfoArray<>(info.getName());
-                    tmpBean.addInfoArray(tmp);
-                    if (info.getName().equals("性别")){
-                        tmp.addValue("男");
-                        tmp.addValue("女");
+        for (Info info:WORKER_MODEL){
+            try {
+                switch (info.getType()){
+                    case Info.TYPE_ARRAY_LIST:{
+                        InfoArray<ArrayList> tmp=new InfoArray<>(info.getName());
+                        tmpBean.addInfoArray(tmp);
+                        break;
                     }
+                    case Info.TYPE_DATE:{
+                        InfoArray<Date> tmp=new InfoArray<>(info.getName());
+                        tmpBean.addInfoArray(tmp);
+                        break;
+                    }
+                    case Info.TYPE_DOUBLE:{
+                        InfoArray<Double> tmp=new InfoArray<>(info.getName());
+                        tmpBean.addInfoArray(tmp);
+                        break;
+                    }
+                    case Info.TYPE_INTEGER:{
+                        InfoArray<Integer> tmp=new InfoArray<>(info.getName());
+                        tmpBean.addInfoArray(tmp);
+                        break;
+                    }
+                    default:
+                        InfoArray<String> tmp=new InfoArray<>(info.getName());
+                        tmpBean.addInfoArray(tmp);
+                        if (info.getName().equals(PropertyFactory.LABEL_SEX)){
+                            tmp.addValue("男");
+                            tmp.addValue("女");
+                        }
+                        if (info.getName().equals(PropertyFactory.LABEL_WORKER_STATE)){
+                            tmp.addValue("在职");
+                            tmp.addValue("离职");
+                            tmp.addValue("其他");
+                        }
+                        if (info.getName().equals(PropertyFactory.LABEL_WORKER_TYPE)){
+                            tmp.addValue("包工");
+                            tmp.addValue("点工");
+                            tmp.addValue("其他");
+                        }
+                }
+            }catch (Exception e){
             }
         }
         if(userData!=null){
             for(Info info:userData){
                 InfoArray<String> tmp=new InfoArray<>(info.getName());
-                tmpBean.addInfoArray(tmp);
+                try {
+                    tmpBean.addInfoArray(tmp);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return tmpBean;
     }
 
+    /**
+     * 创建一个空的工地，不包含员工
+     * @return
+     */
+    public static AnArrayBean createBuildingSite(){
+        InfoArray<String> id=new InfoArray<>();
+        id.setName(PropertyFactory.LABEL_ID_CARD);
 
-    public static int getPreinstallSize(){
-        return data.length;
+
+        AnArrayBean bean=new AnArrayBean();
+        try {
+            bean.addInfoArray(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  bean;
     }
 
+    /**
+     *     获取工人所有自带属性
+     */
+    public static int getPreinstallSize(){
+        return WORKER_MODEL.length;
+    }
+
+    /**
+     * 获取自带属性的数组
+     * @return
+     */
     public static Info[] getPreinstall(){
-        return data;
+        return WORKER_MODEL;
     }
 
     public static void setUserData(Info info){

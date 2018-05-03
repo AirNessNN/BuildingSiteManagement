@@ -14,32 +14,26 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import SwingTool.MyButton;
-
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 
 public class WorkerPanel extends ImagePanel implements Loadable, TableModelListener{
-
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	
 	//工人属性二维数组
     private final String[] tableHeader={"数据类型","项目值"};
 
 	private volatile boolean isSearching=false;//搜索线程运行标记
     private volatile int textChanged=0;//文字是否发生改变  -1是删除   0是未改变   1增加
-    private Runnable searchTask=null;
-    private Runnable searchStateChangeTask=null;
+    private Runnable searchTask=null;//动态搜索Runnable
+    private Runnable searchStateChangeTask=null;//动态搜索监听线程
 
     private AnTable table;//表单
 
     //列表控制===============
     private int selectedIndex=-1;//选中的列表项
 
-    private Vector<Vector> data=null;//表单中的数据
+    private Vector<Vector<String>> data=null;//表单中的数据
     //控件
     private MyButton btnSave;
     private AnTextField searchBox;
@@ -55,7 +49,9 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
     private AnComboBoxEditor cobWorkerState =null;
     private AnComboBoxEditor cobWorkerType =null;
     private AnComboBoxEditor cobSiteFrom=null;
-    private JComboBox cobBuildingSite;
+    private JComboBox<String> cobBuildingSite;//所属工地筛选器
+
+    private AnDateComboBoxEditor dataCob=null;
 
 
 
@@ -102,7 +98,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         btnEntry.setToolTipText("\u589E\u52A0\u65B0\u5458\u5DE5\u5230\u6570\u636E\u5E93\u4E2D");
         btnEntry.setBounds(377, 84, 80, 23);
         add(btnEntry);
-        
+
         btnLeave = new MyButton("\u79BB\u804C\u767B\u8BB0");
         btnLeave.setToolTipText("\u9009\u5B9A\u7684\u5DE5\u4EBA\u5C06\u4F1A\u79BB\u804C");
         btnLeave.setBounds(467, 84, 80, 23);
@@ -125,19 +121,20 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
 
         //定义表单模型
         table.setCellColumnEdited(0,false);
+        //table.setCellEdited(0,0,false);
         
         btnSave = new MyButton("\u5237\u65B0");
         btnSave.setEnabled(false);
         btnSave.setText("\u4FDD\u5B58");
         btnSave.setBounds(861, 84, 63, 23);
         add(btnSave);
-        
+
         button = new MyButton("\u5C5E\u6027\u4FEE\u6539");
         button.setToolTipText("\u6DFB\u52A0\u6216\u5220\u9664\u5DE5\u4EBA\u7684\u5C5E\u6027");
         button.setBounds(557, 84, 80, 23);
         add(button);
         
-        cobBuildingSite = new JComboBox();
+        cobBuildingSite = new JComboBox<String>();
         cobBuildingSite.setBounds(83, 116, 284, 21);
         add(cobBuildingSite);
         cobBuildingSite.addItem("全部");
@@ -162,7 +159,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         cobWorkerType=new AnComboBoxEditor();
         cobSiteFrom=new AnComboBoxEditor();
         cobSiteFrom.setEditable(false);
-
+        dataCob=new AnDateComboBoxEditor();
     }
 
     private void initEvent(){
@@ -224,10 +221,12 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         //搜索线程方法
         searchTask= () -> {
             //锁住List
+            //noinspection SynchronizeOnNonFinalField
             synchronized (list){
                 list.clear();
                 String value=searchBox.getText();
-                for (int i=0;i<DBManager.getManager().getWorkerListSize();i++){
+                assert DBManager.getManager() != null;
+                for (int i = 0; i<DBManager.getManager().getWorkerListSize(); i++){
 
                     if(textChanged==-1){
                         list.clear();
@@ -235,10 +234,10 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
                         textChanged=0;
                     }
 
-                    Anbean anbean=DBManager.getManager().loadingWorkerList().get(i);
+                    AnBean anBean =DBManager.getManager().loadingWorkerList().get(i);
                     //获取Info属性
-                    Info name=anbean.find("名字");
-                    Info number=anbean.find("身份证");
+                    Info name= anBean.find("名字");
+                    Info number= anBean.find("身份证");
                     //获取值
                     String strName=(String) name.getValue();
                     String strNum=(String)number.getValue();
@@ -258,6 +257,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         //搜索状态更改线程
         searchStateChangeTask=()->{
 
+            //noinspection SynchronizeOnNonFinalField
             synchronized (list){
                 if(isSearching){
                     try {
@@ -358,12 +358,12 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
            return;
 
         //从原表中搜索到Bean
-        Anbean bean=null;
-        for(Anbean anbean:DBManager.getManager().loadingWorkerList()){
-            if(anbean.find(PropertyFactory.LABEL_NAME).getValue().equals(listDataModel.getTitle())&&
-                    anbean.find(PropertyFactory.LABEL_ID_CARD).getValue().equals(listDataModel.getInfo())){
-                bean=anbean;
-                selectedIndex=DBManager.getManager().loadingWorkerList().indexOf(anbean);
+        AnBean bean=null;
+        for(AnBean anBean :DBManager.getManager().loadingWorkerList()){
+            if(anBean.find(PropertyFactory.LABEL_NAME).getValue().equals(listDataModel.getTitle())&&
+                    anBean.find(PropertyFactory.LABEL_ID_CARD).getValue().equals(listDataModel.getInfo())){
+                bean= anBean;
+                selectedIndex=DBManager.getManager().loadingWorkerList().indexOf(anBean);
                 break;
             }
         }
@@ -371,6 +371,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
        //定义数据
        data=new Vector<>();
        //获取列表中的数据
+        assert bean != null;
         for(Info info : bean.getArray()){
             if(!info.isShow()){
                 continue;
@@ -396,7 +397,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         if(list!=null)
             list.clear();
         //读取工人列表
-        ArrayList<Anbean> beans;
+        ArrayList<AnBean> beans;
        if (cobBuildingSite==null){
             beans=DBManager.getManager().loadingWorkerList();
        }else if(cobBuildingSite.getSelectedItem().equals("全部")){
@@ -405,10 +406,10 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
            String value =(String)cobBuildingSite.getSelectedItem();
            beans=DBManager.getManager().getWorkerListWhere("所属工地",value);
        }
-       for(Anbean anbean :beans){
+       for(AnBean anBean :beans){
             //获取Info属性
-            Info name=anbean.find("名字");
-            Info number=anbean.find("身份证");
+            Info name= anBean.find("名字");
+            Info number= anBean.find("身份证");
             //获取值
             String strName=(String) name.getValue();
             String strNum=(String)number.getValue();
@@ -420,15 +421,18 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
     }
 
 
+    /**
+     * 装载工人属性，提供给表格中的单元格编辑器使用
+     */
     public void loadingProperty(){
         //读取工人属性
-        AnArrayBean property=DBManager.getManager().loadingWorkerProperty();
+        assert DBManager.getManager() != null;
+        AnArrayBean property=DBManager.getManager().loadingWorkerProperty();//在这里装载属性
         if (property==null)
             return;
-        InfoArray<String> infoArray=property.find(PropertyFactory.LABEL_SITE);
-        if (infoArray==null)
-            return;
 
+        //cobBuildingSite.removeAllItems();
+        InfoArray<String> infoArray=property.find(PropertyFactory.LABEL_SITE);
         for (String value:infoArray.getValues()){
             cobBuildingSite.addItem(value);
             cobSiteFrom.addItem(value);
@@ -436,33 +440,43 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         cobBuildingSite.setSelectedIndex(0);
         table.addComponentCell(cobSiteFrom,22,1);
 
+        cobSex.removeAllItems();
         InfoArray<String> sex=property.find(PropertyFactory.LABEL_SEX);
         cobSex.addItem(sex.getValues().get(0));
         cobSex.addItem(sex.getValues().get(1));
         table.addComponentCell(cobSex,7,1);
 
+        cobNation.removeAllItems();
+        cobNation.removeAllItems();
         InfoArray<String> nation=property.find(PropertyFactory.LABEL_NATION);
         for (String value:nation.getValues()){
             cobNation.addItem(value);
         }
         table.addComponentCell(cobNation,8,1);
 
+        cobWorkerState.removeAllItems();
         InfoArray<String> workerState=property.find(PropertyFactory.LABEL_WORKER_STATE);
         for (String value:workerState.getValues())
             cobWorkerState.addItem(value);
         table.addComponentCell(cobWorkerState,14,1);
 
+        cobWorkerType.removeAllItems();
         InfoArray<String> workerType=property.find(PropertyFactory.LABEL_WORKER_TYPE);
         for (String value:workerType.getValues())
             cobWorkerType.addItem(value);
         table.addComponentCell(cobWorkerType,13,1);
+
+        table.addComponentCell(dataCob,6,1);
+        table.addComponentCell(new AnDateComboBoxEditor(),9,1);
+        table.addComponentCell(new AnDateComboBoxEditor(),10,1);
     }
 
 
     /**
-     * 将文件储存到文件中，调用DB的update的方法
+     * 将文件储存到文件中，调用DB的update的方法/
      */
     public void saveToFile(){
+        assert DBManager.getManager() != null;
         DBManager.getManager().updateUserData();
     }
 
@@ -472,8 +486,8 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
     public void saveToMemory(){
 
         for(int i=0;i<data.size();i++){
-            String tmp= (String) data.get(i).get(1);
-            Anbean tmpBean=DBManager.getManager().getWorker(selectedIndex);
+            String tmp= data.get(i).get(1);
+            AnBean tmpBean=DBManager.getManager().getWorker(selectedIndex);
             Info tmpInfo=tmpBean.find(data.get(i).get(0).toString());
             //在数据非空且有意义的情况下，写入到DB中
             if(tmp!=null&&!tmp.equals("")){
@@ -495,17 +509,27 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
     public boolean isTableChange(){
 
         for(int i=0;i<data.size();i++){
-            String origin= (String) DBManager.getManager().getWorker(selectedIndex).find(data.get(i).get(0).toString()).getValue();
-            String tmp= (String) data.get(i).get(1);
-            if (tmp==null&&origin==null){
-                continue;
-            }
-            if(!tmp.equals(origin)){
-                if(tmp.equals("")&&origin==null){
-                    continue;
-                }
-                return true;
-            }
+            AnBean ab=DBManager.getManager().getWorker(selectedIndex);
+            Info info;
+            if (ab!=null) {
+                info = ab.find(data.get(i).get(0));
+                if (info != null) {
+                    String origin = (String) DBManager.getManager().getWorker(selectedIndex).find(data.get(i).get(0)).getValue();
+                    String tmp = data.get(i).get(1);
+                    if (tmp == null && origin == null) {
+                        continue;
+                    }
+                    assert tmp != null;
+                    if (!tmp.equals(origin)) {
+                        if (tmp.equals("") && origin == null) {
+                            continue;
+                        }
+                        return true;
+                    }
+                }else
+                    return false;
+            }else
+                return false;
         }
         return false;
     }

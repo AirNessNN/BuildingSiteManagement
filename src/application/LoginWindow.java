@@ -186,12 +186,12 @@ public class LoginWindow extends JFrame{
 	}
 
 
-	private void showMesage(){
+	private void showMessage(){
 		labRodingMessage.setVisible(true);
 	}
 	
 	private void login() {
-		showMesage();
+		showMessage();
 		if(resultCallback!=null) {
 			resultCallback.loginResult(user.getText(), password.getText());
 		}

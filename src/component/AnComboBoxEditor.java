@@ -17,7 +17,7 @@ public class AnComboBoxEditor extends JComboBox<String> implements AnTableCellEd
 	
 	
 	private Point location=null;
-	private JTextField textField=null;
+	private JTextField textField;
 	
 
 	protected EventListenerList listenerList = new EventListenerList();
@@ -30,7 +30,9 @@ public class AnComboBoxEditor extends JComboBox<String> implements AnTableCellEd
 
         textField=(JTextField)getEditor().getEditorComponent();
 
-        addActionListener(e -> fireEditingStopped());
+        addActionListener(e -> {
+            fireEditingStopped();
+        });
 
         textField.addMouseListener(new MouseAdapter() {
             @Override
@@ -140,6 +142,17 @@ public class AnComboBoxEditor extends JComboBox<String> implements AnTableCellEd
         }
         addItem(value);
         setSelectValue(value);
+    }
+
+
+    @Override
+    public void addItem(String item) {
+        for (int i=0;i<this.dataModel.getSize();i++){
+            if (item.equals(dataModel.getElementAt(i))){
+                return;
+            }
+        }
+        super.addItem(item);
     }
 
 

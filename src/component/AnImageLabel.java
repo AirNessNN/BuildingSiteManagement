@@ -3,6 +3,7 @@ package component;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 import javax.swing.JLabel;
@@ -22,13 +23,25 @@ public class AnImageLabel extends JLabel{
 	private static final long serialVersionUID = 1L;
 	
 	private BufferedImage image;
-	
-	
+
+
+	private void init(){
+		//setSize(100,100);
+	}
+
+    /**
+     * 无参构造
+     */
+	public AnImageLabel(){
+		setSize(100,100);
+		image=new BufferedImage(100,100,BufferedImage.TYPE_INT_RGB);
+	}
 	
 	public AnImageLabel(String src) {
+		init();
 		// TODO Auto-generated constructor stub
 		try {
-			image=ImageIO.read(Resource.getResource(src));
+			image=ImageIO.read(Objects.requireNonNull(Resource.getResource(src)));
 			this.setSize(image.getWidth(), image.getHeight());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -38,6 +51,7 @@ public class AnImageLabel extends JLabel{
 	}
 	
 	public AnImageLabel(BufferedImage image) {
+		init();
 		this.setSize(image.getWidth(), image.getHeight());
 		this.image=image;
 	}

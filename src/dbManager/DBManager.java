@@ -54,6 +54,7 @@ public class DBManager {
 
     /* =============================== 装载的数据 ===========================*/
     //装载的用户实例
+	private boolean userLoaded=false;
 	private User user=null;
 
     //工人属性
@@ -61,7 +62,10 @@ public class DBManager {
     private AnArrayBean workerProperty =null;
     //工人数据
 	private boolean workerListLoaded=false;
-    private ArrayList<Anbean> workerList=null;
+    private ArrayList<AnBean> workerList=null;
+    //工地数据
+	private boolean buildingSiteLoaded=false;
+	private ArrayList<AnArrayBean> buildingSiteLIst=null;
 
     //资产数据
 	private boolean assetsArrayListLoaded=false;
@@ -253,10 +257,13 @@ public class DBManager {
 		workerList=loadingWorkerList();
 		assetsArrayList=null;
 
+		if (user!=null)
+			userLoaded=true;
+
 		//Debug：装载测试列表工人
 		Random r=new Random();
 		for(int i=0;i<10;i++){
-			Anbean w= PropertyFactory.createWorker();
+			AnBean w= PropertyFactory.createWorker();
 			Info inf1=w.find("名字");
 			inf1.setValue("名字"+r.nextInt(456123));
 			Info inf2=w.find("身份证");
@@ -283,7 +290,7 @@ public class DBManager {
 	 * 增加一条工人属性
 	 * @param info
 	 */
-	public void addProperty(InfoArray info){
+	public void addProperty(InfoArray info) throws Exception {
 		if(workerProperty !=null){
 			workerProperty.addInfoArray(info);
 		}
@@ -300,7 +307,7 @@ public class DBManager {
 	}
 
 	/**
-	 *	通过节点号获取工人属性Info
+	 *	通过节点号获取工人属性InfoArray
 	 * @param index
 	 * @return
 	 */
@@ -312,7 +319,7 @@ public class DBManager {
 	}
 
 	/**
-	 *	通过名称获取工人属性Info
+	 *	通过名称获取工人属性InfoArray
 	 * @param name
 	 * @return
 	 */
@@ -381,25 +388,19 @@ public class DBManager {
 	 * 从文件中装载工人对象
 	 * @return
 	 */
-	public ArrayList<Anbean> loadingWorkerList() {
+	public ArrayList<AnBean> loadingWorkerList() {
 
-		//空对象
-		if(user==null)
-			return null;
 		//首次启动
-		if(user!=null&&!workerListLoaded){
+		if(!workerListLoaded&&userLoaded){
 			try {
-				workerList=(ArrayList<Anbean>)readObject(user.getWorkerListPath());
+				workerList=(ArrayList<AnBean>)readObject(user.getWorkerListPath());
 				if(workerList==null){
 					workerList=new ArrayList<>();
 				}
-			}catch (IOException e){
+			}catch (IOException | ClassNotFoundException e){
 				//Application.errorWindow(e.toString());
 				workerList=new ArrayList<>();
-			}catch (ClassNotFoundException e){
-				//Application.errorWindow(e.toString());
-				workerList=new ArrayList<>();
-			}finally {
+			} finally {
 				workerListLoaded=true;
 			}
 		}
@@ -414,18 +415,24 @@ public class DBManager {
 		return 0;
 	}
 
-	public Anbean getWorker(int index){
+	public AnBean getWorker(int index){
 		if(workerListLoaded){
 			return workerList.get(index);
 		}
 		return null;
 	}
 
-	public ArrayList<Anbean> getWorkerListWhere(String name,Object value){
-		ArrayList<Anbean> tmpList=new ArrayList<>();
+	/**
+	 * 从节点信息获取所有符合该要求的工人实例
+	 * @param name 节点名称
+	 * @param value 节点值
+	 * @return 返回一个ArrayList ,如果找不到，则返回空list
+	 */
+	public ArrayList<AnBean> getWorkerListWhere(String name, Object value){
+		ArrayList<AnBean> tmpList=new ArrayList<>();
 
 		if(workerListLoaded){
-			for(Anbean bean:workerList){
+			for(AnBean bean:workerList){
 				for (Info info: bean.getArray()){
 					if(info.getName().equals(name)&&info.equalsValue(value)){
 						tmpList.add(bean);
@@ -455,6 +462,124 @@ public class DBManager {
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	//buildingSiteList
+
+	/**
+	 * 加载工地
+	 * @return
+	 */
+	public ArrayList<AnArrayBean> loadingBulidingSiteList(){
+		if (!userLoaded)
+			return null;
+
+		try{
+			buildingSiteLIst= (ArrayList<AnArrayBean>) readObject(user.getBuildingSitePath());
+			if (buildingSiteLIst!=null)
+				buildingSiteLoaded=true;
+			return buildingSiteLIst;
+		} catch (IOException | ClassNotFoundException e) {
+			buildingSiteLIst=new ArrayList<>();
+		}finally {
+			buildingSiteLoaded=true;
+		}
+		return buildingSiteLIst;
+	}
+
+	/**
+	 * 向DB中添加工地
+	 * @param buildingSite 添加一个工地的实例
+	 */
+	public void addBuildingSite(AnArrayBean buildingSite) throws Exception {
+		if (!buildingSiteLoaded)
+			return;
+
+		for (AnArrayBean bean:buildingSiteLIst){
+			if (bean.getName().equals(buildingSite.getName()))
+				throw new Exception("工地重名，无法添加到列表中！");
+		}
+		buildingSiteLIst.add(buildingSite);
+	}
+
+	/**
+	 * 向DB中添加一个空的工地
+	 * @param name 工地名称
+	 */
+	public void addBuildingSite(String name) throws Exception {
+		if (!buildingSiteLoaded)
+			return;
+
+		AnArrayBean site=PropertyFactory.createBuildingSite();
+		for (AnArrayBean bean:buildingSiteLIst){
+			if (bean.getName().equals(name))
+				throw new Exception("工地重名，无法添加到列表中！");
+		}
+		buildingSiteLIst.add(site);
+	}
+
+	/**
+	 * 返回该工地的实例
+	 * @param siteName
+	 * @return
+	 */
+	public AnArrayBean getBuildingSite(String siteName){
+		if (!buildingSiteLoaded)
+			return null;
+		for (AnArrayBean bean:buildingSiteLIst)
+			if (bean.getName().equals(siteName))
+				return bean;
+		return null;
+	}
+
+	/**
+	 * 返回该工地实例中的所有员工
+	 * @param siteName 工地
+	 * @return 不存在返回null
+	 */
+	public String[] getBuildingSiteWorkers(String siteName){
+		String[] tmpWorker;
+
+		AnArrayBean site=getBuildingSite(siteName);
+		InfoArray array=site.find(PropertyFactory.LABEL_ID_CARD);
+		if (array!=null){
+			int size=array.getSize();
+
+			if (size==0)
+				return null;
+
+			tmpWorker=new String[size];
+
+			int index=0;
+
+			for (Object o:array.getValues()){
+				tmpWorker[index++]=(String) o;
+			}
+			return tmpWorker;
+		}
+		return null;
+	}
+
+	/**
+	 * 返回工人所在的所有工地
+	 * @param id 身份证号
+	 * @return
+	 */
+	public ArrayList<String> getWorkerAt(String id){
+		if (!buildingSiteLoaded&&!workerListLoaded)
+			return null;
+		ArrayList<String> tmpList=new ArrayList<>();
+		for (AnArrayBean site:buildingSiteLIst){
+			for (Object workerId:site.find(PropertyFactory.LABEL_ID_CARD).getValues()){
+				String tmpID= (String) workerId;
+				if (tmpID.equals(id)){
+					tmpList.add(site.getName());
+				}
+			}
+		}
+		return  tmpList;
+	}
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 

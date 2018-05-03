@@ -3,8 +3,10 @@ package dbManager;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-
-public class Anbean implements Serializable {
+/**
+ * 基本的信息Bean，封装一个拥有属性名称和属性值的集合
+ */
+public class AnBean implements Serializable {
 
     private ArrayList<Info> valueList=null;
 
@@ -17,7 +19,7 @@ public class Anbean implements Serializable {
     }
 
 
-    public Anbean(){
+    public AnBean(){
         init();
     }
 

@@ -3,10 +3,14 @@ package dbManager;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ * 属性集合Bean，封装拥有一个名称，和多个值的属性
+ * @param <T>
+ */
 public class InfoArray<T>  implements Serializable{
 
     private String name=null;
-    private ArrayList<T> values=null;
+    private ArrayList<T> values;
 
     public String getName() {
         return name;
@@ -79,6 +83,12 @@ public class InfoArray<T>  implements Serializable{
         if (values==null)
             return;
         values.clear();
+    }
+
+    public int getSize(){
+        if (values==null)
+            return 0;
+        return values.size();
     }
 
 }

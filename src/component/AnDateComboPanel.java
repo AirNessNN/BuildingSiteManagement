@@ -137,6 +137,12 @@ public class AnDateComboPanel extends JPanel{
         day.setValue(calendar.get(Calendar.DATE));
     }
 
+    /**
+     * 重置时间选择器
+     */
+    public void Rest(){
+        setDate(new Date());
+    }
 
 
     @Override
@@ -149,6 +155,6 @@ public class AnDateComboPanel extends JPanel{
             Date date1=new Date();
             return dateFormat.format(date1);
         }
-        return date.toString();
+        return dateFormat.format(date);
     }
 }

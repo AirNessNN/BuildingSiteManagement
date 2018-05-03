@@ -8,6 +8,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Vector;
 
 /**
@@ -19,14 +20,61 @@ public class AnTable extends JTable{
 
 	private ArrayList<Point> editPassList=null;//不可编辑的表格
 
-	private Vector<Vector> data=null;//元数据
 
-	private Vector header=null;//表头缓存
+	/**
+	 * 表头
+	 */
+	private Vector<Object> header=null;
 
-	private Vector<AnTableCellEditor> components =null;//显示的控件列表
+	/**
+	 * 列表中可显示的控件
+	 */
+	private Vector<AnTableCellEditor> components =null;
+
+    /**
+     * 行筛选开关
+     */
+	private boolean rowFiltrateFlag =false;
+
+    /**
+     * 列筛选开关
+     */
+	private boolean columnFiltrateFlag =true;
+
+    /**
+     *  行筛选标记
+     */
+	private ArrayList<Integer> rowEditFiltrate=null;
+
+    /**
+     * 列筛选标记
+     */
+	private ArrayList<Integer> columnEditFiltrate=null;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/**
+	 * 初始化控件和数据模型
+	 */
 	private void init(){
 
 		getTableHeader().setFont(new Font("微软雅黑",1,14));
@@ -35,41 +83,64 @@ public class AnTable extends JTable{
 		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.setFillsViewportHeight(true);
 
-		header=new Vector();
-		data=new Vector<>();
+		header=new Vector<>();//标题
 		editPassList=new ArrayList<>();
+		rowEditFiltrate=new ArrayList<>();
+		columnEditFiltrate=new ArrayList<>();
 
-		//默认listMod
+		//默认listMod，重写其中的isCellEditable方法，控制单元格的编辑规则
 		listModel=new DefaultTableModel(){
 			@Override
 			public boolean isCellEditable(int row, int column) {
-				for (Point point : editPassList){
-					if (row==point.x&&column==point.y){
-						return false;
-					}
-				}
-				return true;
+                /*
+                先进行行列筛选循环，再进行单元格循环，
+                因为行列只需要判断一个值就能断定是否点击了筛选的行，
+                在循环中只return false是的意思是找到匹配的就返回false
+                 */
+
+				//列循环
+                for (Integer aColumnEditFiltrate : columnEditFiltrate) if (column == aColumnEditFiltrate) return false;
+                //行循环
+                for (Integer aRowEditFiltrate : rowEditFiltrate) if (row == aRowEditFiltrate) return false;
+                //单元格循环
+                /*
+                    相等的话就是存在于筛选单里，所以返回false
+                     */
+                for (Point point : editPassList)
+                    if (row == point.x && column == point.y) return false;
+                return true;
 			}
 		};
-
 		this.setModel(listModel);
 	}
 
+
+
+
+
+	/**
+	 * 构造函数
+	 */
 	public AnTable(){
 		init();
 	}
 
 
+
+
+
 	/**
 	 * 设置标头和表头名字
-	 * @param columnNames
+	 * @param columnNames 表头数组
 	 */
 	public void setColumn(Object[] columnNames){
 		listModel.setColumnIdentifiers(columnNames);
-		for (Object object:columnNames){
-			this.header.add(object);
-		}
+		this.header.addAll(Arrays.asList(columnNames));
 	}
+
+
+
+
 
 	/**
 	 * 添加表头
@@ -80,27 +151,31 @@ public class AnTable extends JTable{
 		listModel.setColumnIdentifiers(header.toArray());
 	}
 
+
+
+
+
 	/**
 	 * 填充数据
 	 * @param data
 	 */
 	public void fillData(Object[][] data){
 		listModel.setDataVector(data,header.toArray());
-		Vector<Vector> tmpData= AnUtils.conventToVector(data);
+	}
 
-		for (Vector<Object> tv:tmpData){
-			Vector<Object> t=new Vector();
-			this.data.add(t);
-
-			for (Object object:t){
-				java.lang.String string=new java.lang.String(object.toString());
-				t.add(string);
-			}
-		}
+	public void fillData(Vector<Vector> data){
+		listModel.setDataVector(data,header);
 	}
 
 
 
+
+	/**
+	 *设置单元格的数据是否可以编辑
+	 * @param row 行号
+	 * @param col 列号
+	 * @param editable 布尔值用于确定是否可以编辑
+	 */
 	public void setCellEdited(int row, int col, boolean editable){
 		Point p=new Point(row,col);
 		for (Point point:editPassList){
@@ -117,41 +192,43 @@ public class AnTable extends JTable{
 		}
 	}
 
+
+
+
+
+
+	/**
+	 *设置整行单元格是否可以编辑
+	 * @param row 行号
+	 * @param editable  用于设置的值
+	 */
 	public void setCellRowEdited(int row ,boolean editable){
-		if (!editable){
-			for (int i=0;i<header.size();i++){
-				Point p=new Point(row,i);
-				if (!editPassList.contains(p)){
-					editPassList.add(p);
-				}
-			}
-		}else {
-			for (int i=0;i<header.size();i++){
-				Point p=new Point(row,i);
-				if (editPassList.contains(p)){
-					editPassList.remove(p);
-				}
-			}
-		}
+		rowFiltrateFlag =false;
+		if (editable) rowEditFiltrate.remove(row);
+		else rowEditFiltrate.add(row);
+		if (rowEditFiltrate.size()==0) rowFiltrateFlag=true;
 	}
 
+
+
+
+
+	/**
+	 * 设置指定列的可编辑状态
+	 * @param column 列号
+	 * @param editable 设置数值
+	 */
 	public void setCellColumnEdited(int column,boolean editable){
-		if (!editable){
-			for (int i=0;i<data.size();i++){
-				Point p=new Point(i,column);
-				if (!editPassList.contains(p)){
-					editPassList.add(p);
-				}
-			}
-		}else {
-			for (int i=0;i<data.size();i++){
-				Point p=new Point(i,column);
-				if (editPassList.contains(p)){
-					editPassList.remove(p);
-				}
-			}
-		}
-	}
+		columnFiltrateFlag =false;//设置筛选已经打开
+        if (editable) columnEditFiltrate.remove(column);
+        else columnEditFiltrate.add(column);
+        if (columnEditFiltrate.size()==0) columnFiltrateFlag=true;
+    }
+
+
+
+
+
 	/**
 	 * 增加一个AnTableCellEditor接口的控件到Cell中
 	 * @param component 控件
@@ -159,11 +236,17 @@ public class AnTable extends JTable{
 	 * @param column 列
 	 */
 	public void addComponentCell(AnTableCellEditor component, int row, int column){
-		component.setTableCellLocation(row,column);
+		component.setTableCellLocation(row,column);//设置行列，用来确定显示控件的行列
 		if (components==null)
 			components=new Vector<>();
-		components.add(component);
+		//判重复
+		if (!components.contains(component))
+			components.add(component);
 	}
+
+
+
+
 
 
 	/**
@@ -177,6 +260,16 @@ public class AnTable extends JTable{
 		component.setTableCellLocation(-1,-1);
 	}
 
+
+
+
+
+
+    /**
+     *删除坐标所在的单元格编辑器
+     * @param row
+     * @param column
+     */
 	public void removeComponentCellAt(int row, int column){
 		if (components==null)
 			return;
@@ -190,9 +283,18 @@ public class AnTable extends JTable{
 
 
 
+
+    /**
+     *获取默认的数据模型
+     * @return
+     */
 	public DefaultTableModel getListModel() {
 		return listModel;
 	}
+
+
+
+
 
 	@Override
 	public TableCellEditor getCellEditor(int row, int column) {
@@ -207,6 +309,10 @@ public class AnTable extends JTable{
 		}
 		return super.getCellEditor(row, column);
 	}
+
+
+
+
 
 	@Override
 	public TableCellRenderer getCellRenderer(int row, int column) {

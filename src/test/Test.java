@@ -1,35 +1,33 @@
 package test;
 
+import application.WorkerWindow;
 import component.AnComboBoxEditor;
 
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
+import javax.swing.*;
 
 import application.AnUtils;
 import component.AnDateComboPanel;
 import component.AnTable;
 
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
 import java.awt.Font;
 
 public class Test extends JFrame{
-	String[] names= {
+	private String[] names= {
 			"asdasda",
 			"asqweqweq"
 	};
-	String[][] data={
+	private String[][] data={
 			{"1","2","3","4"},
 			{"5","6","7","8"},
 			{"9","10","11","12"}
 	};
-	
-	public Test() {
+
+	private Test() {
 		getContentPane().setFont(new Font("微软雅黑 Light", Font.PLAIN, 14));
 		
 		setSize(1049, 800);
 		getContentPane().setLayout(null);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBounds(0, 0, 703, 761);
@@ -37,9 +35,9 @@ public class Test extends JFrame{
 		AnTable table=new AnTable();
 		scrollPane.setViewportView(table);
 		
-		JComboBox comboBox = new JComboBox();
+		JComboBox<String> comboBox = new JComboBox<>();
 		comboBox.setEditable(true);
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"all", "item1", "fuasdkj", "sfnaks", "4546654", "11121", "萨达所"}));
+		comboBox.setModel(new DefaultComboBoxModel<>(new String[] {"all", "item1", "fuasdkj", "sfnaks", "4546654", "11121", "萨达所"}));
 		comboBox.setBounds(835, 6, 143, 28);
 		getContentPane().add(comboBox);
 
@@ -70,10 +68,14 @@ public class Test extends JFrame{
 		
 		AnUtils.setLookAndFeel(AnUtils.LOOK_AND_FEEL_NIMBUS);
 		
-		new Test().setVisible(true);
+		new WorkerWindow().setVisible(true);
 
 
 
 
+	}
+
+	private void createUIComponents() {
+		// TODO: place custom component creation code here
 	}
 }
