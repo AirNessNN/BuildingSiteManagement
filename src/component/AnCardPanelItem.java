@@ -144,7 +144,8 @@ public class AnCardPanelItem {
             }
             setIcon(selected);
             if(I!=null){
-                I.actionPerformed(e);
+            	AnActionEvent event=new AnActionEvent(this, AnActionEvent.CILCKED, this.getText());
+                I.actionPerformed(event);
             }
         }
 

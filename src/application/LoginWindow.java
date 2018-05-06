@@ -134,7 +134,7 @@ public class LoginWindow extends JFrame{
 		btnRegister=new AnTextButton("注册");
 		btnRegister.setLocation(10, 234);
 		panel.add(btnRegister);
-		btnRegister.addActionListener(e -> {
+		btnRegister.setActionListener(e -> {
             // TODO Auto-generated method stub
             NewUserWindow newUserWindow=NewUserWindow.getWindow();
             newUserWindow.setVisible(true);
@@ -151,7 +151,7 @@ public class LoginWindow extends JFrame{
 		btnFindPassword=new AnTextButton("忘记密码");
 		btnFindPassword.setLocation(70, 234);
 		panel.add(btnFindPassword);
-		btnFindPassword.addActionListener(e -> {
+		btnFindPassword.setActionListener(e -> {
             // TODO Auto-generated method stub
 
         });

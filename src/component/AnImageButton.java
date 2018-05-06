@@ -46,7 +46,7 @@ public class AnImageButton extends JLabel{
 			if(!isEnabled())
 				return;
 			if(actionListener!=null)
-				actionListener.actionPerformed(e);
+				actionListener.actionPerformed(new AnActionEvent(AnImageButton.this, AnActionEvent.CILCKED, AnImageButton.this.getText()));
 		}
 	};
 	

@@ -1,28 +1,35 @@
 package application;
 
-import component.AnImageLabel;
-import component.AnLabel;
+import component.*;
 import dbManager.AnBean;
 import dbManager.DBManager;
+import dbManager.DateValueInfo;
 import dbManager.PropertyFactory;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Date;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.LineBorder;
 
 public class WorkerWindow extends JFrame {
-    private AnImageLabel imageLabel;
-    private AnLabel labIDCard;
-    private AnLabel labName;
-    private AnLabel labType;
+    private AnImageLabel imageLabel;//头像
+    private AnLabel labIDCard;//身份证
+    private AnLabel labName;//名字
+    private AnLabel labType;//工种
+	private AnLabel labPhone;//电话号码
 
-    private AnBean worker;
-    private AnLabel labPhone;
+    private AnBean worker;//工人属性集合
+	private ArrayList<DateValueInfo> checkInInfoList=null;
+
+
+
 
     //数据
 	private String[] checkinName=new String[] {"1月考勤：", "2月考勤：", "3月考勤：", "4月考勤：", "5月考勤：", "6月考勤：", "7月考勤：", "8月考勤：", "9月考勤：", "10月考勤：", "11月考勤：", "12月考勤："};
 	private Float[] checkinValue=new Float[12];
+	private AnDataValuePanel datePanel;
 
 
 	
@@ -152,41 +159,37 @@ public class WorkerWindow extends JFrame {
 								panel_1.add(btnSalaryDetails);
 								
 								JPanel panel_2 = new JPanel();
-								springLayout.putConstraint(SpringLayout.NORTH, panel_2, 300, SpringLayout.NORTH, getContentPane());
+								springLayout.putConstraint(SpringLayout.NORTH, panel_2, 332, SpringLayout.NORTH, getContentPane());
+								springLayout.putConstraint(SpringLayout.EAST, panel_2, -550, SpringLayout.EAST, getContentPane());
 								TitledBorder tb= new TitledBorder(new LineBorder(new Color(0, 120, 215), 1, true), "出勤信息", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(59, 59, 59));
 								tb.setTitleFont(new Font("微软雅黑", Font.PLAIN, 13));
 								panel_2.setBorder(null);
 								panel_2.setBackground(Color.WHITE);
 								springLayout.putConstraint(SpringLayout.WEST, panel_2, 10, SpringLayout.WEST, getContentPane());
 								springLayout.putConstraint(SpringLayout.SOUTH, panel_2, -10, SpringLayout.SOUTH, getContentPane());
-								springLayout.putConstraint(SpringLayout.EAST, panel_2, 450, SpringLayout.WEST, getContentPane());
 								getContentPane().add(panel_2);
+								
+								JLabel lblNewLabel = new JLabel("出勤信息");
+								lblNewLabel.setForeground(SystemColor.textHighlight);
+								lblNewLabel.setBackground(SystemColor.desktop);
+								lblNewLabel.setFont(new Font("幼圆", Font.PLAIN, 20));
+								springLayout.putConstraint(SpringLayout.WEST, lblNewLabel, 0, SpringLayout.WEST, imageLabel);
+								springLayout.putConstraint(SpringLayout.SOUTH, lblNewLabel, -6, SpringLayout.NORTH, panel_2);
 								panel_2.setLayout(new BorderLayout(0, 0));
+								getContentPane().add(lblNewLabel);
 								
-								JScrollPane scrollPane = new JScrollPane();
-								scrollPane.setViewportBorder(null);
-								panel_2.add(scrollPane);
-								
-								JList lstCheckIn = new JList();
-								lstCheckIn.setFixedCellHeight(40);
-								lstCheckIn.setForeground(Color.DARK_GRAY);
-								lstCheckIn.setFont(new Font("微软雅黑", Font.PLAIN, 12));
-								lstCheckIn.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-								lstCheckIn.setModel(new AbstractListModel() {
-									String[] values = new String[] {"1月考勤：", "2月考勤：", "3月考勤：", "4月考勤：", "5月考勤：", "6月考勤：", "7月考勤：", "8月考勤：", "9月考勤：", "10月考勤：", "11月考勤：", "12月考勤："};
-									public int getSize() {
-										return values.length;
-									}
-									public Object getElementAt(int index) {
-										return values[index];
-									}
-								});
-								lstCheckIn.setBorder(null);
-								scrollPane.setViewportView(lstCheckIn);
+								datePanel=new AnDataValuePanel();
+								datePanel.setMaxValue(2);//设置最大数值的颜色显示，因为只有0（缺勤），1（全勤），0.5（半天）
+								panel_2.add(datePanel, BorderLayout.CENTER);
+
 	}
 	
 	public void initializeEvent() {
-		
+		datePanel.setActionListener((e)->{
+			if (e.getAction()==AnActionEvent.CILCKED){
+				System.out.println(e.getTag());
+			}
+		});
 	}
 
 	/**

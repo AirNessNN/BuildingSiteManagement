@@ -38,6 +38,8 @@ public class PropertyFactory {
      * 0=名字
      * 1=住址
      *
+     *
+     *
      */
     private static final Info<?>[] WORKER_MODEL={
             new Info<Integer>(Info.TYPE_INTEGER,"序号"),
@@ -60,9 +62,9 @@ public class PropertyFactory {
             new Info<Double>(Info.TYPE_DOUBLE,"约定月工资"),
             new Info<Double>(Info.TYPE_DOUBLE,"合计工日"),
             new Info<Double>(Info.TYPE_DOUBLE,"结余工资"),
-            new Info<ArrayList<? extends DateValue<?>>>(Info.TYPE_ARRAY_LIST,"工资领取信息"),
-            new Info<ArrayList<? extends DateValue<?>>>(Info.TYPE_ARRAY_LIST,"出勤信息"),
-            new Info<ArrayList<? extends DateValue<?>>>(Info.TYPE_ARRAY_LIST,"生活费领取情况"),
+            new Info<ArrayList<? extends DateValueInfo>>(Info.TYPE_ARRAY_LIST,"工资领取信息"),
+            new Info<ArrayList<? extends DateValueInfo>>(Info.TYPE_ARRAY_LIST,"出勤信息"),
+            new Info<ArrayList<? extends DateValueInfo>>(Info.TYPE_ARRAY_LIST,"生活费领取情况"),
             new Info<ArrayList<String>>(Info.TYPE_STRING,"所属工地")
     };
     /**

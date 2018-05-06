@@ -1,14 +1,43 @@
 package dbManager;
 
+import component.IDateValueItem;
+
 import java.io.Serializable;
 import java.util.Date;
 
-public class DateValueInfo implements Serializable {
-    public Date date;
-    public Object value;
+/**
+ * 日期和值的包装类
+ */
+public class DateValueInfo implements Serializable, IDateValueItem {
+    private Date date;
+    private Object value;
+    private String tag;
 
     public DateValueInfo(Date date,Object value){
         this.date=date;
         this.value=value;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
+    }
+
+    @Override
+    public Date getDate() {
+        return date;
+    }
+
+    @Override
+    public Object getValue() {
+        return value;
+    }
+
+    @Override
+    public String getTag() {
+        return tag;
     }
 }

@@ -63,6 +63,9 @@ public class User implements Serializable{
 	//BuildingSiteList数据
     public String getBuildingSitePath(){return Resource.getDataDirectoryPath()+"\\"+userName+"_buildingSite.lst";}
 
+    //出勤信息数据
+    public String getCheckInInfoPath(){return Resource.getDataDirectoryPath()+"\\"+userName+"_checkIn.lst";}
+
 
 
     //重写

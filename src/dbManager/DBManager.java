@@ -469,7 +469,7 @@ public class DBManager {
 	 * 加载工地
 	 * @return
 	 */
-	public ArrayList<AnArrayBean> loadingBulidingSiteList(){
+	public ArrayList<AnArrayBean> loadingBuildingSiteList(){
 		if (!userLoaded)
 			return null;
 
