@@ -196,8 +196,8 @@ public class Application {
                         closeStartWindow();
                     }
                 }
-                if(loginFlag){
-                    MainWindow.getMainWindow(loginUser).setVisible(true);
+				if(loginFlag){
+				MainWindow.getMainWindow(loginUser).setVisible(true);
                 }else {
                     Application.informationWindow("未找到用户，请注册。");
                 }

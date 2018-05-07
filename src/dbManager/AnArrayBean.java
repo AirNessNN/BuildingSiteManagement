@@ -131,4 +131,30 @@ public class AnArrayBean implements Serializable{
     public void setName(String name) {
         this.name = name;
     }
+
+
+    @Override
+    public String toString() {
+        return getName();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AnArrayBean))
+            return false;
+        AnArrayBean bean= (AnArrayBean) obj;
+        if (bean.getSize()!=this.getSize())
+            return false;
+        for (InfoArray infoArray:bean.getValues()){
+            boolean found=false;
+            for (InfoArray tmp:this.getValues()){
+                if (infoArray.getName().equals(tmp.getName())){
+                    found=true;
+                }
+            }
+            if (!found)
+                return false;
+        }
+        return true;
+    }
 }

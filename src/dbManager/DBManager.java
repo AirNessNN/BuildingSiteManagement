@@ -47,7 +47,7 @@ public class DBManager {
 	private boolean runningState=true;
 
 	//用户信息
-	private ArrayList<User> userList=null;
+	private ArrayList<User> userList;
 
 
 
@@ -56,7 +56,6 @@ public class DBManager {
     //装载的用户实例
 	private boolean userLoaded=false;
 	private User user=null;
-
     //工人属性
 	private boolean workerPropertyLoaded=false;
     private AnArrayBean workerProperty =null;
@@ -66,17 +65,19 @@ public class DBManager {
     //工地数据
 	private boolean buildingSiteLoaded=false;
 	private ArrayList<AnArrayBean> buildingSiteLIst=null;
-
     //资产数据
 	private boolean assetsArrayListLoaded=false;
     private ArrayList<Assets> assetsArrayList=null;
+    //出勤管理器
+	private boolean checkInManagerLoaded=false;
+	private ChildrenManager checkInManager=null;
+	//工资管理器
+	private boolean salaryManagerLoaded=false;
+	private ChildrenManager salaryManager=null;
 
 
 
-
-
-
-    //包工属性
+	//包工属性
 
 
 
@@ -134,11 +135,6 @@ public class DBManager {
 	}
 
 
-
-
-
-
-	
 	/**
 	 * 从文件中读取用户列表
 	 * @throws IOException
@@ -176,7 +172,6 @@ public class DBManager {
 	}
 
 
-
     /**
      * 更新装载的用户数据到文件
      */
@@ -206,6 +201,14 @@ public class DBManager {
                     Application.errorWindow(e.toString());
                 }
             }
+
+            if (checkInManagerLoaded){
+            	checkInManager.saveToFile();
+			}
+
+			if (salaryManagerLoaded){
+            	salaryManager.saveToFile();
+			}
         }
     }
 
@@ -219,7 +222,19 @@ public class DBManager {
 		file.createNewFile();
 	}
 	
-	
+
+
+
+
+
+
+
+
+
+
+
+
+
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	//User
 
@@ -248,26 +263,63 @@ public class DBManager {
 	}
 
 	/**
-	 * 装载User数据
+	 * 装载User数据并且装载各种管理器
 	 * @param user
 	 */
 	public void loadUser(User user){
 		this.user=user;
-		workerProperty=loadingWorkerProperty();
-		workerList=loadingWorkerList();
-		assetsArrayList=null;
-
 		if (user!=null)
 			userLoaded=true;
 
+		workerProperty=loadingWorkerProperty();
+		workerList=loadingWorkerList();
+		buildingSiteLIst=loadingBuildingSiteList();
+		assetsArrayList=null;
+
+
+
+		//装载各种管理器
+		if (userLoaded){
+			checkInManager=new ChildrenManager(user.getCheckInInfoPath());
+			checkInManager.loading(user);
+			checkInManagerLoaded=true;
+
+			salaryManager=new ChildrenManager(user.getSalaryInfoPath());
+			salaryManager.loading(user);
+			salaryManagerLoaded=true;
+		}
+
+
+
 		//Debug：装载测试列表工人
+
+		try {
+			manager.addBuildingSite("测试工地1");
+			manager.addBuildingSite("测试工地2");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
 		Random r=new Random();
 		for(int i=0;i<10;i++){
 			AnBean w= PropertyFactory.createWorker();
+			w.find(PropertyFactory.LABEL_NUMBER).setValue(i);
 			Info inf1=w.find("名字");
 			inf1.setValue("名字"+r.nextInt(456123));
 			Info inf2=w.find("身份证");
 			inf2.setValue(String.valueOf(r.nextInt(10000)));
+			w.find(PropertyFactory.LABEL_AGREED_MONTHDLY_WAGE).setValue(5000);
+			w.find(PropertyFactory.LABEL_PHONE).setValue("13123376032");
+			w.find(PropertyFactory.LABEL_WORKER_TYPE).setValue(workerProperty.find(PropertyFactory.LABEL_WORKER_TYPE).getValues().get(r.nextInt(workerProperty.find(PropertyFactory.LABEL_WORKER_TYPE).getSize())));//工种
+			w.find(PropertyFactory.LABEL_SEX).setValue(workerProperty.find(PropertyFactory.LABEL_SEX).getValues().get(r.nextInt(workerProperty.find(PropertyFactory.LABEL_SEX).getSize())));//性别
+			w.find(PropertyFactory.LABEL_WORKER_STATE).setValue(workerProperty.find(PropertyFactory.LABEL_WORKER_STATE).getValues().get(r.nextInt(workerProperty.find(PropertyFactory.LABEL_WORKER_STATE).getSize())));//状态
+			w.find(PropertyFactory.LABEL_BANK_ADDRES).setValue("乱写的地址");
+			//工地
+			ArrayList sites=new ArrayList<>();
+			w.find(PropertyFactory.LABEL_SITE).setValue(sites);
+
+			sites.add(buildingSiteLIst.get(0).getName());
 			workerList.add(w);
 		}
 
@@ -391,9 +443,10 @@ public class DBManager {
 	public ArrayList<AnBean> loadingWorkerList() {
 
 		//首次启动
-		if(!workerListLoaded&&userLoaded){
+		if(!(workerListLoaded)){
 			try {
 				workerList=(ArrayList<AnBean>)readObject(user.getWorkerListPath());
+
 				if(workerList==null){
 					workerList=new ArrayList<>();
 				}
@@ -434,8 +487,19 @@ public class DBManager {
 		if(workerListLoaded){
 			for(AnBean bean:workerList){
 				for (Info info: bean.getArray()){
-					if(info.getName().equals(name)&&info.equalsValue(value)){
-						tmpList.add(bean);
+					if(info.getName().equals(name)){
+						if (info.getValue() instanceof ArrayList){
+							ArrayList list= (ArrayList) info.getValue();
+							for (Object object:list){
+								if (object.toString().equals(value.toString())){
+									tmpList.add(bean);
+								}
+							}
+						}else {
+							if (info.equalsValue(value)){
+								tmpList.add(bean);
+							}
+						}
 					}
 				}
 			}
@@ -447,6 +511,10 @@ public class DBManager {
 
 
 
+
+
+
+
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	//AssetList
 
@@ -455,11 +523,20 @@ public class DBManager {
 
 
 
+
+
+
+
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	//AssetPackage
 
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
 
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -499,6 +576,10 @@ public class DBManager {
 				throw new Exception("工地重名，无法添加到列表中！");
 		}
 		buildingSiteLIst.add(buildingSite);
+		//下面的步骤是用户创建工地之后，一定要将工地添加到属性中去
+		if (workerPropertyLoaded){
+			workerProperty.find(PropertyFactory.LABEL_SITE).addValue(buildingSite.getName());
+		}
 	}
 
 	/**
@@ -508,18 +589,14 @@ public class DBManager {
 	public void addBuildingSite(String name) throws Exception {
 		if (!buildingSiteLoaded)
 			return;
-
 		AnArrayBean site=PropertyFactory.createBuildingSite();
-		for (AnArrayBean bean:buildingSiteLIst){
-			if (bean.getName().equals(name))
-				throw new Exception("工地重名，无法添加到列表中！");
-		}
-		buildingSiteLIst.add(site);
+		site.setName(name);
+		addBuildingSite(site);
 	}
 
 	/**
 	 * 返回该工地的实例
-	 * @param siteName
+	 * @param siteName 工地名字
 	 * @return
 	 */
 	public AnArrayBean getBuildingSite(String siteName){
@@ -579,6 +656,59 @@ public class DBManager {
 		return  tmpList;
 	}
 
+	public void deleteBulidingSite(AnArrayBean site){
+		if (!buildingSiteLoaded)
+			return;
+		buildingSiteLIst.remove(site);
+
+		//更新属性中的数据
+		if (workerPropertyLoaded){
+			workerProperty.find(PropertyFactory.LABEL_SITE).getValues().remove(site.getName());
+		}
+		//更新所有工人中的数据
+		if (workerListLoaded){
+			for (AnBean bean:workerList){
+				ArrayList<String> siteTamp= (ArrayList<String>) bean.find(PropertyFactory.LABEL_SITE).getValue();
+				siteTamp.remove(site.getName());
+			}
+		}
+	}
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	//CheckInManager
+	public ChildrenManager getCheckInManager(){
+		if (checkInManagerLoaded)
+			return checkInManager;
+		return null;
+	}
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	//SalaryManager
+
+	/**
+	 * 返回工资子管理器
+	 * @return
+	 */
+	public ChildrenManager getSalaryManager(){
+		if (salaryManagerLoaded)
+			return salaryManager;
+		return null;
+	}
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 

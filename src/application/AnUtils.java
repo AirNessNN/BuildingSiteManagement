@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -18,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import dbManager.DateValueInfo;
 import resource.Resource;
 
 /**
@@ -291,4 +294,38 @@ public class AnUtils {
         return object.getClass().getName().contains(name);
     }
 
+	/**
+	 * 获取自定义的日期
+	 * @param year 年份
+	 * @param month 月份
+	 * @param day 天
+	 * @return 返回指定日期但不指定具体小时分钟的Date
+	 */
+    public static Date getDate(int year,int month,int day){
+		Calendar c=Calendar.getInstance();
+		c.setTime(new Date());
+		c.set(year,month,day);
+		return c.getTime();
+	}
+
+	/**
+	 * 给定两个日期，比较年份月份日期是否相等
+	 * @param d1
+	 * @param d2
+	 * @return
+	 */
+	public static boolean isDateYMDEquality(Date d1,Date d2){
+    	int d1y,d2y,d1m,d2m,d1d,d2d;
+    	Calendar c=Calendar.getInstance();
+    	c.setTime(d1);
+    	d1y=c.get(Calendar.YEAR);
+    	d1m=c.get(Calendar.MONTH);
+    	d1d=c.get(Calendar.DATE);
+
+    	c.setTime(d2);
+    	d2y=c.get(Calendar.YEAR);
+    	d2m=c.get(Calendar.MONTH);
+    	d2d=c.get(Calendar.DATE);
+    	return d1y==d2y&&d1m==d2m&&d1d==d2d;
+	}
 }

@@ -8,14 +8,13 @@ import javax.swing.*;
 import java.awt.Font;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Vector;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.event.*;
+
 import SwingTool.MyButton;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
 
 public class WorkerPanel extends ImagePanel implements Loadable, TableModelListener{
@@ -134,11 +133,11 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         button.setBounds(557, 84, 80, 23);
         add(button);
         
-        cobBuildingSite = new JComboBox<String>();
+        cobBuildingSite = new JComboBox<>();
         cobBuildingSite.setBounds(83, 116, 284, 21);
         add(cobBuildingSite);
         cobBuildingSite.addItem("全部");
-        cobBuildingSite.addItem("所有");//Debug
+        //cobBuildingSite.addItem("所有");//Debug
         
         JLabel label = new JLabel("\u6240\u5C5E\u5DE5\u5730");
         label.setFont(new Font("微软雅黑", Font.PLAIN, 14));
@@ -299,6 +298,19 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
             }
         });
 
+        list.addMouseListener(new MouseInputAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount()==2){
+                    AnInfoListDataModel model=list.getElementAt(list.getSelectedIndex());
+                    WorkerWindow wd=new WorkerWindow();
+                    boolean b=wd.initializeData(model.getInfo(), cobBuildingSite.getSelectedItem().toString());
+                    System.out.println(b);
+                    wd.setVisible(true);
+                }
+            }
+        });
+
         //工地筛选事件
         cobBuildingSite.addItemListener(e -> {
             loadingList();
@@ -444,7 +456,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         InfoArray<String> sex=property.find(PropertyFactory.LABEL_SEX);
         cobSex.addItem(sex.getValues().get(0));
         cobSex.addItem(sex.getValues().get(1));
-        table.addComponentCell(cobSex,7,1);
+        table.addComponentCell(cobSex,8,1);
 
         cobNation.removeAllItems();
         cobNation.removeAllItems();
@@ -452,23 +464,23 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         for (String value:nation.getValues()){
             cobNation.addItem(value);
         }
-        table.addComponentCell(cobNation,8,1);
+        table.addComponentCell(cobNation,9,1);
 
         cobWorkerState.removeAllItems();
         InfoArray<String> workerState=property.find(PropertyFactory.LABEL_WORKER_STATE);
         for (String value:workerState.getValues())
             cobWorkerState.addItem(value);
-        table.addComponentCell(cobWorkerState,14,1);
+        table.addComponentCell(cobWorkerState,15,1);
 
         cobWorkerType.removeAllItems();
         InfoArray<String> workerType=property.find(PropertyFactory.LABEL_WORKER_TYPE);
         for (String value:workerType.getValues())
             cobWorkerType.addItem(value);
-        table.addComponentCell(cobWorkerType,13,1);
+        table.addComponentCell(cobWorkerType,14,1);
 
-        table.addComponentCell(dataCob,6,1);
-        table.addComponentCell(new AnDateComboBoxEditor(),9,1);
+        table.addComponentCell(dataCob,7,1);
         table.addComponentCell(new AnDateComboBoxEditor(),10,1);
+        table.addComponentCell(new AnDateComboBoxEditor(),11,1);
     }
 
 
@@ -488,7 +500,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         for(int i=0;i<data.size();i++){
             String tmp= data.get(i).get(1);
             AnBean tmpBean=DBManager.getManager().getWorker(selectedIndex);
-            Info tmpInfo=tmpBean.find(data.get(i).get(0).toString());
+            Info tmpInfo=tmpBean.find(data.get(i).get(0));
             //在数据非空且有意义的情况下，写入到DB中
             if(tmp!=null&&!tmp.equals("")){
                 tmpInfo.setValue(tmp);
@@ -514,7 +526,9 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
             if (ab!=null) {
                 info = ab.find(data.get(i).get(0));
                 if (info != null) {
-                    String origin = (String) DBManager.getManager().getWorker(selectedIndex).find(data.get(i).get(0)).getValue();
+                    String origin = String.valueOf(DBManager.getManager().getWorker(selectedIndex).find(data.get(i).get(0)).getValue());
+                    if (origin==null||origin.equals("null"))//从String转换过来，可能被转换为“null”
+                        origin="";
                     String tmp = data.get(i).get(1);
                     if (tmp == null && origin == null) {
                         continue;

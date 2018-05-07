@@ -3,7 +3,7 @@ package application;
 public class AnInfoListDataModel {
 	
 	private String title,info;
-	private boolean isSelected=false;
+	private boolean isSelected;
 	
 	public String getTitle() {
 		return title;
@@ -33,7 +33,6 @@ public class AnInfoListDataModel {
 		// TODO Auto-generated constructor stub
 		this.title=title;
 		this.info=info;
-		this.isSelected=isSelected;
 	}
 
 }

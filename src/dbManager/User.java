@@ -66,6 +66,9 @@ public class User implements Serializable{
     //出勤信息数据
     public String getCheckInInfoPath(){return Resource.getDataDirectoryPath()+"\\"+userName+"_checkIn.lst";}
 
+    //工资信息
+    public String getSalaryInfoPath(){return Resource.getDataDirectoryPath()+"\\"+userName+"_salary.lst";}
+
 
 
     //重写

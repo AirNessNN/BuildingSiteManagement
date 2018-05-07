@@ -65,7 +65,7 @@ public class PropertyFactory {
             new Info<ArrayList<? extends DateValueInfo>>(Info.TYPE_ARRAY_LIST,"工资领取信息"),
             new Info<ArrayList<? extends DateValueInfo>>(Info.TYPE_ARRAY_LIST,"出勤信息"),
             new Info<ArrayList<? extends DateValueInfo>>(Info.TYPE_ARRAY_LIST,"生活费领取情况"),
-            new Info<ArrayList<String>>(Info.TYPE_STRING,"所属工地")
+            new Info<ArrayList<String>>(Info.TYPE_ARRAY_LIST,"所属工地")
     };
     /**
      * 预设的工人属性，可以
