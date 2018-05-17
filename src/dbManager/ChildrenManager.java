@@ -1,6 +1,7 @@
 package dbManager;
 
 import application.AnUtils;
+import application.Application;
 import application.Loadable;
 import component.IDateValueItem;
 
@@ -16,6 +17,11 @@ import java.util.Date;
  *          ArrayList《AnArrayBean》是所有工人的出勤信息集合
  *          AnArrayBean是一个工人（用身份证ID识别）的所有工地的出勤信息
  *                  AnArrayBean中的InfoArray《IDataValueItem》一个工地的出勤信息（工地名称识别）
+ *
+ *  工资数据结构：
+ *           ArrayList管理所有工资
+ *              AnArrayBean是一个工人的实例，其中包含几个属性，一个是工资领取记录，也该是生活费发放记录
+ *                  InfoArray 是上述每个属性的实例，其中存放了日期和领取的钱数量
  */
 public class ChildrenManager implements Loadable {
     public static final int MOD_ADD=0;
@@ -99,13 +105,15 @@ public class ChildrenManager implements Loadable {
 
     /**
      * 从DB管理中获取到所有工人列表，更新此子管理器中工人的信息
-     * @param beans 工人列表（AnBean）
+     * 调用次方法，可以保持此子管理器的数据与主管理器中内容保持一致
      */
-    public void updateWorkerList(ArrayList<AnBean> beans){
+    public void updateWorkerList(){
         if (prepared){
+            ArrayList<AnBean> beans= DBManager.getManager() != null ? DBManager.getManager().loadingWorkerList() : null;
 
            //更新出勤信息
             //新增工人
+            assert beans != null;
             for (AnBean bean:beans){
                 String id=bean.find(PropertyFactory.LABEL_ID_CARD).getValueString();
                boolean found=false;
@@ -156,7 +164,7 @@ public class ChildrenManager implements Loadable {
                 workList.remove(i);
             }
             //更新到文件
-            saveToFile();
+            //saveToFile();
         }
     }
 
@@ -187,7 +195,7 @@ public class ChildrenManager implements Loadable {
                     return;
                 workList = (ArrayList<AnArrayBean>) DBManager.readObject(path);
             } catch (IOException | ClassNotFoundException e) {
-                System.out.println(e.toString());
+                Application.debug(this,e.toString());
                 workList =new ArrayList<>();
             }
             prepared=true;
@@ -220,5 +228,38 @@ public class ChildrenManager implements Loadable {
             }
         }
         return  null;
+    }
+
+    /**
+     * 更新指定工人指定工地的数据
+     * @param id
+     * @param site
+     * @param source
+     */
+    public void setWorkerDateValueList(String id,String site,ArrayList<IDateValueItem> source){
+        for (AnArrayBean bean:workList){
+            if (bean.getName().equals(id)){
+                for (InfoArray info:bean.getValues()){
+                    if (info.getName().equals(site)){
+                        info.setValues(source);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 返回一个工人的实例
+     * @param id 身份证
+     * @return
+     */
+    public AnArrayBean getWorker(String id){
+        for (AnArrayBean bean:workList){
+            if (bean.getName().equals(id))
+                return bean;
+        }
+        return null;
     }
 }

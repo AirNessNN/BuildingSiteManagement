@@ -208,6 +208,16 @@ public class Application {
 
 	}
 
+
+	/**
+	 * 输出信息
+	 * @param owner
+	 * @param str
+	 */
+	public static void debug(Object owner,Object str){
+		System.out.println(owner.getClass().getName()+"："+str);
+	}
+
 	
 	/**
 	 * 程序设置类

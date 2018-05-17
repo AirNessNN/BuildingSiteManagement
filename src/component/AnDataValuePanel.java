@@ -1,5 +1,9 @@
 package component;
 
+import application.AnUtils;
+import dbManager.DateValueInfo;
+
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -19,9 +23,16 @@ public class AnDataValuePanel extends JPanel {
     /**
      * AnDateValuePanel的数据对比回调
      */
-    public interface IValueSetCallback{
+    public interface IValueColorSetCallback {
         int valueOf(Object value);
     }
+
+	/**
+	 *  点击日期的值设置回调
+	 */
+	public interface IValueCallback{
+    	Object setObject(Object value);
+	}
 
 	private AnTextButton btnPreviousMonth;
 	private AnTextButton btnPreviousYear;
@@ -50,7 +61,8 @@ public class AnDataValuePanel extends JPanel {
 	private Date date = null;
 
 	//回调
-    private IValueSetCallback callback=null;
+    private IValueColorSetCallback callback=null;
+    private IValueCallback valueCallback=null;
 
 	private void initComponent() {
 		setSize(654, 589);
@@ -262,6 +274,15 @@ public class AnDataValuePanel extends JPanel {
                     }
 					switch (e.getAction()){
 						case AnActionEvent.CILCKED:
+							if (valueCallback!=null){
+								try {
+									Date date=AnUtils.getDate(stringDate,"yyy-MM-dd");
+									setValueFromDate(date,valueCallback.setObject(getValueFromDate(date)));
+									setDateComponentLocation();
+								} catch (ParseException e1) {
+									System.out.println(e1.getErrorOffset());
+								}
+							}
 							if (listener!=null){
                                 listener.actionPerformed(new AnActionEvent(e.getSource(),AnActionEvent.CILCKED,stringDate));
                             }
@@ -498,7 +519,13 @@ public class AnDataValuePanel extends JPanel {
 		setDateComponentLocation();
 	}
 
+	public ArrayList<IDateValueItem> getSource() {
+		return source;
+	}
+
 	public Color getColor(float value){
+		if (value==-1f)
+			return new Color(255,255,255);
 		if (value<minValue)
 			value=minValue;
 		if (value>maxValue)
@@ -520,6 +547,42 @@ public class AnDataValuePanel extends JPanel {
 
 	}
 
+	/**
+	 * 根据日期返回值
+	 * @param date
+	 * @return
+	 */
+	public Object getValueFromDate(Date date){
+		if (source!=null){
+			for (IDateValueItem info:source){
+				if (AnUtils.isDateYMDEquality(date,info.getDate())){
+					return info.getValue();
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 设置该日期的值，如果没找到该日期就创建
+	 * @param date
+	 * @param value
+	 */
+	public void setValueFromDate(Date date,Object value){
+		if (source==null)
+			source=new ArrayList<>();
+		if (source!=null){
+			for (IDateValueItem item:source){
+				if (AnUtils.isDateYMDEquality(date,item.getDate())){
+					item.setValue(value);
+					return;
+				}
+			}
+			DateValueInfo info=new DateValueInfo(date,value);
+			source.add(info);
+		}
+	}
+
 	public void setMinValue(int min){
 	    minValue=min;
     }
@@ -528,7 +591,10 @@ public class AnDataValuePanel extends JPanel {
 	    maxValue=max;
     }
 
-    public void setCallback(IValueSetCallback callback){
+    public void setParam(IValueColorSetCallback callback){
 	    this.callback=callback;
     }
+    public void setValueCallback(IValueCallback callback){
+		this.valueCallback=callback;
+	}
 }

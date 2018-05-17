@@ -2,13 +2,18 @@ package test;
 
 import application.AnUtils;
 import application.WorkerWindow;
+import component.AnDialog;
 import dbManager.DBManager;
 import dbManager.PropertyFactory;
 import dbManager.User;
+import resource.Resource;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
 
 public class Test extends JFrame{
 
@@ -35,7 +40,7 @@ public class Test extends JFrame{
 			DBManager.prepareDataBase();//准备DB
 			DBManager.getManager().loadUser(user);
 			DBManager.getManager().addBuildingSite("测试工地");
-			DBManager.getManager().addBuildingSite("测试工地");
+			//DBManager.getManager().addBuildingSite("测试工地");
 
 
 
@@ -47,14 +52,46 @@ public class Test extends JFrame{
 			e.printStackTrace();
 		}
 
-		WorkerWindow wd=new WorkerWindow();
+		//WorkerWindow wd=new WorkerWindow();
 
-		wd.setVisible(true);
-
+		//wd.setVisible(true);
+		//AnDialog.show(null,"阿萨德和考拉上的痕迹卡的阿手机客户端按实际的",AnDialog.SHORT_SHOW)
+		String id=IDRandom();
+		System.out.println(id);
+		System.out.println(AnUtils.convertBornDate(id));
+		System.out.println(AnUtils.convertAge(id));
 		
 
 
 
+	}
+
+	/**
+	 * 身份证随机器
+	 * @return
+	 */
+	public static String IDRandom(){
+		Random r=new Random();
+		int v1=300000;
+		int v2=1970;
+		int v3;
+
+		StringBuilder sb=new StringBuilder();
+		sb.append((v1+r.nextInt(99999)));
+		sb.append((v2+r.nextInt(50)));
+		v3=r.nextInt(13);
+		if (v3<10)
+			sb.append(0);
+		sb.append(v3);
+		int v4=r.nextInt(31);
+		if (v4<10)
+			sb.append(0);
+		sb.append(v4);
+		for (int i=0;i<4;i++)
+			sb.append(r.nextInt(10));
+
+
+		return sb.toString();
 	}
 
 	private void createUIComponents() {

@@ -2,10 +2,12 @@ package dbManager;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 import javax.swing.JOptionPane;
 import application.Application;
 import resource.Resource;
+import test.Test;
 
 /**
  * 数据管理服务
@@ -308,7 +310,7 @@ public class DBManager {
 			Info inf1=w.find("名字");
 			inf1.setValue("名字"+r.nextInt(456123));
 			Info inf2=w.find("身份证");
-			inf2.setValue(String.valueOf(r.nextInt(10000)));
+			inf2.setValue(Test.IDRandom());
 			w.find(PropertyFactory.LABEL_AGREED_MONTHDLY_WAGE).setValue(5000);
 			w.find(PropertyFactory.LABEL_PHONE).setValue("13123376032");
 			w.find(PropertyFactory.LABEL_WORKER_TYPE).setValue(workerProperty.find(PropertyFactory.LABEL_WORKER_TYPE).getValues().get(r.nextInt(workerProperty.find(PropertyFactory.LABEL_WORKER_TYPE).getSize())));//工种
@@ -316,12 +318,11 @@ public class DBManager {
 			w.find(PropertyFactory.LABEL_WORKER_STATE).setValue(workerProperty.find(PropertyFactory.LABEL_WORKER_STATE).getValues().get(r.nextInt(workerProperty.find(PropertyFactory.LABEL_WORKER_STATE).getSize())));//状态
 			w.find(PropertyFactory.LABEL_BANK_ADDRES).setValue("乱写的地址");
 			//工地
-			ArrayList sites=new ArrayList<>();
-			w.find(PropertyFactory.LABEL_SITE).setValue(sites);
-
-			sites.add(buildingSiteLIst.get(0).getName());
 			workerList.add(w);
+			addWorkerToSite(w.find(PropertyFactory.LABEL_ID_CARD).getValueString(),buildingSiteLIst.get(r.nextInt(2)).getName());
+
 		}
+
 
 
 	}
@@ -342,17 +343,22 @@ public class DBManager {
 	 * 增加一条工人属性
 	 * @param info
 	 */
-	public void addProperty(InfoArray info) throws Exception {
+	public void addWorkerProperty(InfoArray info) throws Exception {
 		if(workerProperty !=null){
 			workerProperty.addInfoArray(info);
 		}
+	}
+
+	public void createWorkerProperty(String name) throws Exception {
+		InfoArray<String> infoArray=new InfoArray<>(name);
+		addWorkerProperty(infoArray);
 	}
 
 	/**
 	 *	移除工人属性
 	 * @param info
 	 */
-	public void removeWorkerBeanInfo(InfoArray info){
+	public void removeWorkerProperty(InfoArray info){
 		if(workerProperty !=null){
 			workerProperty.removeInfoArray(info);
 		}
@@ -363,7 +369,7 @@ public class DBManager {
 	 * @param index
 	 * @return
 	 */
-	public InfoArray getWorkerBeanInfo(int index){
+	public InfoArray getWorkerProperty(int index){
 		if(workerProperty !=null){
 			return workerProperty.findAt(index);
 		}
@@ -375,7 +381,7 @@ public class DBManager {
 	 * @param name
 	 * @return
 	 */
-	public InfoArray getWorkerBeanInfo(String name){
+	public InfoArray getWorkerProperty(String name){
 		if(workerProperty !=null){
 			return workerProperty.find(name);
 		}
@@ -468,9 +474,30 @@ public class DBManager {
 		return 0;
 	}
 
+	/**
+	 * 根据索引号返回一个工人实例
+	 * @param index
+	 * @return
+	 */
 	public AnBean getWorker(int index){
 		if(workerListLoaded){
 			return workerList.get(index);
+		}
+		return null;
+	}
+
+	/**
+	 * 根据工人身份证返回实例
+	 * @param id
+	 * @return
+	 */
+	public AnBean getWorker(String id){
+		if (workerListLoaded){
+			for (AnBean bean:workerList){
+				if (bean.find(PropertyFactory.LABEL_ID_CARD).equalsValue(id)){
+					return bean;
+				}
+			}
 		}
 		return null;
 	}
@@ -673,6 +700,31 @@ public class DBManager {
 			}
 		}
 	}
+
+	/**
+	 * 将工人数据更新到工地中，并且更新自身的属性
+	 * @param id 身份证
+	 * @param site 工地
+	 * @return
+	 */
+	public boolean addWorkerToSite(String id,String site){
+		if (!workerListLoaded&&!buildingSiteLoaded)
+			return false;
+
+		for (AnArrayBean tmpSite:buildingSiteLIst){
+			if (tmpSite.getName().equals(site)){
+				//将工人ID添加到工地中
+				tmpSite.find(PropertyFactory.LABEL_ID_CARD).addValue(id);
+
+				AnBean worker=getWorker(id);
+
+				boolean b=worker.find(PropertyFactory.LABEL_SITE).addListValue(site);
+				updateChildrenManager();
+				return b;
+			}
+		}
+		return false;
+	}
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -688,7 +740,6 @@ public class DBManager {
 			return checkInManager;
 		return null;
 	}
-
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -708,6 +759,16 @@ public class DBManager {
 		if (salaryManagerLoaded)
 			return salaryManager;
 		return null;
+	}
+
+	/**
+	 * 更新所有子管理器
+	 */
+	public void updateChildrenManager(){
+		if (salaryManagerLoaded)
+			salaryManager.updateWorkerList();
+		if (checkInManagerLoaded)
+			checkInManager.updateWorkerList();
 	}
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -800,8 +861,103 @@ public class DBManager {
 		ObjectInputStream ois=new ObjectInputStream(fi);
 		return ois.readObject();
     }
-	
-	
-	
-	
+
+
+	/**
+	 * DB的整合方法，调用PropertyFactory工厂类来初始化一个工人实例，并且该工人实例装有部分属性
+	 * @param name
+	 * @param ID
+	 * @param phone
+	 * @param address
+	 * @param bankID
+	 * @param bankAddress
+	 * @param nation
+	 * @param enD
+	 * @param tag
+	 * @return
+	 */
+    public static AnBean createWorker(String name, String ID, String phone, String address, String bankID, String bankAddress, String nation, Date enD,String type, String tag){
+		if (!manager.userLoaded)
+			return null;
+		if (!manager.workerListLoaded)
+			return null;
+		if(!manager.salaryManagerLoaded)
+			return null;
+		if (!manager.checkInManagerLoaded)
+			return null;
+
+		AnBean worker=PropertyFactory.createWorker();
+		worker.find(PropertyFactory.LABEL_NAME).setValue(name);
+		worker.find(PropertyFactory.LABEL_ID_CARD).setValue(ID);
+		worker.find(PropertyFactory.LABEL_PHONE).setValue(phone);
+		worker.find(PropertyFactory.LABEL_ADDRESS).setValue(address);
+		worker.find(PropertyFactory.LABEL_BANK_ADDRES).setValue(bankAddress);
+		worker.find(PropertyFactory.LABEL_BANK_ID).setValue(bankID);
+		worker.find(PropertyFactory.LABEL_NATION).setValue(nation);
+		worker.find(PropertyFactory.LABEL_ENTRY_TIME).setValue(enD);
+		worker.find(PropertyFactory.LABEL_TAG).setValue(tag);
+		worker.find(PropertyFactory.LABEL_WORKER_TYPE).setValue(type);
+		return worker;
+	}
+
+	/**
+	 * DB工具方法，快速设置AnBean的值
+	 * @param bean 包装类
+	 * @param infoName 属性名
+	 * @param value 属性值
+	 * @return
+	 */
+	public static AnBean setBeanInfo(AnBean bean, String infoName,Object value){
+    	if(bean.find(infoName)==null)
+    		return null;
+    	bean.find(infoName).setValue(value);
+    	return bean;
+	}
+
+
+	/**
+	 * DB工具方法，更新工人的工地数据
+	 * 本地需要更新，工地中需要更新工人，工资和日期管理器中也需要更新工人的数据
+	 * @param bean
+	 * @param site
+	 * @return
+	 */
+	public static boolean addWorkerToBuildingSite(AnBean bean,AnArrayBean site){
+		if (!manager.workerListLoaded&&!manager.buildingSiteLoaded)
+			return false;
+
+		boolean workerFound=false;
+
+		//判断工人是否存在
+		for (AnBean worker:manager.workerList){
+			if (bean.find(PropertyFactory.LABEL_ID_CARD).getValue().equals(worker.find(PropertyFactory.LABEL_ID_CARD).getValue())){
+				workerFound=true;
+				break;
+			}
+		}
+		if (!workerFound)manager.workerList.add(bean);
+
+		//给工人自带的属性中加入该工地
+		bean.find(PropertyFactory.LABEL_SITE).addListValue(site.getName());
+		site.find(PropertyFactory.LABEL_SITE).addValue(bean.find(PropertyFactory.LABEL_ID_CARD).getValueString());
+
+		manager.updateChildrenManager();//将数据更新到管理器
+		return true;
+	}
+
+	public static boolean deleteWorkerFromBuildingSite(String id, String siteName){
+		AnBean worker=manager.getWorker(id);
+		if (worker==null)
+			return false;
+		AnArrayBean site=manager.getBuildingSite(siteName);
+		if (site==null)
+			return false;
+
+		worker.find(PropertyFactory.LABEL_SITE).removeListValue(siteName);
+		site.find(PropertyFactory.LABEL_SITE).removeValue(id);
+		manager.updateChildrenManager();
+		return true;
+	}
+
+
 }

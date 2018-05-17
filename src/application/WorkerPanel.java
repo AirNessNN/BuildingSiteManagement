@@ -409,8 +409,10 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         if(list!=null)
             list.clear();
         //读取工人列表
-        ArrayList<AnBean> beans;
+        ArrayList<AnBean> beans=null;
        if (cobBuildingSite==null){
+            beans=DBManager.getManager().loadingWorkerList();
+       }else if(cobBuildingSite.getSelectedItem()==null){
             beans=DBManager.getManager().loadingWorkerList();
        }else if(cobBuildingSite.getSelectedItem().equals("全部")){
            beans=DBManager.getManager().loadingWorkerList();
@@ -430,6 +432,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
             //添加到列表
             list.addElement(model);
         }
+        repaint();
     }
 
 
@@ -443,14 +446,15 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         if (property==null)
             return;
 
-        //cobBuildingSite.removeAllItems();
+        cobBuildingSite.removeAllItems();
+        cobBuildingSite.addItem("全部");
         InfoArray<String> infoArray=property.find(PropertyFactory.LABEL_SITE);
         for (String value:infoArray.getValues()){
             cobBuildingSite.addItem(value);
             cobSiteFrom.addItem(value);
         }
         cobBuildingSite.setSelectedIndex(0);
-        table.addComponentCell(cobSiteFrom,22,1);
+        table.addComponentCell(cobSiteFrom,23,1);
 
         cobSex.removeAllItems();
         InfoArray<String> sex=property.find(PropertyFactory.LABEL_SEX);
@@ -555,13 +559,14 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
     public void loading(Object data) {
         Application.startService(() -> {
             try {
-                Thread.sleep(3000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            loadingList();
-            loadingProperty();
+
         });
+        loadingList();
+        loadingProperty();
     }
 
 

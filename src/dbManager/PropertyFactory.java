@@ -28,7 +28,7 @@ public class PropertyFactory {
     public static final String LABEL_SURPLUS_SALARY="结余工资";
     public static final String LABEL_SALARY_GET_ARR="工资领取信息";
     public static final String LABEL_DUTY_ARR="出勤信息";
-    public static final String LABEL_COST_OF_LIVING_ARR="生活费领取情况";
+    public static final String LABEL_COST_OF_LIVING ="已领取的生活费";
     public static final String LABEL_SITE="所属工地";
     public static final String LABEL_PHONE="电话号码";
 
@@ -64,7 +64,7 @@ public class PropertyFactory {
             new Info<Double>(Info.TYPE_DOUBLE,"结余工资"),
             new Info<ArrayList<? extends DateValueInfo>>(Info.TYPE_ARRAY_LIST,"工资领取信息"),
             new Info<ArrayList<? extends DateValueInfo>>(Info.TYPE_ARRAY_LIST,"出勤信息"),
-            new Info<ArrayList<? extends DateValueInfo>>(Info.TYPE_ARRAY_LIST,"生活费领取情况"),
+            new Info<Double>(Info.TYPE_DOUBLE,"已领取的生活费"),
             new Info<ArrayList<String>>(Info.TYPE_ARRAY_LIST,"所属工地")
     };
     /**
@@ -88,6 +88,7 @@ public class PropertyFactory {
             switch (info.getType()){
                 case Info.TYPE_ARRAY_LIST:{
                     Info<ArrayList> tmp=new Info<>(info.getName());
+                    tmp.setValue(new ArrayList());
                     worker.addInfo(tmp);
                     break;
                 }
