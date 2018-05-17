@@ -18,6 +18,9 @@ public class Resource {
 	public final static Font FONT_TABLE_ITEM=new Font(FONT_WEI_RUAN_YA_HEI,Font.PLAIN,15);
 	//颜色
 	public final static Color COLOR_LIGHT_BLUE=SystemColor.textHighlight;
+
+	//字符串
+	public final static String DATE_FORMATE="yyyy-MM-dd";
 	
 	//系统文件
 	/**

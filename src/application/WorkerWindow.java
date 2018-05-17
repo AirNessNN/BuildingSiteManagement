@@ -2,23 +2,30 @@ package application;
 
 import component.*;
 import dbManager.*;
+import jdk.nashorn.internal.scripts.JO;
+import resource.Resource;
 
 import javax.swing.*;
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.LineBorder;
 
+/**
+ * 详细的工人数据，支持保存
+ */
 public class WorkerWindow extends JFrame {
     private AnImageLabel imageLabel;//头像
     private AnLabel labIDCard;//身份证
     private AnLabel labName;//名字
     private AnLabel labType;//工种
 	private AnLabel labPhone;//电话号码
-	private JLabel labWorkDay;
-	private JLabel labSalaryOfMonth;
-	private JLabel labSurplus;
-	private JLabel labPaidLivingCosts;
-	private JLabel labPaidWages;
+	private AnLabel labSalaryOfMonth;
+	private AnLabel labSurplus;
+	private AnLabel labPaidLivingCosts;
+	private AnLabel labPaidWages;
+	private AnLabel labelState;
 	private JComboBox cobSite;
 	private AnDataValuePanel datePanel;
 	private AnDataValuePanel salaryPanel;
@@ -31,6 +38,11 @@ public class WorkerWindow extends JFrame {
     //数据
 	private ChildrenManager checkInManager=null;
 	private ChildrenManager salaryManager=null;
+	private JLabel labBornDate;
+	private JLabel lab;
+	private JLabel labWorkDay;
+	private JLabel labAge;
+
 
 
 
@@ -44,7 +56,7 @@ public class WorkerWindow extends JFrame {
     	setMinimumSize(new Dimension(800,771));
     	setLocationRelativeTo(null);
     	setTitle(title);
-    	setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    	setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		getContentPane().setLayout(null);
 
 		imageLabel=new AnImageLabel("app_icon.png");
@@ -55,7 +67,7 @@ public class WorkerWindow extends JFrame {
 		infoPanel.setBounds(336, 10, 169, 272);
 		infoPanel.setBackground(Color.WHITE);
 		getContentPane().add(infoPanel);
-		infoPanel.setLayout(new GridLayout(6, 0, 0, 0));
+		infoPanel.setLayout(new GridLayout(8, 0, 0, 0));
 		
 				labName = new AnLabel("张三");
 				labName.setText("");
@@ -78,7 +90,7 @@ public class WorkerWindow extends JFrame {
 								labIDCard.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								labIDCard.setHorizontalAlignment(SwingConstants.LEFT);
 								
-								AnLabel labelState = new AnLabel("状态：在职");
+								labelState = new AnLabel("状态：在职");
 								labelState.setText("");
 								labelState.setForeground(Color.GRAY);
 								labelState.setFont(new Font("微软雅黑", Font.PLAIN, 15));
@@ -91,6 +103,16 @@ public class WorkerWindow extends JFrame {
 								labType.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								infoPanel.add(labType);
 								
+								labBornDate = new JLabel("");
+								labBornDate.setForeground(Color.GRAY);
+								labBornDate.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+								infoPanel.add(labBornDate);
+								
+								labAge = new JLabel("");
+								labAge.setForeground(Color.GRAY);
+								labAge.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+								infoPanel.add(labAge);
+								
 								JPanel panel_3 = new JPanel();
 								panel_3.setBackground(Color.WHITE);
 								infoPanel.add(panel_3);
@@ -98,9 +120,9 @@ public class WorkerWindow extends JFrame {
 								panel_3.setLayout(sl_panel_3);
 								
 								cobSite = new JComboBox();
-								sl_panel_3.putConstraint(SpringLayout.NORTH, cobSite, 7, SpringLayout.NORTH, panel_3);
+								sl_panel_3.putConstraint(SpringLayout.NORTH, cobSite, 0, SpringLayout.NORTH, panel_3);
 								sl_panel_3.putConstraint(SpringLayout.WEST, cobSite, 0, SpringLayout.WEST, panel_3);
-								sl_panel_3.putConstraint(SpringLayout.SOUTH, cobSite, -7, SpringLayout.SOUTH, panel_3);
+								sl_panel_3.putConstraint(SpringLayout.SOUTH, cobSite, 0, SpringLayout.SOUTH, panel_3);
 								sl_panel_3.putConstraint(SpringLayout.EAST, cobSite, 0, SpringLayout.EAST, panel_3);
 								panel_3.add(cobSite);
 								
@@ -108,7 +130,7 @@ public class WorkerWindow extends JFrame {
 								panel.setBounds(249, 10, 75, 272);
 								panel.setBackground(Color.WHITE);
 								getContentPane().add(panel);
-								panel.setLayout(new GridLayout(6, 0, 0, 0));
+								panel.setLayout(new GridLayout(8, 0, 0, 0));
 								
 								JLabel label_1 = new JLabel("姓名：");
 								label_1.setForeground(Color.DARK_GRAY);
@@ -139,6 +161,18 @@ public class WorkerWindow extends JFrame {
 								label_5.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								label_5.setHorizontalAlignment(SwingConstants.RIGHT);
 								panel.add(label_5);
+								
+								JLabel label_11 = new JLabel("出生日期：");
+								label_11.setForeground(Color.GRAY);
+								label_11.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+								label_11.setHorizontalAlignment(SwingConstants.RIGHT);
+								panel.add(label_11);
+								
+								JLabel label_14 = new JLabel("年龄：");
+								label_14.setForeground(Color.GRAY);
+								label_14.setHorizontalAlignment(SwingConstants.RIGHT);
+								label_14.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+								panel.add(label_14);
 								
 								JLabel label = new JLabel("所属工地：");
 								label.setForeground(Color.GRAY);
@@ -203,111 +237,177 @@ public class WorkerWindow extends JFrame {
 								lblNewLabel_1.setFont(new Font("幼圆", Font.PLAIN, 20));
 								lblNewLabel_1.setForeground(SystemColor.textHighlight);
 								getContentPane().add(lblNewLabel_1);
-								
+
 								salaryPanel = new AnDataValuePanel();
 								salaryPanel.setBorder(new LineBorder(new Color(143, 188, 143)));
 								salaryPanel.setBounds(473, 332, 420, 390);
 								getContentPane().add(salaryPanel);
-								
+
 								JPanel panel_5 = new JPanel();
 								panel_5.setBackground(Color.WHITE);
 								panel_5.setBounds(550, 10, 121, 272);
 								getContentPane().add(panel_5);
-								panel_5.setLayout(new GridLayout(5, 0, 0, 0));
-								
+								panel_5.setLayout(new GridLayout(6, 0, 0, 0));
+
 								JLabel label_6 = new JLabel("合计工日：");
 								label_6.setHorizontalAlignment(SwingConstants.RIGHT);
 								label_6.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								label_6.setForeground(Color.GRAY);
 								panel_5.add(label_6);
-								
+
+								JLabel label_12 = new JLabel("");
+								panel_5.add(label_12);
+
 								JLabel label_7 = new JLabel("约定月工资：");
 								label_7.setHorizontalAlignment(SwingConstants.RIGHT);
 								label_7.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								label_7.setForeground(Color.GRAY);
 								panel_5.add(label_7);
-								
+
 								JLabel label_8 = new JLabel("结余工资：");
 								label_8.setHorizontalAlignment(SwingConstants.RIGHT);
 								label_8.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								label_8.setForeground(Color.GRAY);
 								panel_5.add(label_8);
-								
+
 								JLabel label_9 = new JLabel("已领取生活费：");
 								label_9.setHorizontalAlignment(SwingConstants.RIGHT);
 								label_9.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								label_9.setForeground(Color.GRAY);
 								panel_5.add(label_9);
-								
+
 								JLabel label_10 = new JLabel("已领取的工资：");
 								label_10.setHorizontalAlignment(SwingConstants.RIGHT);
 								label_10.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								label_10.setForeground(Color.GRAY);
 								panel_5.add(label_10);
-								
+
 								JPanel panel_6 = new JPanel();
 								panel_6.setBackground(Color.WHITE);
 								panel_6.setBounds(683, 10, 175, 272);
 								getContentPane().add(panel_6);
 								panel_6.setLayout(new GridLayout(0, 2, 0, 0));
-								
+
 								labWorkDay = new JLabel("0");
-								labWorkDay.setHorizontalAlignment(SwingConstants.RIGHT);
 								labWorkDay.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								labWorkDay.setForeground(SystemColor.textHighlight);
+								labWorkDay.setHorizontalAlignment(SwingConstants.RIGHT);
 								panel_6.add(labWorkDay);
-								
+
 								JLabel label_16 = new JLabel(" 天");
 								label_16.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								panel_6.add(label_16);
-								
-								labSalaryOfMonth = new JLabel("0");
+
+								JLabel label_13 = new JLabel("");
+								panel_6.add(label_13);
+
+								lab = new JLabel("");
+								panel_6.add(lab);
+
+								labSalaryOfMonth = new AnLabel("0");
 								labSalaryOfMonth.setHorizontalAlignment(SwingConstants.RIGHT);
 								labSalaryOfMonth.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								labSalaryOfMonth.setForeground(SystemColor.textHighlight);
 								panel_6.add(labSalaryOfMonth);
-								
+
 								JLabel label_17 = new JLabel(" 元");
 								label_17.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								panel_6.add(label_17);
 								//结余工资
-								labSurplus = new JLabel("0");
+								labSurplus = new AnLabel("0");
 								labSurplus.setHorizontalAlignment(SwingConstants.RIGHT);
 								labSurplus.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								labSurplus.setForeground(SystemColor.textHighlight);
 								panel_6.add(labSurplus);
-								
+
 								JLabel label_18 = new JLabel(" 元");
 								label_18.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								panel_6.add(label_18);
-								
-								labPaidLivingCosts = new JLabel("0");
+
+								labPaidLivingCosts = new AnLabel("0");
 								labPaidLivingCosts.setHorizontalAlignment(SwingConstants.RIGHT);
 								labPaidLivingCosts.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								labPaidLivingCosts.setForeground(SystemColor.textHighlight);
 								panel_6.add(labPaidLivingCosts);
-								
+
 								JLabel label_19 = new JLabel(" 元");
 								label_19.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								panel_6.add(label_19);
-								
-								labPaidWages = new JLabel("0");
+
+								labPaidWages = new AnLabel("0");
 								labPaidWages.setHorizontalAlignment(SwingConstants.RIGHT);
 								labPaidWages.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								labPaidWages.setForeground(SystemColor.textHighlight);
 								panel_6.add(labPaidWages);
-								
+
 								JLabel label_20 = new JLabel(" 元");
 								label_20.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								panel_6.add(label_20);
 
 	}
-	
+
 	public void initializeEvent() {
+		//点击之后就保存数据
+		//因为数据保存是在数据修改之后，事件监听器之间有先后顺序
 		datePanel.setActionListener((e)->{
 			if (e.getAction()==AnActionEvent.CILCKED){
-				System.out.println(e.getTag());
+				checkInManager.setWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString(),datePanel.getSource());
+				showWorkDay(datePanel.getSource());
 			}
+		});
+		//这里设置每次点击的值，第一次设置为全勤，第二次让用户自己选择
+		datePanel.setValueCallback((obj)->{
+			Application.debug(this,obj);
+			if (obj==null) {
+				obj = 1d;
+				AnDialog.show(this,"已设置该天为全勤，如果需要自定义出勤比例，请再次点击色块。",AnDialog.LONG_SHOW);
+				return obj;
+			}
+			String value=JOptionPane.showInputDialog(this,"请输入要修改的出勤值。","请修改",JOptionPane.INFORMATION_MESSAGE);
+			double d;
+			try{
+				d=Double.valueOf(value);
+				if (d>1d)
+					d=1d;
+			}catch (Exception ex){
+				Application.debug(this,ex);
+				return obj;
+			}
+			return d;
+		});
+
+		//这里的事件是设置值的颜色，出勤一天为1，所以颜色设置为10，我们扩大10倍因为传回去的值只能是整数
+		datePanel.setParam((e)->{
+			try{
+				double f= (double) e;
+				return (int) (f*10);
+			}catch (Exception ex){
+				return -1;
+			}
+
+		});
+
+		salaryPanel.setActionListener((e)->{
+			salaryManager.setWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString(),datePanel.getSource());
+			showSalaryDay(salaryPanel.getSource());
+		});
+
+		salaryPanel.setValueCallback((value -> {
+			try{
+				double d=Double.valueOf(JOptionPane.showInputDialog(this,"请输入该天领取的生活费。","请输入",JOptionPane.INFORMATION_MESSAGE));
+				return d;
+			}catch (Exception e){ }
+			return 0d;
+		}));
+
+		salaryPanel.setParam(value -> {
+			double d= (double) value;
+			return Integer.valueOf((int) d);
+		});
+
+
+		cobSite.addActionListener((e)->{
+			initializeData();
 		});
 	}
 
@@ -321,6 +421,10 @@ public class WorkerWindow extends JFrame {
 		return initializeData(model.getInfo(),workSite);
 	}
 
+	private boolean initializeData(){
+		return initializeData(labIDCard.getText(),cobSite.getSelectedItem().toString());
+	}
+
 	/**
 	 * 为窗口装载所有工人信息
 	 * @param ID 身份ID
@@ -331,40 +435,89 @@ public class WorkerWindow extends JFrame {
 	public boolean initializeData(String ID,String site){
 		assert DBManager.getManager() != null;
 		for (AnBean anBean :DBManager.getManager().loadingWorkerList()){
-			if(anBean.find(PropertyFactory.LABEL_ID_CARD).equals(ID)&&
-					site.equals(anBean.find(PropertyFactory.LABEL_SITE))){
+			if(anBean.find(PropertyFactory.LABEL_ID_CARD).getValueString().equals(ID)){
+				if (!site.equals("全部")){
+					ArrayList<String> tmpSite=DBManager.getManager().getWorkerAt(ID);
+					if (!tmpSite.contains(site))
+						return false;
+				}
 				worker= anBean;//找到了该工人，这么判断是因为身份相同的人在同一个工地只能出现一次
 
 				labName.setText(worker.find(PropertyFactory.LABEL_NAME).getValueString());
 				labIDCard.setText(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString());
 				labType.setText(worker.find(PropertyFactory.LABEL_WORKER_TYPE).getValueString());
 				labPhone.setText(worker.find(PropertyFactory.LABEL_PHONE).getValueString());
+				labelState.setText(worker.find(PropertyFactory.LABEL_WORKER_STATE).getValueString());
+				SimpleDateFormat sm=new SimpleDateFormat("yyy年MM月dd日");
+				labBornDate.setText(sm.format(AnUtils.convertBornDate(labIDCard.getText())));
+				labAge.setText(String.valueOf(AnUtils.convertAge(labIDCard.getText()))+"岁");
 
 
 
 				//获取该工人的工地
 				cobSite.setModel(new DefaultComboBoxModel(DBManager.getManager().getWorkerAt(labIDCard.getText()).toArray()));
-
+				cobSite.setSelectedItem(site);
 
 				datePanel.setMaxValue(10);//设置最大数值的颜色显示，因为有小数，所以扩大10倍
-
+				salaryPanel.setMaxValue(Integer.valueOf(worker.find(PropertyFactory.LABEL_AGREED_MONTHDLY_WAGE).getValueString()));//设置工资管理器色准为这个工人的约定工资，最大领取到的也只能是约定工资
 				//考勤数据
 				DBManager manager=DBManager.getManager();
 				checkInManager=manager.getCheckInManager();
-				datePanel.setSourceDates(checkInManager.getWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString()));
+				ArrayList<IDateValueItem> tmpCheckInList=checkInManager.getWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString());
+				datePanel.setSourceDates(tmpCheckInList);
+				if (tmpCheckInList!=null)
+					showWorkDay(tmpCheckInList);
 
 				salaryManager=manager.getSalaryManager();
 				salaryPanel.setSourceDates(salaryManager.getWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString()));
+				ArrayList<IDateValueItem> tmpSalaryList=salaryManager.getWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString());
+				salaryPanel.setSourceDates(tmpSalaryList);
+				if (tmpSalaryList!=null)
+					showSalaryDay(tmpSalaryList);
 
 
 				//工资信息
 				labSalaryOfMonth.setText(worker.find(PropertyFactory.LABEL_AGREED_MONTHDLY_WAGE).getValueString());
-				labWorkDay.setText(worker.find(PropertyFactory.LABEL_TOTAL_WORKING_DAY).getValueString());
 
 				return true;
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * 计算合计工日，并保存到工人属性中去
+	 * @param list
+	 */
+	private void showWorkDay(ArrayList<IDateValueItem> list){
+		double days=0f;
+
+		for (IDateValueItem item:list){
+			try{
+				double d= (double) item.getValue();
+				days+=d;
+			}catch (Exception ex){ }
+		}
+		Application.debug(this,days);
+		labWorkDay.setText(String.valueOf(days));
+		worker.find(PropertyFactory.LABEL_TOTAL_WORKING_DAY).setValue(days);
+	}
+
+	/**
+	 * 计算工人领取的生活费，并保存到工人属性中
+	 * @param list
+	 */
+	private void showSalaryDay(ArrayList<IDateValueItem> list){
+		double livingCosts=0d;
+		for (IDateValueItem item:list){
+			try{
+				double d=(double) item.getValue();
+				livingCosts+=d;
+			}catch (Exception ex){ }
+		}
+		Application.debug(this,livingCosts);
+		labPaidLivingCosts.setText(String.valueOf(livingCosts));
+		worker.find(PropertyFactory.LABEL_COST_OF_LIVING).setValue(livingCosts);
 	}
 
 

@@ -59,6 +59,8 @@ public class InfoArray<T>  implements Serializable{
     public void addValue(T value){
         if (values==null)
             return;
+        if (contains(value))
+            return;
         values.add(value);
     }
 

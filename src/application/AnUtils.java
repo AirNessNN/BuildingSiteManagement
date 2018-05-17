@@ -1,27 +1,15 @@
 package application;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Image;
+import resource.Resource;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Vector;
-
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-
-import dbManager.DateValueInfo;
-import resource.Resource;
 
 /**
  * An工具包
@@ -156,8 +144,8 @@ public class AnUtils {
             ByteArrayInputStream bis = new ByteArrayInputStream (bytes);        
             ObjectInputStream ois = new ObjectInputStream (bis);        
             obj = ois.readObject();      
-            ois.close();   
-            bis.close();   
+            ois.close();
+            bis.close();
         } catch (IOException ex) {        
             ex.printStackTrace();   
         } catch (ClassNotFoundException ex) {        
@@ -304,10 +292,21 @@ public class AnUtils {
     public static Date getDate(int year,int month,int day){
 		Calendar c=Calendar.getInstance();
 		c.setTime(new Date());
-		c.set(year,month,day);
+		c.set(year,month-1,day);
 		return c.getTime();
 	}
 
+	/**
+	 * 将字符串转换为时间日期
+	 * @param date
+	 * @param format
+	 * @return
+	 * @throws ParseException
+	 */
+	public static Date getDate(String date,String format) throws ParseException {
+		SimpleDateFormat sf=new SimpleDateFormat(format);
+		return sf.parse(date);
+	}
 	/**
 	 * 给定两个日期，比较年份月份日期是否相等
 	 * @param d1
@@ -327,5 +326,85 @@ public class AnUtils {
     	d2m=c.get(Calendar.MONTH);
     	d2d=c.get(Calendar.DATE);
     	return d1y==d2y&&d1m==d2m&&d1d==d2d;
+	}
+
+	/**
+	 * 比较两个时间，获得更晚的时间
+	 * @param d1
+	 * @param d2
+	 * @return
+	 */
+	public static Date getMaxDate(Date d1,Date d2){
+
+		if (!d1.before(d2)){
+			return d1;
+		}else
+			return d2;
+	}
+
+
+	/**
+	 * 将身份证号码转换为出生年月日
+	 * @param id 身份证
+	 * @return 日期
+	 */
+	public static Date convertBornDate(String id){
+
+		if (id==null)
+			return null;
+		if (id.length()<18||id.length()>18)
+			return null;
+
+		char[] tmpArr=id.toCharArray();
+		StringBuilder sb=new StringBuilder();
+		for (int i=6;i<10;i++){
+			sb.append(tmpArr[i]);
+		}
+		int year=Integer.valueOf(sb.toString());
+		sb=new StringBuilder();
+		for (int i=10;i<12;i++){
+			sb.append(tmpArr[i]);
+		}
+		int month=Integer.valueOf(sb.toString());
+		sb=new StringBuilder();
+		for (int i=12;i<14;i++){
+			sb.append(tmpArr[i]);
+		}
+		int day=Integer.valueOf(sb.toString());
+		return getDate(year,month,day);
+}
+
+	/**
+	 * 提取身份证中的年龄
+	 * @param id 身份证
+	 * @return 返回年龄
+	 */
+	public static int convertAge(String id){
+		if (id==null)
+			return 0;
+		int year;
+		int month;
+		int day;
+		Date date=convertBornDate(id);
+		if (date==null)
+			return 0;
+		Calendar c=Calendar.getInstance();
+		c.setTime(date);
+		year=c.get(Calendar.YEAR);
+		month=c.get(Calendar.MONTH+1);
+		day=c.get(Calendar.DATE);
+
+		int tyear,tmonth,tday;
+		Date thisDay=new Date();
+		c.setTime(thisDay);
+		tyear=c.get(Calendar.YEAR);
+		tmonth=c.get(Calendar.MONTH);
+		tday=c.get(Calendar.DATE);
+
+		int age=tyear-year;
+		if (tmonth>month&&tday>day)
+			age++;
+
+		return age;
 	}
 }

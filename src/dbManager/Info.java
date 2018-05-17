@@ -2,6 +2,7 @@ package dbManager;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 /**
  * 信息类，存放字符型变量和数字型变量，用于自定义信息
@@ -110,6 +111,10 @@ public class Info<T> implements Serializable ,Cloneable{
         return object.equals(value);
     }
 
+    /**
+     * 获得值的类型
+     * @return
+     */
     public Type getValueType(){
         if (null==value)
             return null;
@@ -129,5 +134,34 @@ public class Info<T> implements Serializable ,Cloneable{
             return false;
         Info<T> info=(Info<T>)obj;
         return info.name.equals(this.name)&&info.getType()==this.getType()&&equalsValue(info.getValue());
+    }
+
+    /**
+     * 移除一个属性值，如果是ArrayList的话
+     * @param value
+     * @return 移除成功返回true，失败或不是ArrayList返回false
+     */
+    public boolean removeListValue(String value){
+        if (type.equals(TYPE_ARRAY_LIST)){
+            ArrayList<String> tmpList= (ArrayList<String>) this.value;
+            return tmpList.remove(value);
+        }
+        return false;
+    }
+
+    /**
+     * 增加一个属性值，如果该属性是ArrayList的话
+     * @param value
+     * @return 成功返回true 重复或不是ArrayList属性返回false
+     */
+    public boolean addListValue(String value){
+        if (!this.value.getClass().getName().contains(TYPE_NAME[TYPE_ARRAY_LIST]))
+            return false;
+        ArrayList<String> tmpList= (ArrayList<String>) this.value;
+        boolean flag=false;
+        for (String s:tmpList){
+            if (s.equals(value)) flag=true;
+        }
+        if (!flag)return tmpList.add(value);else return false;
     }
 }
