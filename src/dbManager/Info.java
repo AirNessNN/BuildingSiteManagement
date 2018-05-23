@@ -1,5 +1,7 @@
 package dbManager;
 
+import application.Application;
+
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -150,7 +152,7 @@ public class Info<T> implements Serializable ,Cloneable{
     }
 
     /**
-     * 增加一个属性值，如果该属性是ArrayList的话
+     * 增加一个属性值，如果该属性是ArrayList的话，属性值不能相等
      * @param value
      * @return 成功返回true 重复或不是ArrayList属性返回false
      */
@@ -158,10 +160,10 @@ public class Info<T> implements Serializable ,Cloneable{
         if (!this.value.getClass().getName().contains(TYPE_NAME[TYPE_ARRAY_LIST]))
             return false;
         ArrayList<String> tmpList= (ArrayList<String>) this.value;
-        boolean flag=false;
+        boolean found=false;
         for (String s:tmpList){
-            if (s.equals(value)) flag=true;
+            if (s.equals(value)) found=true;
         }
-        if (!flag)return tmpList.add(value);else return false;
+        if (!found)return tmpList.add(value);else return false;
     }
 }

@@ -136,4 +136,13 @@ public class AnBean implements Serializable {
     public ArrayList<Info> getValueList() {
         return valueList;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb=new StringBuilder();
+        for (Info info:getArray()){
+            sb.append(info.toString()+"  ");
+        }
+        return sb.toString();
+    }
 }

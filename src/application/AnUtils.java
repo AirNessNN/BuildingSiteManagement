@@ -235,16 +235,19 @@ public class AnUtils {
 	public static Vector<Vector>conventToVector(Object[][] data){
 		Vector<Vector> tmpData=new Vector<>();
 		for (Object[] objects:data){
-
-			Vector v=new Vector();
-			for (Object object:objects){
-				v.add(object);
-			}
+			Vector v=convertToVector(objects);
 			tmpData.add(v);
 		}
 		return tmpData;
 	}
 
+	public static Vector convertToVector(Object[] data){
+		Vector vector=new Vector();
+		for (Object o:data){
+			vector.add(o);
+		}
+		return vector;
+	}
 	/**
 	 * 将二维向量转为二维数组
 	 * @param data
@@ -406,5 +409,9 @@ public class AnUtils {
 			age++;
 
 		return age;
+	}
+
+	public static boolean isIDCard(String id){
+		return id.length()==18;
 	}
 }

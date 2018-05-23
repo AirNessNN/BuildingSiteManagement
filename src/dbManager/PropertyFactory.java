@@ -23,7 +23,7 @@ public class PropertyFactory {
     public static final String LABEL_WORKER_TYPE="工种";
     public static final String LABEL_WORKER_STATE="工人状态";
     public static final String LABEL_TAG="备注";
-    public static final String LABEL_AGREED_MONTHDLY_WAGE="约定月工资";
+    public static final String LABEL_DEAL_LABOUR_COST ="协议工价";
     public static final String LABEL_TOTAL_WORKING_DAY="合计工日";
     public static final String LABEL_SURPLUS_SALARY="结余工资";
     public static final String LABEL_SALARY_GET_ARR="工资领取信息";
@@ -31,6 +31,10 @@ public class PropertyFactory {
     public static final String LABEL_COST_OF_LIVING ="已领取的生活费";
     public static final String LABEL_SITE="所属工地";
     public static final String LABEL_PHONE="电话号码";
+
+    //设置属性
+    public static final String SETTING_WORKER_INDEX="工人编号";
+
 
 
     /**
@@ -42,35 +46,36 @@ public class PropertyFactory {
      *
      */
     private static final Info<?>[] WORKER_MODEL={
-            new Info<Integer>(Info.TYPE_INTEGER,"序号"),
-            new Info<String>(Info.TYPE_STRING,"名字"),
-            new Info<String>(Info.TYPE_STRING,"住址"),
-            new Info<String>(Info.TYPE_STRING,"联系方式"),
-            new Info<String>(Info.TYPE_STRING,"身份证"),
-            new Info<String>(Info.TYPE_STRING,"电话号码"),
-            new Info<Integer>(Info.TYPE_INTEGER,"年龄"),
-            new Info<Date>(Info.TYPE_DATE,"出生日期"),
-            new Info<String>(Info.TYPE_STRING,"性别"),
-            new Info<String>(Info.TYPE_STRING,"民族"),
-            new Info<Date>(Info.TYPE_DATE,"入职时间"),
-            new Info<Date>(Info.TYPE_DATE,"离职时间"),
-            new Info<String>(Info.TYPE_STRING,"银行卡号"),
-            new Info<String>(Info.TYPE_STRING,"开户地址"),
-            new Info<String>(Info.TYPE_STRING,"工种"),
-            new Info<String>(Info.TYPE_STRING,"工人状态"),
-            new Info<String>(Info.TYPE_STRING,"备注"),
-            new Info<Double>(Info.TYPE_DOUBLE,"约定月工资"),
-            new Info<Double>(Info.TYPE_DOUBLE,"合计工日"),
-            new Info<Double>(Info.TYPE_DOUBLE,"结余工资"),
-            new Info<ArrayList<? extends DateValueInfo>>(Info.TYPE_ARRAY_LIST,"工资领取信息"),
-            new Info<ArrayList<? extends DateValueInfo>>(Info.TYPE_ARRAY_LIST,"出勤信息"),
-            new Info<Double>(Info.TYPE_DOUBLE,"已领取的生活费"),
-            new Info<ArrayList<String>>(Info.TYPE_ARRAY_LIST,"所属工地")
+            new Info<Integer>(Info.TYPE_INTEGER,LABEL_NUMBER),//序号
+            new Info<String>(Info.TYPE_STRING,LABEL_NAME),//名字
+            new Info<String>(Info.TYPE_STRING,LABEL_ADDRESS),//地址
+            new Info<String>(Info.TYPE_STRING,LABEL_PHONE),//电话号码
+            new Info<String>(Info.TYPE_STRING,LABEL_ID_CARD),//身份证
+            new Info<Integer>(Info.TYPE_INTEGER,LABEL_AGE),//年龄
+            new Info<Date>(Info.TYPE_DATE,LABEL_BIRTH),//生日
+            new Info<String>(Info.TYPE_STRING,LABEL_SEX),//性别
+            new Info<String>(Info.TYPE_STRING,LABEL_NATION),//民族
+            new Info<Date>(Info.TYPE_DATE,LABEL_ENTRY_TIME),//入职
+            new Info<Date>(Info.TYPE_DATE,LABEL_LEAVE_TIME),//离职
+            new Info<String>(Info.TYPE_STRING,LABEL_BANK_ID),//银行卡号
+            new Info<String>(Info.TYPE_STRING,LABEL_BANK_ADDRES),//开户地址
+            new Info<String>(Info.TYPE_STRING,LABEL_WORKER_TYPE),//工种
+            new Info<String>(Info.TYPE_STRING,LABEL_WORKER_STATE),//工作状态
+            new Info<Double>(Info.TYPE_DOUBLE,LABEL_DEAL_LABOUR_COST),//协议工价
+            new Info<Double>(Info.TYPE_DOUBLE,LABEL_TOTAL_WORKING_DAY),//合计工日
+            new Info<Double>(Info.TYPE_DOUBLE,LABEL_SURPLUS_SALARY),//结余工资
+            new Info<Double>(Info.TYPE_DOUBLE,LABEL_DUTY_ARR),//出勤信息
+            new Info<Double>(Info.TYPE_DOUBLE,LABEL_COST_OF_LIVING),//领取的生活费
+            new Info<ArrayList<String>>(Info.TYPE_ARRAY_LIST,LABEL_SITE),//所属工地
+            new Info<String>(Info.TYPE_STRING,LABEL_TAG)//备注
     };
+
     /**
-     * 预设的工人属性，可以
+     * 设置属性模板
      */
-    //private static final ArrayList<? extends Info<?>>data=new ArrayList<>();
+    private static final Info<?>[] SETTING_MODEL={
+            new Info<Integer>(Info.TYPE_INTEGER,SETTING_WORKER_INDEX)
+    };
 
     /**
      * 用户定义的数据
@@ -82,38 +87,38 @@ public class PropertyFactory {
      * 创建一个空的工人
      * @return
      */
-    static AnBean createWorker(){
+    public static AnBean createWorker(){
         AnBean worker=new AnBean();
         for(Info info:WORKER_MODEL){
             switch (info.getType()){
                 case Info.TYPE_ARRAY_LIST:{
-                    Info<ArrayList> tmp=new Info<>(info.getName());
+                    Info<ArrayList> tmp=new Info<>(Info.TYPE_ARRAY_LIST,info.getName());
                     tmp.setValue(new ArrayList());
                     worker.addInfo(tmp);
                     break;
                 }
                 case Info.TYPE_DATE:{
-                    Info<Date> tmp=new Info<>(info.getName());
+                    Info<Date> tmp=new Info<>(Info.TYPE_DATE,info.getName());
                     worker.addInfo(tmp);
                     break;
                 }
                 case Info.TYPE_DOUBLE:{
-                    Info<Double> tmp=new Info<>(info.getName());
+                    Info<Double> tmp=new Info<>(Info.TYPE_DOUBLE,info.getName());
                     worker.addInfo(tmp);
                     break;
                 }
                 case Info.TYPE_INTEGER:{
-                    Info<Integer> tmp=new Info<>(info.getName());
+                    Info<Integer> tmp=new Info<>(Info.TYPE_INTEGER,info.getName());
                     worker.addInfo(tmp);
                     break;
                 }
                 case Info.TYPE_STRING:{
-                    Info<String> tmp=new Info<>(info.getName());
+                    Info<String> tmp=new Info<>(Info.TYPE_STRING,info.getName());
                     worker.addInfo(tmp);
                     break;
                 }
                 default:
-                    worker.addInfo(new Info<String>(info.getName()));
+                    worker.addInfo(new Info<String>(Info.TYPE_STRING,info.getName()));
             }
         }
         if(userData!=null){
@@ -129,7 +134,7 @@ public class PropertyFactory {
      * 创建一个空的属性，用于收集所有工人属性的值
      * @return
      */
-    static AnArrayBean createWorkerProperty(){
+    public static AnArrayBean createWorkerProperty(){
         AnArrayBean tmpBean=new AnArrayBean();
         for (Info info:WORKER_MODEL){
             try {
@@ -221,8 +226,11 @@ public class PropertyFactory {
         return WORKER_MODEL;
     }
 
-    public static void setUserData(Info info){
+    public static void addUserData(Info info){
         if(userData!=null){
+            userData.add(info);
+        }else{
+            userData=new ArrayList<>();
             userData.add(info);
         }
     }

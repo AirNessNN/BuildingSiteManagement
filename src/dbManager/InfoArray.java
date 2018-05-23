@@ -93,4 +93,8 @@ public class InfoArray<T>  implements Serializable{
         return values.size();
     }
 
+    public Object get(int index){
+        return values.get(index);
+    }
+
 }

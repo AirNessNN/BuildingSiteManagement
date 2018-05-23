@@ -8,9 +8,11 @@ import java.awt.*;
 /**
  * 在窗口上生成一个不可选中的Dialog来提供消息，并且显示之后一段时间后会自行消失
  */
-public class AnDialog extends JFrame{
-    public static final int LONG_SHOW=3000;
-    public static final int SHORT_SHOW=2000;
+public class AnPopDialog extends JFrame{
+    public static final int LONG_TIME =3000;
+    public static final int SHORT_TIME =2000;
+    private static int x=0;
+    private static int y=0;
 
     /**
      * 显示Dialog信息
@@ -22,8 +24,8 @@ public class AnDialog extends JFrame{
 
         new Thread(()->{
             try {
-                AnDialog dialog;
-                dialog=new AnDialog();
+                AnPopDialog dialog;
+                dialog=new AnPopDialog();
                 dialog.setText(text);
                 dialog.setOpacity(0);
                 dialog.setVisible(true);
@@ -31,12 +33,14 @@ public class AnDialog extends JFrame{
                 if (component!=null) component.requestFocus();
                 for (float i=0;i<=1;i+=0.1f){
                     dialog.setOpacity(i);
-                    Thread.sleep(20);
+                    dialog.setLocation(x,y-(int)(i*10*15));
+                    Thread.sleep(16);
                 }
                 Thread.sleep(showTimeEnum);
                 for (float i=1;i>0;i-=0.1f){
                     dialog.setOpacity(i);
-                    Thread.sleep(20);
+                    dialog.setLocation(x,y-(int)(i*10*15));
+                    Thread.sleep(16);
                 }
                 dialog.dispose();
             } catch (InterruptedException e) {
@@ -46,7 +50,7 @@ public class AnDialog extends JFrame{
     }
 
     private JLabel labText;
-    private AnDialog(){
+    private AnPopDialog(){
         setUndecorated(true);
         labText =new JLabel();
         getContentPane().add(labText);
@@ -66,8 +70,10 @@ public class AnDialog extends JFrame{
 
         textSize.width+=80;
         textSize.height+=20;
+        x=(windowSize.width-textSize.width)/2;
+        y=windowSize.height;
 
-        setBounds((windowSize.width-textSize.width)/2,windowSize.height-150,textSize.width,textSize.height);
+        setBounds(x,y,textSize.width,textSize.height);
         labText.setText(text);
     }
 }

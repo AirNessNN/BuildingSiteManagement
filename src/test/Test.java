@@ -1,18 +1,15 @@
 package test;
 
 import application.AnUtils;
-import application.WorkerWindow;
-import component.AnDialog;
+import application.WindowBuilder;
+import dbManager.AnBean;
 import dbManager.DBManager;
 import dbManager.PropertyFactory;
 import dbManager.User;
-import resource.Resource;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Test extends JFrame{
@@ -39,8 +36,8 @@ public class Test extends JFrame{
 		try {
 			DBManager.prepareDataBase();//准备DB
 			DBManager.getManager().loadUser(user);
-			DBManager.getManager().addBuildingSite("测试工地");
-			//DBManager.getManager().addBuildingSite("测试工地");
+			DBManager.getManager().createBuildingSite("测试工地");
+			//DBManager.getManager().createBuildingSite("测试工地");
 
 
 
@@ -55,11 +52,13 @@ public class Test extends JFrame{
 		//WorkerWindow wd=new WorkerWindow();
 
 		//wd.setVisible(true);
-		//AnDialog.show(null,"阿萨德和考拉上的痕迹卡的阿手机客户端按实际的",AnDialog.SHORT_SHOW)
-		String id=IDRandom();
-		System.out.println(id);
-		System.out.println(AnUtils.convertBornDate(id));
-		System.out.println(AnUtils.convertAge(id));
+		//AnPopDialog.show(null,"阿萨德和考拉上的痕迹卡的阿手机客户端按实际的",AnPopDialog.SHORT_TIME)
+		//System.out.println(EntryWindow.showWindow());
+		AnBean bean=PropertyFactory.createWorker();
+		DBManager.addBeanArrayInfo(bean,PropertyFactory.LABEL_SITE,"测试工地");
+		DBManager.addBeanArrayInfo(bean,PropertyFactory.LABEL_SITE,"测试工地");
+		ArrayList list=(ArrayList)(bean.find(PropertyFactory.LABEL_SITE).getValue());
+		System.out.println(list.size());
 		
 
 

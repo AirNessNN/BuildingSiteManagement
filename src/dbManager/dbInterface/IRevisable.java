@@ -1,4 +1,4 @@
-package dbManager;
+package dbManager.dbInterface;
 
 /**
  * 增删改查接口，为DB的增删改查提供标准
@@ -9,4 +9,9 @@ public interface IRevisable {
     void removeValue(Object value);
 
     void removeValueAt(Object value);
+
+    Object get(int index);
+
+    Object getSource();
+
 }

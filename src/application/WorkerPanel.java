@@ -179,7 +179,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
 
         //入职登记
         btnEntry.addActionListener((e)->{
-
+            DBManager.getManager().createWorker();
         });
 
         //保存表单

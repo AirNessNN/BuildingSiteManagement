@@ -18,7 +18,7 @@ public class AnDateComboBoxEditor extends JButton implements AnTableCellEditor{
     private ChangeEvent changeEvent = new ChangeEvent(this);
     private Point location=null;
     private AnDateComboPanel dateComboPanel;
-    private JFrame frame;
+    private JDialog frame;
     private boolean cancelFlag=false;//取消标记
 
 
@@ -32,7 +32,7 @@ public class AnDateComboBoxEditor extends JButton implements AnTableCellEditor{
 
         dateComboPanel=new AnDateComboPanel();
         dateComboPanel.setLocation(1,15);
-        frame=new JFrame("日期编辑"){
+        frame=new JDialog(){
             @Override
             public void dispose() {
                 super.dispose();
@@ -61,6 +61,7 @@ public class AnDateComboBoxEditor extends JButton implements AnTableCellEditor{
         btnCancel.setBounds(120,75,70,25);
         btnCancel.addActionListener(e->frame.dispose());
         frame.getContentPane().add(btnCancel);
+        frame.setModal(true);
     }
 
 

@@ -2,8 +2,6 @@ package application;
 
 import component.*;
 import dbManager.*;
-import jdk.nashorn.internal.scripts.JO;
-import resource.Resource;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,7 +50,7 @@ public class WorkerWindow extends JFrame {
 	public void initializeComponent(String title) {
 		getContentPane().setBackground(Color.WHITE);
     	setIconImage(Toolkit.getDefaultToolkit().getImage(WorkerWindow.class.getResource("/resource/app_icon_60.png")));
-    	setSize(1021, 771);
+    	setSize(1042, 771);
     	setMinimumSize(new Dimension(800,771));
     	setLocationRelativeTo(null);
     	setTitle(title);
@@ -181,34 +179,34 @@ public class WorkerWindow extends JFrame {
 								panel.add(label);
 								
 								JPanel panel_1 = new JPanel();
-								panel_1.setBounds(893, 232, 112, 500);
+								panel_1.setBounds(893, 232, 137, 500);
 								panel_1.setBackground(Color.WHITE);
 								getContentPane().add(panel_1);
 								panel_1.setLayout(null);
 								
 								JButton btnLeave = new JButton("离职登记");
-								btnLeave.setBounds(11, 422, 90, 30);
+								btnLeave.setBounds(11, 422, 120, 30);
 								panel_1.add(btnLeave);
 								
 								JButton btnSave = new JButton("保存编辑");
 								btnSave.setEnabled(false);
-								btnSave.setBounds(11, 464, 90, 30);
+								btnSave.setBounds(11, 464, 120, 30);
 								panel_1.add(btnSave);
 								
 								JButton btnCheck = new JButton("考勤当天");
-								btnCheck.setBounds(11, 380, 90, 30);
+								btnCheck.setBounds(11, 380, 120, 30);
 								panel_1.add(btnCheck);
 								
 								JButton btnFile = new JButton("相关文件");
-								btnFile.setBounds(11, 338, 90, 30);
+								btnFile.setBounds(11, 338, 120, 30);
 								panel_1.add(btnFile);
 								
 								JButton btnInfo = new JButton("详细信息");
-								btnInfo.setBounds(11, 296, 90, 30);
+								btnInfo.setBounds(11, 296, 120, 30);
 								panel_1.add(btnInfo);
 								
 								JButton btnPrint = new JButton("打印信息");
-								btnPrint.setBounds(11, 254, 90, 30);
+								btnPrint.setBounds(11, 254, 120, 30);
 								panel_1.add(btnPrint);
 								
 								JPanel panel_2 = new JPanel();
@@ -360,7 +358,7 @@ public class WorkerWindow extends JFrame {
 			Application.debug(this,obj);
 			if (obj==null) {
 				obj = 1d;
-				AnDialog.show(this,"已设置该天为全勤，如果需要自定义出勤比例，请再次点击色块。",AnDialog.LONG_SHOW);
+				AnPopDialog.show(this,"已设置该天为全勤，如果需要自定义出勤比例，请再次点击色块。",AnPopDialog.LONG_TIME);
 				return obj;
 			}
 			String value=JOptionPane.showInputDialog(this,"请输入要修改的出勤值。","请修改",JOptionPane.INFORMATION_MESSAGE);
@@ -388,8 +386,10 @@ public class WorkerWindow extends JFrame {
 		});
 
 		salaryPanel.setActionListener((e)->{
-			salaryManager.setWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString(),datePanel.getSource());
-			showSalaryDay(salaryPanel.getSource());
+			if(e.getAction()==AnActionEvent.CILCKED){
+				salaryManager.setWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString(),salaryPanel.getSource());
+				showSalaryDay(salaryPanel.getSource());
+			}
 		});
 
 		salaryPanel.setValueCallback((value -> {
@@ -459,7 +459,9 @@ public class WorkerWindow extends JFrame {
 				cobSite.setSelectedItem(site);
 
 				datePanel.setMaxValue(10);//设置最大数值的颜色显示，因为有小数，所以扩大10倍
-				salaryPanel.setMaxValue(Integer.valueOf(worker.find(PropertyFactory.LABEL_AGREED_MONTHDLY_WAGE).getValueString()));//设置工资管理器色准为这个工人的约定工资，最大领取到的也只能是约定工资
+
+				Double dv= Double.valueOf(worker.find(PropertyFactory.LABEL_DEAL_LABOUR_COST).getValueString());
+				salaryPanel.setMaxValue(dv.intValue());//设置工资管理器色准为这个工人的约定工资，最大领取到的也只能是约定工资
 				//考勤数据
 				DBManager manager=DBManager.getManager();
 				checkInManager=manager.getCheckInManager();
@@ -477,7 +479,7 @@ public class WorkerWindow extends JFrame {
 
 
 				//工资信息
-				labSalaryOfMonth.setText(worker.find(PropertyFactory.LABEL_AGREED_MONTHDLY_WAGE).getValueString());
+				labSalaryOfMonth.setText(worker.find(PropertyFactory.LABEL_DEAL_LABOUR_COST).getValueString());
 
 				return true;
 			}

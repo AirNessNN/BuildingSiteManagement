@@ -1,4 +1,4 @@
-package dbManager;
+package dbManager.dbInterface;
 
 public interface ISearchable {
     Object findAt(int index);
