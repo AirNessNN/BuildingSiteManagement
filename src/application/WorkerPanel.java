@@ -315,6 +315,8 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         cobBuildingSite.addItemListener(e -> {
             loadingList();
         });
+
+
     }
 
     public void initData(){
@@ -409,7 +411,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         if(list!=null)
             list.clear();
         //读取工人列表
-        ArrayList<AnBean> beans=null;
+        ArrayList<AnBean> beans;
        if (cobBuildingSite==null){
             beans=DBManager.getManager().loadingWorkerList();
        }else if(cobBuildingSite.getSelectedItem()==null){

@@ -138,6 +138,11 @@ public class Application {
 
 	}
 
+	public static String inputWindow(Component parent,String message,String title){
+		Toolkit.getDefaultToolkit().beep();
+		return JOptionPane.showInputDialog(parent,message,title,JOptionPane.INFORMATION_MESSAGE);
+	}
+
 
 	/**
 	 * 线程操作

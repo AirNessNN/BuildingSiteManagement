@@ -40,6 +40,7 @@ public class WorkerWindow extends JFrame {
 	private JLabel lab;
 	private JLabel labWorkDay;
 	private JLabel labAge;
+	private JButton btnInfo;
 
 
 
@@ -201,7 +202,7 @@ public class WorkerWindow extends JFrame {
 								btnFile.setBounds(11, 338, 120, 30);
 								panel_1.add(btnFile);
 								
-								JButton btnInfo = new JButton("详细信息");
+								btnInfo = new JButton("详细信息");
 								btnInfo.setBounds(11, 296, 120, 30);
 								panel_1.add(btnInfo);
 								
@@ -341,6 +342,10 @@ public class WorkerWindow extends JFrame {
 								JLabel label_20 = new JLabel(" 元");
 								label_20.setFont(new Font("微软雅黑", Font.PLAIN, 15));
 								panel_6.add(label_20);
+								
+								JButton button = new JButton("修改");
+								button.setBounds(940, 10, 90, 30);
+								getContentPane().add(button);
 
 	}
 
@@ -402,11 +407,16 @@ public class WorkerWindow extends JFrame {
 
 		salaryPanel.setParam(value -> {
 			double d= (double) value;
-			return Integer.valueOf((int) d);
+			return (int) d;
 		});
 
 
 		cobSite.addActionListener((e)->{
+			initializeData();
+		});
+
+		btnInfo.addActionListener((e)->{
+			WindowBuilder.showInfoWindow(labIDCard.getText(),cobSite.getSelectedItem().toString());
 			initializeData();
 		});
 	}

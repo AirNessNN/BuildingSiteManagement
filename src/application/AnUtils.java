@@ -411,7 +411,44 @@ public class AnUtils {
 		return age;
 	}
 
+	/**
+	 * 判断是否是身份证
+	 * @param id
+	 * @return
+	 */
 	public static boolean isIDCard(String id){
-		return id.length()==18;
+		if (id.length()!=18)
+			return false;
+		id.toLowerCase();
+
+		int[] y=new int[]{7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2};//系数
+		char[] result=new char[]{'1','0','x','9','8','7','6','5','4','3','2'};//计算对应的结果
+        int sum=0;
+
+        char[] tmpC=id.substring(0,17).toCharArray();
+        for (int i=0;i<tmpC.length;i++) {
+            sum+= ((int) tmpC[i]-48) *y[i];
+        }
+
+        int mod=sum%11;//模出来的结果
+        char rv=id.toCharArray()[17];//最后一个数
+
+        if (rv==result[mod])
+            return true;
+		return false;
 	}
+
+	@Deprecated
+	public static Component getParentFrame(Component component){
+	    for (Component c=component;c.getParent()!=null;c=c.getParent()){
+            System.out.println(c.getClass().getName()+" "+c.getName()+"  size:"+c.getSize().toString());
+
+	        if (c.getClass().getName().contains("JFrame")){
+	            return c;
+            }
+        }
+        return null;
+    }
+
+
 }

@@ -1,6 +1,7 @@
 package test;
 
 import application.AnUtils;
+import application.InfoWindow;
 import application.WindowBuilder;
 import dbManager.AnBean;
 import dbManager.DBManager;
@@ -9,8 +10,8 @@ import dbManager.User;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
+import java.util.List;
 
 public class Test extends JFrame{
 
@@ -31,7 +32,7 @@ public class Test extends JFrame{
 		user.userName="hahaha";
 		user.password="123456";
 		
-		AnUtils.setLookAndFeel(AnUtils.LOOK_AND_FEEL_NIMBUS);
+		AnUtils.setLookAndFeel(AnUtils.LOOK_AND_FEEL_DEFAULT);
 		//添加工地
 		try {
 			DBManager.prepareDataBase();//准备DB
@@ -54,11 +55,16 @@ public class Test extends JFrame{
 		//wd.setVisible(true);
 		//AnPopDialog.show(null,"阿萨德和考拉上的痕迹卡的阿手机客户端按实际的",AnPopDialog.SHORT_TIME)
 		//System.out.println(EntryWindow.showWindow());
-		AnBean bean=PropertyFactory.createWorker();
-		DBManager.addBeanArrayInfo(bean,PropertyFactory.LABEL_SITE,"测试工地");
-		DBManager.addBeanArrayInfo(bean,PropertyFactory.LABEL_SITE,"测试工地");
-		ArrayList list=(ArrayList)(bean.find(PropertyFactory.LABEL_SITE).getValue());
-		System.out.println(list.size());
+		/*InfoWindow infoWindow=new InfoWindow();
+		infoWindow.setVisible(true);*/
+		Collection list=new Vector();
+		list.add("sdasdas");
+		ArrayList list1=new ArrayList();
+		list1.add("sadas");
+		list1.add("213213");
+		list.add(list1);
+
+		printList(list,list,"");
 		
 
 
@@ -95,5 +101,30 @@ public class Test extends JFrame{
 
 	private void createUIComponents() {
 		// TODO: place custom component creation code here
+	}
+
+	/**
+	 * 打印List中的所有元素
+	 * @param owner
+	 * @param list
+	 * @param index
+	 */
+	public static void printList(Object owner,Collection list,String index){
+		if (index==null)
+			index="";
+		System.out.println(index+owner.getClass().getName()+"：");
+		if (list==null){
+			return;
+		}
+		for (Object o:list){
+			if (o==null) {
+				System.out.println(index + "null");
+				continue;
+			}
+			if (o instanceof Collection){
+				printList(o, (Collection) o,index+"\t");
+			}else
+				System.out.println(index+o.toString());
+		}
 	}
 }

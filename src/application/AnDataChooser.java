@@ -1,5 +1,6 @@
 package application;
 
+import component.Chooser;
 import component.DialogResult;
 import dbManager.DBManager;
 import dbManager.PropertyFactory;
@@ -9,17 +10,25 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-class BuildingSiteChooser extends JDialog implements BuildingSiteOperator {
-	private JList list;
+class AnDataChooser extends JDialog implements BuildingSiteOperator {
+    public static final int MESSAGE_ADD_TITLE=1;
+    public static final int MESSAGE_ADD_MESSAGE=0;
+    public static final int MESSAGE_ADD_INNERTEXT=2;
+    public static final int MESSAGE_NEW_MESSAGE=0;
+    public static final int MESSAGE_NEW_INNERTEXT=1;
+
+    private JList list;
 	private DefaultListModel model=null;
 	private JButton btnOK;
 	private JButton btnCancel;
 	private DialogResult dialogResult=DialogResult.RESULT_CANCEL;
 
-	private Object[] selectedValue=null;//选中的工地
+	private Object[] selectedValue=null;//选中的数据
 	private JButton btnNew;
 	private JButton btnAdd;
 	private JButton btnDel;
+
+	private Chooser chooser=null;//选择器自定义模型
 
     private void initComponent(){
         setTitle("工地选择器");
@@ -29,7 +38,7 @@ class BuildingSiteChooser extends JDialog implements BuildingSiteOperator {
         setResizable(false);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        JLabel lblctrl = new JLabel("从右边的加减增删这个工人所在的工地");
+        JLabel lblctrl = new JLabel("从右边的加减增删数据");
         lblctrl.setForeground(SystemColor.textHighlight);
         lblctrl.setFont(new Font("幼圆", Font.PLAIN, 19));
         lblctrl.setBounds(10, 10, 404, 26);
@@ -77,6 +86,8 @@ class BuildingSiteChooser extends JDialog implements BuildingSiteOperator {
             if (dialogResult==DialogResult.RESULT_OK)
                 selectedValue=list.getSelectedValues();
             dispose();
+            if (chooser!=null)
+                chooser.done((String[]) selectedValue);
         });
 
         btnCancel.addActionListener((e)->{
@@ -84,13 +95,16 @@ class BuildingSiteChooser extends JDialog implements BuildingSiteOperator {
         });
 
         btnAdd.addActionListener((e)->{
+            if (chooser==null)
+                return;
             String site= (String) JOptionPane.showInputDialog(
                     this,
-                    "选择现有的工地。",
-                    "请选择",JOptionPane.PLAIN_MESSAGE,
-                    null,DBManager.getManager().getFullBuildingSiteName(),
-                    "");
-            add(site);
+                    chooser.getAddText()[MESSAGE_ADD_MESSAGE],
+                    chooser.getAddText()[MESSAGE_ADD_TITLE],JOptionPane.PLAIN_MESSAGE,
+                    null,chooser.addEvent(),
+                    chooser.getAddText()[MESSAGE_ADD_INNERTEXT]);
+            if (site!=null&&!site.equals(""))
+                add(site);
         });
 
         btnDel.addActionListener((e)->{
@@ -98,15 +112,13 @@ class BuildingSiteChooser extends JDialog implements BuildingSiteOperator {
         });
 
         btnNew.addActionListener((e)->{
-            String string=JOptionPane.showInputDialog(this,"请输入工地名字创建该工地。","工地名称");
-            if (string!=null&&!string.equals("")&&!string.equals("工地名称")){
-                try {
-                    DBManager.getManager().createBuildingSite(string);
+            if (chooser==null)
+                return;
+            String string=JOptionPane.showInputDialog(this,chooser.getNewText()[MESSAGE_NEW_MESSAGE],chooser.getNewText()[MESSAGE_NEW_INNERTEXT]);
+            if (string!=null&&!string.equals("")&&!string.equals(chooser.getNewText()[MESSAGE_NEW_INNERTEXT])){
+                if (chooser.newEvent(string))
                     add(string);
-                } catch (Exception e1) {
-                    Application.informationWindow(e1.getMessage());
-                }
-            }else Application.informationWindow("请输入正确的工地");
+            }else Application.informationWindow("请输入正确的值");
         });
     }
 
@@ -118,10 +130,11 @@ class BuildingSiteChooser extends JDialog implements BuildingSiteOperator {
             setSource(arrayList.toArray());
     }
 
-    BuildingSiteChooser(String id){
+    AnDataChooser(String id,Chooser chooser){
         initComponent();
         initEvent();
         initData(id);
+        this.chooser=chooser;
         setModal(true);
         setVisible(true);
     }
@@ -133,6 +146,14 @@ class BuildingSiteChooser extends JDialog implements BuildingSiteOperator {
         model.clear();
         for (Object o:objects)
             model.addElement(o);
+    }
+
+    /**
+     * 设置选择器事件自定义器
+     * @param chooser
+     */
+    public void setChooser(Chooser chooser){
+        this.chooser=chooser;
     }
 
     private boolean contains(String value){

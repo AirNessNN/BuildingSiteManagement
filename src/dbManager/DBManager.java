@@ -533,7 +533,7 @@ public class DBManager {
 	public AnBean getWorker(String id){
 		if (workerListLoaded){
 			for (AnBean bean:workerList){
-				if (bean.find(PropertyFactory.LABEL_ID_CARD).equalsValue(id)){
+				if (bean.find(PropertyFactory.LABEL_ID_CARD).getValue().equals(id)){
 					return bean;
 				}
 			}
