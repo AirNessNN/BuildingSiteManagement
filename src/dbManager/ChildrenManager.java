@@ -14,14 +14,14 @@ import java.util.Date;
  * loading一个工人，对其中的Data类型的Info进行管理
  *
  * 出勤数据结构：
- *          ArrayList《AnArrayBean》是所有工人的出勤信息集合
+ *          ArrayList《AnDataTable》是所有工人的出勤信息集合
  *          AnArrayBean是一个工人（用身份证ID识别）的所有工地的出勤信息
  *                  AnArrayBean中的InfoArray《IDataValueItem》一个工地的出勤信息（工地名称识别）
  *
  *  工资数据结构：
  *           ArrayList管理所有工资
  *              AnArrayBean是一个工人的实例，其中包含几个属性，一个是工资领取记录，也该是生活费发放记录
- *                  InfoArray 是上述每个属性的实例，其中存放了日期和领取的钱数量
+ *                  AnColumn 是上述每个属性的实例，其中存放了日期和领取的钱数量
  */
 public class ChildrenManager implements Loadable {
     public static final int MOD_ADD=0;
@@ -33,7 +33,7 @@ public class ChildrenManager implements Loadable {
     private boolean prepared;
     private String path;
 
-    private ArrayList<AnArrayBean> workList;//单个工人在所有工地信息的集合
+    private ArrayList<AnDataTable> workList;//单个工人在所有工地信息的集合
 
 
 
@@ -54,14 +54,14 @@ public class ChildrenManager implements Loadable {
      * @param value 此次操作的值
      * @return 操作成功返回true，操作失败返回false
      */
-    public boolean updateData(String id, String site, Date date, int mod, Object value){
+    public boolean updateData(String id, String site, Date date, int mod, Object value,String tag) throws Exception{
 
-        AnArrayBean worker;
-        InfoArray<IDateValueItem> dateList = null;
-        for (AnArrayBean bean: workList){
+        AnDataTable worker;
+        AnColumn<IDateValueItem> dateList = null;
+        for (AnDataTable bean: workList){
             if (bean.getName().equals(id)) {
                 worker = bean;
-                dateList=(InfoArray<IDateValueItem>) worker.find(site);
+                dateList=(AnColumn<IDateValueItem>) worker.find(site);
                 break;
             }
         }
@@ -71,7 +71,11 @@ public class ChildrenManager implements Loadable {
         //开始操作
         switch (mod){
             case ChildrenManager.MOD_ADD:
-                dateList.addValue(new DateValueInfo(date,value));
+                for (IDateValueItem item:dateList.getValues()){
+                    if (AnUtils.isDateYMDEquality(item.getDate(),date))
+                        throw new Exception("在数据中存在相同的日期！");
+                }
+                dateList.addValue(new DateValueInfo(date,value,tag));
                 return true;
             case ChildrenManager.MOD_ALTER: {
                 ArrayList<IDateValueItem> tmp = dateList.getValues();//获取该员工在该工地的所有考勤记录
@@ -79,6 +83,7 @@ public class ChildrenManager implements Loadable {
                     //日期相等的情况下
                     if (AnUtils.isDateYMDEquality(date,info.getDate())) {
                         info.setValue(value);
+                        info.setTag(tag);
                         return true;
                     }
                 }
@@ -104,6 +109,46 @@ public class ChildrenManager implements Loadable {
     }
 
     /**
+     * 更新条目的日期信息
+     * @param id
+     * @param site
+     * @param od
+     * @param nd
+     * @return
+     */
+    public boolean updateDate(String id,String site,Date od,Date nd){
+        AnDataTable worker;
+        AnColumn<IDateValueItem> dateList = null;
+        for (AnDataTable bean: workList){
+            if (bean.getName().equals(id)) {
+                worker = bean;
+                dateList=(AnColumn<IDateValueItem>) worker.find(site);
+                break;
+            }
+        }
+        if (dateList==null)
+            return false;
+        //开始修改
+        ArrayList<IDateValueItem> tmp=dateList.getValues();
+        boolean odFound=false,ndFound=false;
+        for (IDateValueItem item:tmp){
+            if (AnUtils.isDateYMDEquality(od,item.getDate()))odFound=true;//旧数据必须找到
+            if (AnUtils.isDateYMDEquality(nd,item.getDate()))ndFound=true;//新数据必须找不到
+        }
+        if (odFound&&!ndFound){
+            for (IDateValueItem item:tmp){
+                if (AnUtils.isDateYMDEquality(od,item.getDate())){
+                    DateValueInfo dateValueInfo=(DateValueInfo) item;
+                    dateValueInfo.setDate(nd);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * 从DB管理中获取到所有工人列表，更新此子管理器中工人的信息
      * 调用次方法，可以保持此子管理器的数据与主管理器中内容保持一致
      */
@@ -118,24 +163,24 @@ public class ChildrenManager implements Loadable {
                 String id=bean.find(PropertyFactory.LABEL_ID_CARD).getValueString();
                boolean found=false;
 
-               for (AnArrayBean info: workList){
+               for (AnDataTable info: workList){
                     if (id.equals(info.getName()))
                         found=true;
                }
 
                //未发现就创建这个工人的日期信息
                if (!found){
-                   AnArrayBean tmp=new AnArrayBean();//创建出勤信息
+                   AnDataTable tmp=new AnDataTable();//创建出勤信息
                    tmp.setName(id);
 
                    //填充工人的工地信息
                    assert DBManager.getManager() != null;
                    ArrayList<String> sites=DBManager.getManager().getWorkerAt(id);
                    for (String siteName:sites){
-                       InfoArray<ArrayList> tmpCheckIn=new InfoArray<>();
+                       AnColumn<ArrayList> tmpCheckIn=new AnColumn<>(false);
                        tmpCheckIn.setName(siteName);
                        try {
-                           tmp.addInfoArray(tmpCheckIn);
+                           tmp.addColumn(tmpCheckIn);
                        } catch (Exception e) {
                            e.printStackTrace();
                        }
@@ -146,7 +191,7 @@ public class ChildrenManager implements Loadable {
 
             ArrayList<Integer> delete=new ArrayList<>();//要删除的集合
             //找到已经失效的日期信息
-            for (AnArrayBean bean: workList){
+            for (AnDataTable bean: workList){
 
                boolean found=false;
                for (AnBean b:beans){
@@ -193,7 +238,7 @@ public class ChildrenManager implements Loadable {
             try {
                 if (path==null)
                     return;
-                workList = (ArrayList<AnArrayBean>) DBManager.readObject(path);
+                workList = (ArrayList<AnDataTable>) DBManager.readObject(path);
             } catch (IOException | ClassNotFoundException e) {
                 Application.debug(this,e.toString());
                 workList =new ArrayList<>();
@@ -207,7 +252,7 @@ public class ChildrenManager implements Loadable {
      * 获取所有员工的所有工地上的考勤数据
      * @return
      */
-    public ArrayList<AnArrayBean> getDataBase() {
+    public ArrayList<AnDataTable> getDataBase() {
         return workList;
     }
 
@@ -218,9 +263,9 @@ public class ChildrenManager implements Loadable {
      * @return
      */
     public ArrayList getWorkerDateValueList(String id, String site){
-        for (AnArrayBean bean : workList){
+        for (AnDataTable bean : workList){
             if (bean.getName().equals(id)){
-                for (InfoArray info :bean.getValues()){
+                for (AnColumn info :bean.getValues()){
                     if (info.getName().equals(site)){
                         return  info.getValues();
                     }
@@ -237,9 +282,9 @@ public class ChildrenManager implements Loadable {
      * @param source
      */
     public void setWorkerDateValueList(String id,String site,ArrayList<IDateValueItem> source){
-        for (AnArrayBean bean:workList){
+        for (AnDataTable bean:workList){
             if (bean.getName().equals(id)){
-                for (InfoArray info:bean.getValues()){
+                for (AnColumn info:bean.getValues()){
                     if (info.getName().equals(site)){
                         info.setValues(source);
                         return;
@@ -255,8 +300,8 @@ public class ChildrenManager implements Loadable {
      * @param id 身份证
      * @return
      */
-    public AnArrayBean getWorker(String id){
-        for (AnArrayBean bean:workList){
+    public AnDataTable getWorker(String id){
+        for (AnDataTable bean:workList){
             if (bean.getName().equals(id))
                 return bean;
         }

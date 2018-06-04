@@ -578,7 +578,7 @@ public class AnDataValuePanel extends JPanel {
 					return;
 				}
 			}
-			DateValueInfo info=new DateValueInfo(date,value);
+			DateValueInfo info=new DateValueInfo(date,value,null);
 			source.add(info);
 		}
 	}

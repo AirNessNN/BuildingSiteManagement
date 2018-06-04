@@ -13,7 +13,7 @@ import javax.swing.border.LineBorder;
 /**
  * 详细的工人数据，支持保存
  */
-public class WorkerWindow extends JFrame {
+public class WorkerWindow extends Window {
     private AnImageLabel imageLabel;//头像
     private AnLabel labIDCard;//身份证
     private AnLabel labName;//名字
@@ -25,7 +25,7 @@ public class WorkerWindow extends JFrame {
 	private AnLabel labPaidWages;
 	private AnLabel labelState;
 	private JComboBox cobSite;
-	private AnDataValuePanel datePanel;
+	private AnDataValuePanel checkInPanel;
 	private AnDataValuePanel salaryPanel;
 
     private AnBean worker;//工人属性集合
@@ -119,6 +119,7 @@ public class WorkerWindow extends JFrame {
 								panel_3.setLayout(sl_panel_3);
 								
 								cobSite = new JComboBox();
+								cobSite.setFont(new Font("等线", Font.PLAIN, 15));
 								sl_panel_3.putConstraint(SpringLayout.NORTH, cobSite, 0, SpringLayout.NORTH, panel_3);
 								sl_panel_3.putConstraint(SpringLayout.WEST, cobSite, 0, SpringLayout.WEST, panel_3);
 								sl_panel_3.putConstraint(SpringLayout.SOUTH, cobSite, 0, SpringLayout.SOUTH, panel_3);
@@ -226,9 +227,9 @@ public class WorkerWindow extends JFrame {
 								panel_2.setLayout(new BorderLayout(0, 0));
 								getContentPane().add(lblNewLabel);
 								
-								datePanel=new AnDataValuePanel();
-								datePanel.setBorder(new LineBorder(new Color(143, 188, 143)));
-								panel_2.add(datePanel, BorderLayout.CENTER);
+								checkInPanel =new AnDataValuePanel();
+								checkInPanel.setBorder(new LineBorder(new Color(143, 188, 143)));
+								panel_2.add(checkInPanel, BorderLayout.CENTER);
 								
 								JLabel lblNewLabel_1 = new JLabel("工资信息表");
 								lblNewLabel_1.setBounds(473, 303, 100, 23);
@@ -352,15 +353,14 @@ public class WorkerWindow extends JFrame {
 	public void initializeEvent() {
 		//点击之后就保存数据
 		//因为数据保存是在数据修改之后，事件监听器之间有先后顺序
-		datePanel.setActionListener((e)->{
+		checkInPanel.setActionListener((e)->{
 			if (e.getAction()==AnActionEvent.CILCKED){
-				checkInManager.setWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString(),datePanel.getSource());
-				showWorkDay(datePanel.getSource());
+				checkInManager.setWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString(), checkInPanel.getSource());
+				showWorkDay(checkInPanel.getSource());
 			}
 		});
 		//这里设置每次点击的值，第一次设置为全勤，第二次让用户自己选择
-		datePanel.setValueCallback((obj)->{
-			Application.debug(this,obj);
+		checkInPanel.setValueCallback((obj)->{
 			if (obj==null) {
 				obj = 1d;
 				AnPopDialog.show(this,"已设置该天为全勤，如果需要自定义出勤比例，请再次点击色块。",AnPopDialog.LONG_TIME);
@@ -380,7 +380,7 @@ public class WorkerWindow extends JFrame {
 		});
 
 		//这里的事件是设置值的颜色，出勤一天为1，所以颜色设置为10，我们扩大10倍因为传回去的值只能是整数
-		datePanel.setParam((e)->{
+		checkInPanel.setParam((e)->{
 			try{
 				double f= (double) e;
 				return (int) (f*10);
@@ -411,12 +411,16 @@ public class WorkerWindow extends JFrame {
 		});
 
 
-		cobSite.addActionListener((e)->{
-			initializeData();
-		});
+		cobSite.addActionListener((e)-> initializeData());
 
 		btnInfo.addActionListener((e)->{
-			WindowBuilder.showInfoWindow(labIDCard.getText(),cobSite.getSelectedItem().toString());
+			//创建InfoWindow
+			WindowBuilder.showInfoWindow(labIDCard.getText(),cobSite.getSelectedItem().toString(),(values)->{
+				String id= (String) values[0];
+				String site= (String) values[1];
+				initializeData(id, site);
+				return true;
+			});
 			initializeData();
 		});
 	}
@@ -443,6 +447,39 @@ public class WorkerWindow extends JFrame {
 	 */
 	@SuppressWarnings("unlikely-arg-type")
 	public boolean initializeData(String ID,String site){
+		//获取用户
+		worker=DBManager.getManager().getWorker(ID);
+		if (worker==null)
+			return false;
+
+		//填补工人的属性信息
+		labName.setText(worker.find(PropertyFactory.LABEL_NAME).getValueString());
+		labIDCard.setText(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString());
+		labType.setText(worker.find(PropertyFactory.LABEL_WORKER_TYPE).getValueString());
+		labPhone.setText(worker.find(PropertyFactory.LABEL_PHONE).getValueString());
+		labelState.setText(worker.find(PropertyFactory.LABEL_WORKER_STATE).getValueString());
+		SimpleDateFormat sm=new SimpleDateFormat("yyy年MM月dd日");
+		labBornDate.setText(sm.format(AnUtils.convertBornDate(labIDCard.getText())));
+		labAge.setText(String.valueOf(AnUtils.convertAge(labIDCard.getText()))+"岁");
+
+
+		/*
+		**获取工地列表**
+			在获取列表的时候传入参数可能是”全部”，
+			如果是"全部“，就默认加载第一个工地
+		 */
+		if (site.equals("全部")){
+			ArrayList<String> tmpSites=DBManager.getManager().getWorkerAt(ID);//获取到工人所在的工地列表
+			if (!tmpSites.contains(site))
+				return false;
+			cobSite.setModel(new DefaultComboBoxModel(AnUtils.toArray(tmpSites)));
+			cobSite.setSelectedItem(site);
+		}
+
+		//填补工人的工地信息
+
+
+		//
 		assert DBManager.getManager() != null;
 		for (AnBean anBean :DBManager.getManager().loadingWorkerList()){
 			if(anBean.find(PropertyFactory.LABEL_ID_CARD).getValueString().equals(ID)){
@@ -458,8 +495,8 @@ public class WorkerWindow extends JFrame {
 				labType.setText(worker.find(PropertyFactory.LABEL_WORKER_TYPE).getValueString());
 				labPhone.setText(worker.find(PropertyFactory.LABEL_PHONE).getValueString());
 				labelState.setText(worker.find(PropertyFactory.LABEL_WORKER_STATE).getValueString());
-				SimpleDateFormat sm=new SimpleDateFormat("yyy年MM月dd日");
-				labBornDate.setText(sm.format(AnUtils.convertBornDate(labIDCard.getText())));
+				SimpleDateFormat ssm=new SimpleDateFormat("yyy年MM月dd日");
+				labBornDate.setText(ssm.format(AnUtils.convertBornDate(labIDCard.getText())));
 				labAge.setText(String.valueOf(AnUtils.convertAge(labIDCard.getText()))+"岁");
 
 
@@ -468,7 +505,7 @@ public class WorkerWindow extends JFrame {
 				cobSite.setModel(new DefaultComboBoxModel(DBManager.getManager().getWorkerAt(labIDCard.getText()).toArray()));
 				cobSite.setSelectedItem(site);
 
-				datePanel.setMaxValue(10);//设置最大数值的颜色显示，因为有小数，所以扩大10倍
+				checkInPanel.setMaxValue(10);//设置最大数值的颜色显示，因为有小数，所以扩大10倍
 
 				Double dv= Double.valueOf(worker.find(PropertyFactory.LABEL_DEAL_LABOUR_COST).getValueString());
 				salaryPanel.setMaxValue(dv.intValue());//设置工资管理器色准为这个工人的约定工资，最大领取到的也只能是约定工资
@@ -476,7 +513,7 @@ public class WorkerWindow extends JFrame {
 				DBManager manager=DBManager.getManager();
 				checkInManager=manager.getCheckInManager();
 				ArrayList<IDateValueItem> tmpCheckInList=checkInManager.getWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString());
-				datePanel.setSourceDates(tmpCheckInList);
+				checkInPanel.setSourceDates(tmpCheckInList);
 				if (tmpCheckInList!=null)
 					showWorkDay(tmpCheckInList);
 
@@ -510,7 +547,6 @@ public class WorkerWindow extends JFrame {
 				days+=d;
 			}catch (Exception ex){ }
 		}
-		Application.debug(this,days);
 		labWorkDay.setText(String.valueOf(days));
 		worker.find(PropertyFactory.LABEL_TOTAL_WORKING_DAY).setValue(days);
 	}
@@ -527,11 +563,32 @@ public class WorkerWindow extends JFrame {
 				livingCosts+=d;
 			}catch (Exception ex){ }
 		}
-		Application.debug(this,livingCosts);
 		labPaidLivingCosts.setText(String.valueOf(livingCosts));
 		worker.find(PropertyFactory.LABEL_COST_OF_LIVING).setValue(livingCosts);
 	}
 
+
+	/**
+	 * 展示此工地上工人的信息
+	 * @param id
+	 * @param siteName
+	 */
+	public void showBuildingSiteInfo(String id,String siteName){
+		boolean b=false;
+		AnDataTable site=DBManager.getManager().getBuildingSite(siteName);
+		if (b=site==null)
+			return;
+
+		//获取工人全部的工地列表，如果工地不存在，退出
+		if (b=!DBManager.getManager().getWorkerAt(id).contains(siteName))
+			return;
+
+		//存在
+
+
+
+
+	}
 
 
 	/**
@@ -543,4 +600,8 @@ public class WorkerWindow extends JFrame {
     	initializeComponent(null);
     	initializeEvent();
     }
+
+    public void update(){
+		initializeData();
+	}
 }

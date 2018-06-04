@@ -10,4 +10,6 @@ public interface IDateValueItem {
     Object getValue();
     String getTag();
     void setValue(Object value);
+    void setTag(String tag);
+    //void setDate(Date date);
 }

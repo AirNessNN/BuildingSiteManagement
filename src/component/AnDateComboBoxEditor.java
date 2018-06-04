@@ -79,6 +79,8 @@ public class AnDateComboBoxEditor extends JButton implements AnTableCellEditor{
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+        if (value==null)
+            value="";
         setText(value.toString());
         //设置日期格式
         Date date;

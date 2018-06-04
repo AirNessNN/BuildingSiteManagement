@@ -13,9 +13,10 @@ public class DateValueInfo implements Serializable, IDateValueItem {
     private Object value;
     private String tag;
 
-    public DateValueInfo(Date date,Object value){
+    public DateValueInfo(Date date,Object value,String tag){
         this.date=date;
         this.value=value;
+        this.tag=tag;
     }
 
     public void setTag(String tag) {
@@ -24,6 +25,10 @@ public class DateValueInfo implements Serializable, IDateValueItem {
 
     public void setValue(Object value) {
         this.value = value;
+    }
+
+    void setDate(Date date){
+        this.date=date;
     }
 
     @Override

@@ -72,7 +72,7 @@ public class EntryWindow extends JDialog {
         btnOK.addActionListener((e)->{
             setModal(false);
             dialogResult= DialogResult.RESULT_OK;
-            for (Object o:table.getListModel().getDataVector()){
+            for (Object o:table.getTableModel().getDataVector()){
                 Vector<String> cells= (Vector<String>) o;
                 String value=cells.get(1);
                 Info info=worker.find(cells.get(0));
@@ -169,7 +169,7 @@ public class EntryWindow extends JDialog {
             cells.add("");
             rows.add(cells);
         }
-        table.getListModel().setDataVector(rows,AnUtils.convertToVector(HEADER));
+        table.getTableModel().setDataVector(rows,AnUtils.convertToVector(HEADER));
     }
 
     private AnBean getWorker(){

@@ -215,7 +215,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         });
 
         //表格数据监听
-        table.getListModel().addTableModelListener(this);
+        table.getTableModel().addTableModelListener(this);
 
         //搜索线程方法
         searchTask= () -> {
@@ -400,7 +400,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         name.add(tableHeader[1]);
 
         //填充表单并设置相关属性
-        table.getListModel().setDataVector(data,name);
+        table.getTableModel().setDataVector(data,name);
     }
 
 
@@ -444,14 +444,14 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
     public void loadingProperty(){
         //读取工人属性
         assert DBManager.getManager() != null;
-        AnArrayBean property=DBManager.getManager().loadingWorkerProperty();//在这里装载属性
+        AnDataTable property=DBManager.getManager().loadingWorkerProperty();//在这里装载属性
         if (property==null)
             return;
 
         cobBuildingSite.removeAllItems();
         cobBuildingSite.addItem("全部");
-        InfoArray<String> infoArray=property.find(PropertyFactory.LABEL_SITE);
-        for (String value:infoArray.getValues()){
+        AnColumn<String> anColumn =property.find(PropertyFactory.LABEL_SITE);
+        for (String value: anColumn.getValues()){
             cobBuildingSite.addItem(value);
             cobSiteFrom.addItem(value);
         }
@@ -459,27 +459,27 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         table.addComponentCell(cobSiteFrom,23,1);
 
         cobSex.removeAllItems();
-        InfoArray<String> sex=property.find(PropertyFactory.LABEL_SEX);
+        AnColumn<String> sex=property.find(PropertyFactory.LABEL_SEX);
         cobSex.addItem(sex.getValues().get(0));
         cobSex.addItem(sex.getValues().get(1));
         table.addComponentCell(cobSex,8,1);
 
         cobNation.removeAllItems();
         cobNation.removeAllItems();
-        InfoArray<String> nation=property.find(PropertyFactory.LABEL_NATION);
+        AnColumn<String> nation=property.find(PropertyFactory.LABEL_NATION);
         for (String value:nation.getValues()){
             cobNation.addItem(value);
         }
         table.addComponentCell(cobNation,9,1);
 
         cobWorkerState.removeAllItems();
-        InfoArray<String> workerState=property.find(PropertyFactory.LABEL_WORKER_STATE);
+        AnColumn<String> workerState=property.find(PropertyFactory.LABEL_WORKER_STATE);
         for (String value:workerState.getValues())
             cobWorkerState.addItem(value);
         table.addComponentCell(cobWorkerState,15,1);
 
         cobWorkerType.removeAllItems();
-        InfoArray<String> workerType=property.find(PropertyFactory.LABEL_WORKER_TYPE);
+        AnColumn<String> workerType=property.find(PropertyFactory.LABEL_WORKER_TYPE);
         for (String value:workerType.getValues())
             cobWorkerType.addItem(value);
         table.addComponentCell(cobWorkerType,14,1);

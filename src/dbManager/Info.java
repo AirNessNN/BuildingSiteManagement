@@ -4,7 +4,12 @@ import application.Application;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.SimpleFormatter;
 
 /**
  * 信息类，存放字符型变量和数字型变量，用于自定义信息
@@ -77,10 +82,70 @@ public class Info<T> implements Serializable ,Cloneable{
         return value.toString();
     }
 
-    public void setValue(T object){
+    public void setValue(Object object){
         if (object==null)
             return;
-        value=object;
+
+        if (type==null||type==""){
+            if (value!=null){
+                for (int i=0;i<TYPE_NAME.length;i++){
+                    if (value.getClass().getName().contains(TYPE_NAME[i])){
+                        type=TYPE_NAME[i];
+                    }
+                }
+            }else{
+                for (int i=0;i<TYPE_NAME.length;i++){
+                    if (object.getClass().getName().contains(TYPE_NAME[i])){
+                        type=TYPE_NAME[i];
+                    }
+                }
+            }
+
+            if (getType()==0){
+                type="";
+                return;
+            }
+        }
+
+        try{
+            switch (getType()){
+                case TYPE_STRING:{
+                    if (object instanceof String) value = (T) object.toString();
+                    break;
+                }
+                case TYPE_DOUBLE:{
+                    if (object instanceof String) value= (T) new Double(String.valueOf(object));
+                    if (object instanceof Double||object instanceof Integer) value=(T)object;
+                    break;
+                }
+                case TYPE_DATE:{
+                    if (object instanceof String) {
+                        Date oldv= (Date) value;
+                        try {
+                            value=(T)new SimpleDateFormat("yyyy-MM-dd").parse((String) object);
+                        } catch (ParseException e) {
+                            value= (T) oldv;
+                        }
+                    }
+                    if (object instanceof Date){
+                        value= (T) object;
+                    }
+                    break;
+                }
+                case TYPE_INTEGER:{
+                    if (object instanceof Integer)value= (T) object;
+                    if (object instanceof  String) value= (T) new Integer(String.valueOf(object));
+                    break;
+                }
+                case TYPE_ARRAY_LIST:{
+                    if (object instanceof List)
+                        value= (T) object;
+                    break;
+                }
+            }
+        }catch (Exception e){
+            Application.debug(this,e.toString());
+        }
     }
 
     public int getType() {

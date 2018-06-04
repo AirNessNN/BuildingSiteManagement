@@ -3,20 +3,22 @@ import SwingTool.MyButton;
 import component.*;
 import dbManager.*;
 import resource.Resource;
-import test.Test;
-
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Vector;
 import javax.swing.*;
-import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 /**
  * 详细信息窗口
  */
-public class InfoWindow extends JDialog implements ComponentLoader {
+public class InfoWindow extends Window implements ComponentLoader {
+
     static final String[] INFO_HEADER =new String[]{"属性名","属性值"};
     static final String[] CHECK_IN_HEADER =new String[]{"日期","出勤记录","备注"};
     static final String[] SALARY_HEADER=new String[]{"日期","领取数额","备注"};
@@ -29,44 +31,78 @@ public class InfoWindow extends JDialog implements ComponentLoader {
     private MyButton btnSite;
     private MyButton btnSave;
 
-    private ArrayList<String> oldInfoData=null;
-    private ArrayList<ArrayList> oldCheckInData=null;
-    private ArrayList<ArrayList> oldSalaryData=null;
-
+    //每个表格的监听器
     private TableModelListener infoListener=null,salaryListener=null,checkInListener=null;
+    private boolean infoF,salaryF,checkInF;//表格监听器改动flag
+    private JComboBox cobSite;//选择的工地，出勤数据和工资领取情况都是要选择工地才能显示
 
 
 	public InfoWindow() {
         initializeComponent();
         initializeEvent();
         initializeData();
-        setModal(true);
 	}
 
     @Override
     public void initializeComponent() {
         setTitle("详细信息");
-        getContentPane().setLayout(new BorderLayout(0, 0));
         setMinimumSize(new Dimension(500,700));
-        setSize(getMinimumSize());
+        setSize(new Dimension(527, 700));
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        SpringLayout springLayout = new SpringLayout();
+        getContentPane().setLayout(springLayout);
         
         JPanel panel_3 = new JPanel();
+        springLayout.putConstraint(SpringLayout.NORTH, panel_3, -40, SpringLayout.SOUTH, getContentPane());
+        springLayout.putConstraint(SpringLayout.WEST, panel_3, 0, SpringLayout.WEST, getContentPane());
+        springLayout.putConstraint(SpringLayout.SOUTH, panel_3, 0, SpringLayout.SOUTH, getContentPane());
+        springLayout.putConstraint(SpringLayout.EAST, panel_3, 0, SpringLayout.EAST, getContentPane());
         panel_3.setBackground(SystemColor.menu);
-        getContentPane().add(panel_3, BorderLayout.SOUTH);
-        panel_3.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        getContentPane().add(panel_3);
+        panel_3.setSize(this.getWidth(),200);
+        SpringLayout sl_panel_3 = new SpringLayout();
+        panel_3.setLayout(sl_panel_3);
+        
+        cobSite = new JComboBox();
+        cobSite.setFont(new Font("等线", Font.PLAIN, 15));
+        sl_panel_3.putConstraint(SpringLayout.SOUTH, cobSite, -7, SpringLayout.SOUTH, panel_3);
+        panel_3.add(cobSite);
         
         btnSite = new MyButton("修改工地");
-        btnSite.setText("  修改工地  ");
+        sl_panel_3.putConstraint(SpringLayout.NORTH, cobSite, 0, SpringLayout.NORTH, btnSite);
+        sl_panel_3.putConstraint(SpringLayout.EAST, cobSite, -40, SpringLayout.WEST, btnSite);
+        sl_panel_3.putConstraint(SpringLayout.NORTH, btnSite, 7, SpringLayout.NORTH, panel_3);
+        sl_panel_3.putConstraint(SpringLayout.SOUTH, btnSite, -7, SpringLayout.SOUTH, panel_3);
         panel_3.add(btnSite);
+        btnSite.setText("  修改工地  ");
         
         btnSave = new MyButton("保存数据");
-        btnSave.setText("  保存数据  ");
+        sl_panel_3.putConstraint(SpringLayout.WEST, btnSite, -100, SpringLayout.WEST, btnSave);
+        sl_panel_3.putConstraint(SpringLayout.EAST, btnSite, -10, SpringLayout.WEST, btnSave);
+        sl_panel_3.putConstraint(SpringLayout.NORTH, btnSave, 7, SpringLayout.NORTH, panel_3);
+        sl_panel_3.putConstraint(SpringLayout.WEST, btnSave, -100, SpringLayout.EAST, panel_3);
+        sl_panel_3.putConstraint(SpringLayout.SOUTH, btnSave, -7, SpringLayout.SOUTH, panel_3);
+        sl_panel_3.putConstraint(SpringLayout.EAST, btnSave, -10, SpringLayout.EAST, panel_3);
         panel_3.add(btnSave);
+        btnSave.setText("  保存数据  ");
+        
+        JLabel label = new JLabel("选择的工地");
+        sl_panel_3.putConstraint(SpringLayout.WEST, cobSite, 10, SpringLayout.EAST, label);
+        sl_panel_3.putConstraint(SpringLayout.EAST, label, 90, SpringLayout.WEST, panel_3);
+        label.setFont(new Font("等线", Font.PLAIN, 15));
+        sl_panel_3.putConstraint(SpringLayout.NORTH, label, 7, SpringLayout.NORTH, panel_3);
+        sl_panel_3.putConstraint(SpringLayout.WEST, label, 10, SpringLayout.WEST, panel_3);
+        sl_panel_3.putConstraint(SpringLayout.SOUTH, label, -7, SpringLayout.SOUTH, panel_3);
+        panel_3.add(label);
 
         JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+        springLayout.putConstraint(SpringLayout.NORTH, tabbedPane, 0, SpringLayout.NORTH, getContentPane());
+        springLayout.putConstraint(SpringLayout.WEST, tabbedPane, 0, SpringLayout.WEST, getContentPane());
+        springLayout.putConstraint(SpringLayout.SOUTH, tabbedPane, -40, SpringLayout.SOUTH, getContentPane());
+        springLayout.putConstraint(SpringLayout.EAST, tabbedPane, 0, SpringLayout.EAST, getContentPane());
         tabbedPane.setFont(new Font("幼圆", Font.PLAIN, 15));
-        getContentPane().add(tabbedPane, BorderLayout.CENTER);
+        getContentPane().add(tabbedPane);
 
         JPanel panel = new JPanel();
         tabbedPane.addTab("个人信息", null, panel, null);
@@ -120,24 +156,53 @@ public class InfoWindow extends JDialog implements ComponentLoader {
     @Override
     public void initializeEvent() {
         infoListener= e -> {
-            btnSave.setEnabled(isChangedData());
+            infoF=infoTable.getChangedCells().getSize()>0;
+            btnSave.setEnabled((infoF||salaryF||checkInF));
         };
-        infoTable.getListModel().addTableModelListener(infoListener);
+        infoTable.getTableModel().addTableModelListener(infoListener);
 
         salaryListener= e -> {
-            btnSave.setEnabled(isChangedData());
+            salaryF=salaryTable.getChangedCells().getSize()>0;
+            btnSave.setEnabled((infoF||salaryF||checkInF));
         };
-        salaryTable.getListModel().addTableModelListener(salaryListener);
+        salaryTable.getTableModel().addTableModelListener(salaryListener);
 
         checkInListener= e -> {
-            btnSave.setEnabled(isChangedData());
+            checkInF=checkInTable.getChangedCells().getSize()>0;
+            btnSave.setEnabled((infoF||salaryF||checkInF));
         };
-        checkInTable.getListModel().addTableModelListener(checkInListener);
+        checkInTable.getTableModel().addTableModelListener(checkInListener);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                boolean b=infoF||salaryF||checkInF;
+                if (b){
+                    int opa=JOptionPane.showConfirmDialog(
+                            InfoWindow.this,
+                            "有数据更改，是否保存",
+                            "保存提示",JOptionPane.YES_NO_OPTION);
+                    if (opa==JOptionPane.YES_OPTION){
+                        saveInfo();
+                    }
+                }
+                dispose();
+            }
+        });
+
+        btnSite.addActionListener((e)->{
+            String id=worker.find(PropertyFactory.LABEL_ID_CARD).getValueString();
+            Object[] sites=WindowBuilder.showBuildingSiteSelectingWindow(id);
+            DBManager.getManager().updateWorkerBuildingSite(id,sites);
+        });
+
+        btnSave.addActionListener((e)->{
+            save();
+        });
     }
 
     @Override
     public void initializeData() {
-        initializeWorker();
     }
 
     public void initializeWorker(AnBean worker,String site){
@@ -197,7 +262,8 @@ public class InfoWindow extends JDialog implements ComponentLoader {
             cells.add(info.getValue());
             infoRows.add(cells);
         }
-        infoTable.getListModel().setDataVector(infoRows,AnUtils.convertToVector(INFO_HEADER));
+        infoTable.getTableModel().setDataVector(infoRows,AnUtils.convertToVector(INFO_HEADER));
+        infoTable.setCheckPoint();
 
         //加载出勤
         assert DBManager.getManager() != null;
@@ -207,6 +273,7 @@ public class InfoWindow extends JDialog implements ComponentLoader {
                         site
                 );
         Vector<Vector> checkInRows=new Vector<>();
+
         for (IDateValueItem item:tmpCheckIn){
             Vector<String> cells=new Vector<>();
             cells.add(new SimpleDateFormat(Resource.DATE_FORMATE).format(item.getDate()));
@@ -214,7 +281,8 @@ public class InfoWindow extends JDialog implements ComponentLoader {
             cells.add(item.getTag());
             checkInRows.add(cells);
         }
-        checkInTable.getListModel().setDataVector(checkInRows,AnUtils.convertToVector(CHECK_IN_HEADER));
+        checkInTable.getTableModel().setDataVector(checkInRows,AnUtils.convertToVector(CHECK_IN_HEADER));
+        checkInTable.setCheckPoint();
 
         //加载工资
         ArrayList<IDateValueItem> tmpSalary=DBManager.getManager().getSalaryManager()
@@ -230,92 +298,196 @@ public class InfoWindow extends JDialog implements ComponentLoader {
             cells.add(item.getTag());
             salaryRows.add(cells);
         }
-        salaryTable.getListModel().setDataVector(salaryRows,AnUtils.convertToVector(SALARY_HEADER));
+        salaryTable.getTableModel().setDataVector(salaryRows,AnUtils.convertToVector(SALARY_HEADER));
+        salaryTable.setCheckPoint();
 
-        getOldData();
+        //加载工地选择器
+        cobSite.setModel(new DefaultComboBoxModel(AnUtils.toArray((ArrayList) worker.find(PropertyFactory.LABEL_SITE).getValue())));
+    }
+
+    private void save(){
+	    try {
+            saveInfo();
+            saveChildingManagerData(checkInTable,DBManager.getManager().getCheckInManager());
+            saveChildingManagerData(salaryTable,DBManager.getManager().getSalaryManager());
+            btnSave.setEnabled(false);
+            infoTable.setCheckPoint();
+            salaryTable.setCheckPoint();
+            checkInTable.setCheckPoint();
+            salaryF=false;
+            checkInF=false;
+            infoF=false;
+            //回调
+            callback(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString(),cobSite.getSelectedItem().toString());
+        }catch (Exception e){
+            Application.errorWindow(e.getMessage());
+        }
     }
 
     /**
-     * 检查表格数据是否已经发生改变
+     * 储存表格中的内容
      * @return
      */
-    public boolean isChangedData(){
-	    //检查个人信息
-        int infoIndex=0;
-        for (Object value:infoTable.getListModel().getDataVector()){
-            Vector<String> cells= (Vector<String>) value;
-            String cell=cells.get(1);
-            String oldC=oldInfoData.get(infoIndex++);
-            //非空，空的情况不用判断
-            if (!((cell==null||cell.equals(""))&&(oldC == null || oldC.equals("")))) {
-                if (!cell.equals(oldC))return true;//更改直接退出
-            }
-        }
-        //检查出勤
-        for (int i=0;i<checkInTable.getListModel().getDataVector().size();i++){
-            Vector<String> cells= (Vector<String>) checkInTable.getListModel().getDataVector().get(i);
-            ArrayList<String> oldCells=oldCheckInData.get(i);
-            for (int j=0;j<3;j++){
-                String cell=cells.get(j);
-                String oldC=oldCells.get(j);
-
-                if (!((cell==null||cell.equals(""))&&(oldC == null || oldC.equals("")))) {
-                    if (!cell.equals(oldC))return true;//更改直接退出
+    private void saveInfo(){
+        //检查身份证是否更改
+        boolean isIDChanged=false;
+        String oldID=null;
+        String newID=null;
+        TableProperty bean=infoTable.getChangedCells();
+        for (int i = 0; i<bean.getSize(); i++){
+            Point pointInfo= bean.getPoint(i);
+            String pn= (String) infoTable.getCell(pointInfo.x,0);//获取单元格属性名PropertyName
+            if (pn.equals(PropertyFactory.LABEL_ID_CARD)){
+                isIDChanged=true;
+                oldID= (String) bean.getOldValue(i);
+                newID=(String) bean.getNewValue(i);
+                break;
+            }else{
+                //更新其他信息
+                try {
+                    Info info=worker.find(pn);
+                    Object object=bean.getNewValue(i);
+                    info.setValue(object);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
+        if (isIDChanged){
+            //更新ID
+            worker.find(PropertyFactory.LABEL_ID_CARD).setValue(newID);//设置工人列表的身份证属性
 
-        //检查工资
-        for (int i=0;i<salaryTable.getListModel().getDataVector().size();i++){
-            Vector<String> cells= (Vector<String>) salaryTable.getListModel().getDataVector().get(i);
-            ArrayList<String> oldCells=oldSalaryData.get(i);
-            for (int j=0;j<3;j++){
-                String cell=cells.get(j);
-                String oldC=oldCells.get(j);
-
-                if (!((cell==null||cell.equals(""))&&(oldC == null || oldC.equals("")))) {
-                    if (!cell.equals(oldC))return true;//更改直接退出
+            ArrayList<String> siteList=DBManager.getManager().getWorkerAt(oldID);
+            for (int i=0;i<siteList.size();i++){
+                AnDataTable tmpSite=DBManager.getManager().getBuildingSite(siteList.get(i));
+                AnColumn array=tmpSite.find(PropertyFactory.LABEL_ID_CARD);
+                boolean flag=array.changeValue(oldID,newID);//设置工地列表中存放的工人身份信息
+                //找到工地的话，一定会存在工资和出勤，所以也要更新工资和出勤信息
+                if (flag){
+                    //工资
+                    DBManager.getManager().getSalaryManager().getWorker(oldID).setName(newID);
+                    //出勤
+                    DBManager.getManager().getCheckInManager().getWorker(oldID).setName(newID);
                 }
             }
         }
-        return false;
+        Application.debug(this,worker.toString());
     }
 
     /**
-     * 复制一份表格数据，用来对比
+     * 储存其他信息
      */
-    public void getOldData(){
-        for (Object value:infoTable.getListModel().getDataVector()){
-            Vector<String> cells= (Vector<String>) value;
-            if (oldInfoData==null)
-                oldInfoData=new ArrayList<>();
-            oldInfoData.add(cells.get(1));
-        }
+    private void saveChildingManagerData(AnTable table, ChildrenManager manager) throws ParseException {
+        TableProperty ctb=table.getChangedCells();
+        ArrayList<Integer> skips=new ArrayList<>();
+        SimpleDateFormat format=new SimpleDateFormat(Resource.DATE_FORMATE);
 
-        for (Object o:checkInTable.getListModel().getDataVector()){
-            Vector<String> cells= (Vector<String>) o;
-            if (oldCheckInData==null)
-                oldCheckInData=new ArrayList<>();
-            ArrayList<String> oldCells=new ArrayList<>();
-            oldCells.add(cells.get(0));
-            oldCells.add(cells.get(1));
-            oldCells.add(cells.get(2));
-            oldCheckInData.add(oldCells);
-        }
+        String id=worker.find(PropertyFactory.LABEL_ID_CARD).getValueString();
+        String site=cobSite.getSelectedItem().toString();
 
-        for (Object o:salaryTable.getListModel().getDataVector()){
-            Vector<String> cells= (Vector<String>) o;
-            if (oldSalaryData==null)
-                oldSalaryData=new ArrayList<>();
-            ArrayList<String> oldCells=new ArrayList<>();
-            oldCells.add(cells.get(0));
-            oldCells.add(cells.get(1));
-            oldCells.add(cells.get(2));
-            oldSalaryData.add(oldCells);
-        }
+        for (int i=0;i<ctb.getSize();i++){
+            int row=ctb.getPoint(i).x;
+            int col=ctb.getPoint(i).y;
 
-        Test.printList(this,oldInfoData,null);
-        Test.printList(this,oldCheckInData,null);
-        Test.printList(this,oldSalaryData,null);
+            //已经规列完的行就不检查
+            boolean skip=false;
+            for (Integer integer:skips)
+                if (integer==row)
+                    skip=true;
+            if (skip)
+                continue;
+
+            //要填充的数据
+            Date od = null,nd = null;
+            Double ov = null,nv = null;
+            String ot = null,nt = null;
+
+            //找到一行数据并修改
+            for (int j=i;j<ctb.getSize();j++){
+                int tr=ctb.getPoint(j).x,tc=ctb.getPoint(j).y;
+
+                if (tr==row){//当此元素行号和在检测的行号相同
+                    if (tc==0) {
+                        od = format.parse((String) ctb.getOldValue(j));
+                        nd=format.parse((String) ctb.getNewValue(j));
+                    }
+                    if (tc==1){
+                        ov=Double.valueOf((String) ctb.getOldValue(j));
+                        nv=Double.valueOf((String) ctb.getNewValue(j));
+                    }
+                    if (tc==2){
+                        ot= (String) ctb.getOldValue(j);
+                        nt=(String)ctb.getNewValue(j);
+                    }
+                }
+                //如果数据全部填充物完成，就在下次的循环中跳过这一行
+                if (od!=null&&ov!=null&&ot!=null){
+                    //开始填充数据
+                    //首先删除旧数据
+                    try {
+                        manager.updateData(
+                                id
+                                ,site
+                                ,od
+                                ,ChildrenManager.MOD_DEL
+                                ,ov
+                                ,ot
+                        );
+                        //新增一条数据
+                        manager.updateData(
+                                id
+                                ,site
+                                ,nd
+                                ,ChildrenManager.MOD_ADD
+                                ,nv
+                                ,nt
+                        );
+                        skips.add(tr);//跳过这个行号的所有数据
+                        break;//跳出此次循环
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            //对单条记录进行搜索后发现还有数据没有填充
+            if (od==null||ov==null||ot==null){
+                if (col==0){
+                    od = format.parse((String) ctb.getOldValue(i));
+                    nd=format.parse((String) ctb.getNewValue(i));
+                    nv=Double.valueOf((String) table.getCell(row,1));
+                    nt= (String) table.getCell(row,2);
+
+                    manager.updateDate(id,site,od,nd);
+                    try {
+                        manager.updateData(id,site,nd,ChildrenManager.MOD_ALTER,nv,nt);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (col==1){
+                    nd=format.parse((String) table.getCell(row,0));
+                    nv=Double.valueOf((String) ctb.getNewValue(i));
+                    nt= (String) table.getCell(row,2);
+
+                    try {
+                        manager.updateData(id,site,nd,ChildrenManager.MOD_ALTER,nv,nt);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (col==2){
+                    nd=format.parse((String) table.getCell(row,0));
+                    nt= (String)ctb.getNewValue(i);
+                    nv= Double.valueOf((String) table.getCell(row,1));
+
+                    try {
+                        manager.updateData(id,site,nd,ChildrenManager.MOD_ALTER,nv,nt);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                skips.add(row);
+            }
+        }
     }
 }

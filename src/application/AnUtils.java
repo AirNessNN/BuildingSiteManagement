@@ -8,6 +8,7 @@ import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Vector;
 
@@ -449,6 +450,22 @@ public class AnUtils {
         }
         return null;
     }
+
+	/**
+	 * 将集合转换为数组
+	 * @param collection
+	 * @return
+	 */
+	public static Object[] toArray(Collection collection){
+		if (collection==null)
+			return null;
+		Object[] array=new Object[collection.size()];
+		int index=0;
+		for (Object o:collection){
+			array[index++]=o;
+		}
+		return array;
+	}
 
 
 }

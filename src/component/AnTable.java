@@ -1,6 +1,5 @@
 package component;
 
-import application.AnUtils;
 import resource.Resource;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -16,10 +15,9 @@ import java.util.Vector;
  */
 public class AnTable extends JTable{
 
-	private DefaultTableModel listModel=null;//默认列表数据模型
+	private DefaultTableModel tableModel =null;//默认列表数据模型
 
 	private ArrayList<Point> editPassList=null;//不可编辑的表格
-
 
 	/**
 	 * 表头
@@ -51,15 +49,7 @@ public class AnTable extends JTable{
      */
 	private ArrayList<Integer> columnEditFiltrate=null;
 
-
-
-
-
-
-
-
-
-
+	private Object[][] oldValues=null;
 
 
 
@@ -77,7 +67,7 @@ public class AnTable extends JTable{
 	 */
 	private void init(){
 
-		getTableHeader().setFont(new Font("微软雅黑",1,14));
+		getTableHeader().setFont(new Font("等线",1,14));
 		this.setRowHeight(30);
 		this.setFont(Resource.FONT_TABLE_ITEM);
 		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -89,7 +79,7 @@ public class AnTable extends JTable{
 		columnEditFiltrate=new ArrayList<>();
 
 		//默认listMod，重写其中的isCellEditable方法，控制单元格的编辑规则
-		listModel=new DefaultTableModel(){
+		tableModel =new DefaultTableModel(){
 			@Override
 			public boolean isCellEditable(int row, int column) {
                 /*
@@ -111,7 +101,7 @@ public class AnTable extends JTable{
                 return true;
 			}
 		};
-		this.setModel(listModel);
+		this.setModel(tableModel);
 	}
 
 
@@ -134,7 +124,7 @@ public class AnTable extends JTable{
 	 * @param columnNames 表头数组
 	 */
 	public void setColumn(Object[] columnNames){
-		listModel.setColumnIdentifiers(columnNames);
+		tableModel.setColumnIdentifiers(columnNames);
 		this.header.addAll(Arrays.asList(columnNames));
 	}
 
@@ -148,7 +138,7 @@ public class AnTable extends JTable{
 	 */
 	public void addColumn(Object object){
 		header.add(object);
-		listModel.setColumnIdentifiers(header.toArray());
+		tableModel.setColumnIdentifiers(header.toArray());
 	}
 
 
@@ -160,11 +150,11 @@ public class AnTable extends JTable{
 	 * @param data
 	 */
 	public void fillData(Object[][] data){
-		listModel.setDataVector(data,header.toArray());
+		tableModel.setDataVector(data,header.toArray());
 	}
 
 	public void fillData(Vector<Vector> data){
-		listModel.setDataVector(data,header);
+		tableModel.setDataVector(data,header);
 	}
 
 
@@ -281,6 +271,51 @@ public class AnTable extends JTable{
 	}
 
 
+	/**
+	 * 设置一次检查点，之后表格的变化与否都与此次设置的检查点做比较
+	 */
+	public void setCheckPoint(){
+		Vector<Vector> vectors= getTableModel().getDataVector();
+		if (vectors==null)
+			return;
+
+		oldValues=new Object[vectors.size()][getColumnCount()];
+		for (int i=0;i<vectors.size();i++){
+			for(int j=0;j<getColumnCount();j++){
+				oldValues[i][j]=vectors.get(i).get(j);
+			}
+		}
+	}
+
+	/**
+	 * 检查已经设置的检查点，判断是否有数据发生改变
+	 * @return 如果已经设置检查点，则判断数据是否一致，返回改动的单元格坐标
+	 */
+	public TableProperty getChangedCells(){
+		if (oldValues==null)
+			return new TableProperty();
+		TableProperty bean=new TableProperty();
+
+		Vector<Vector> vectors= getTableModel().getDataVector();
+		for (int row=0;row<vectors.size();row++){
+			for(int col=0;col<getColumnCount();col++){
+				String rv;
+				String old;
+				if (vectors.get(row).get(col)==null) rv="";
+				else rv=vectors.get(row).get(col).toString();
+
+				if (oldValues[row][col]==null) old="";
+				else old=oldValues[row][col].toString();
+
+				if (!rv.equals(old)) {
+					//x是cell下标，y是行号
+					bean.addValue(new Point(row,col),old,rv);
+				}
+			}
+		}
+		return bean;
+	}
+
 
 
 
@@ -288,10 +323,36 @@ public class AnTable extends JTable{
      *获取默认的数据模型
      * @return
      */
-	public DefaultTableModel getListModel() {
-		return listModel;
+	public DefaultTableModel getTableModel() {
+		return tableModel;
 	}
 
+	/**
+	 * 根据行列号获取单元格中的内容
+	 * @param row
+	 * @param column
+	 * @return
+	 */
+	public Object getCell(int row,int column){
+		Vector cells= (Vector) getTableModel().getDataVector().get(row);
+		return cells.get(column);
+	}
+
+	/**
+	 * 设置指定单元格的值
+	 * @param row
+	 * @param column
+	 * @param value
+	 */
+	public void setCell(int row,int column,Object value){
+		if (this.getRowCount()<row)
+			return;
+		if (this.getColumnCount()<column)
+			return;
+
+		Vector cells= (Vector) getTableModel().getDataVector().get(row);
+		cells.set(column,value);
+	}
 
 
 

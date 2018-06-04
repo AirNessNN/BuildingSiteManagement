@@ -4,6 +4,9 @@ import application.AnUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Queue;
+import java.util.Vector;
+import java.util.concurrent.SynchronousQueue;
 
 /**
  * 在窗口上生成一个不可选中的Dialog来提供消息，并且显示之后一段时间后会自行消失
@@ -14,6 +17,12 @@ public class AnPopDialog extends JFrame{
     private static int x=0;
     private static int y=0;
 
+    private static Queue<String> texts=new SynchronousQueue<>();
+    private static Queue<Component> components=new SynchronousQueue<>();
+    private static Queue<Integer> integers=new SynchronousQueue<>();
+
+    volatile private boolean running=false;
+
     /**
      * 显示Dialog信息
      * @param component 父类组件
@@ -21,7 +30,6 @@ public class AnPopDialog extends JFrame{
      * @param showTimeEnum 显示时长的枚举值
      */
     public static void show(Component component,String text,int showTimeEnum){
-
         new Thread(()->{
             try {
                 AnPopDialog dialog;
@@ -48,6 +56,7 @@ public class AnPopDialog extends JFrame{
             }
         }).start();
     }
+
 
     private JLabel labText;
     private AnPopDialog(){

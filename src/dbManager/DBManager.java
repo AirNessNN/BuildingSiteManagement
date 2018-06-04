@@ -64,13 +64,13 @@ public class DBManager {
 	private User user=null;
     //工人属性
 	private boolean workerPropertyLoaded=false;
-    private AnArrayBean workerProperty =null;
+    private AnDataTable workerProperty =null;
     //工人数据
 	private boolean workerListLoaded=false;
     private ArrayList<AnBean> workerList=null;
     //工地数据
 	private boolean buildingSiteLoaded=false;
-	private ArrayList<AnArrayBean> buildingSiteLIst=null;
+	private ArrayList<AnDataTable> buildingSiteLIst=null;
     //资产数据
 	private boolean assetsArrayListLoaded=false;
     private ArrayList<Assets> assetsArrayList=null;
@@ -305,7 +305,7 @@ public class DBManager {
 		try {
 			manager.createBuildingSite("测试工地1");
 			manager.createBuildingSite("测试工地2");
-			manager.createWorkerProperty("测试属性");
+			manager.createWorkerProperty(true,"测试属性");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -319,12 +319,10 @@ public class DBManager {
 			inf1.setValue("名字"+r.nextInt(456123));
 			Info inf2=w.find("身份证");
 			inf2.setValue(Test.IDRandom());
-			w.find(PropertyFactory.LABEL_DEAL_LABOUR_COST).setValue(5000);
 			w.find(PropertyFactory.LABEL_PHONE).setValue("13123376032");
-			w.find(PropertyFactory.LABEL_WORKER_TYPE).setValue(workerProperty.find(PropertyFactory.LABEL_WORKER_TYPE).getValues().get(r.nextInt(workerProperty.find(PropertyFactory.LABEL_WORKER_TYPE).getSize())));//工种
 			w.find(PropertyFactory.LABEL_SEX).setValue(workerProperty.find(PropertyFactory.LABEL_SEX).getValues().get(r.nextInt(workerProperty.find(PropertyFactory.LABEL_SEX).getSize())));//性别
 			w.find(PropertyFactory.LABEL_WORKER_STATE).setValue(workerProperty.find(PropertyFactory.LABEL_WORKER_STATE).getValues().get(r.nextInt(workerProperty.find(PropertyFactory.LABEL_WORKER_STATE).getSize())));//状态
-			w.find(PropertyFactory.LABEL_BANK_ADDRES).setValue("乱写的地址");
+			w.find(PropertyFactory.LABEL_BANK_ADDRESS).setValue("乱写的地址");
 			//工地
 			workerList.add(w);
 			addWorkerToSite(w.find(PropertyFactory.LABEL_ID_CARD).getValueString(),buildingSiteLIst.get(r.nextInt(2)).getName());
@@ -351,23 +349,23 @@ public class DBManager {
 	 * 增加一条工人属性
 	 * @param info
 	 */
-	public void addWorkerProperty(InfoArray info) throws Exception {
+	public void addWorkerProperty(AnColumn info) throws Exception {
 		if(workerProperty !=null){
-			workerProperty.addInfoArray(info);
+			workerProperty.addColumn(info);
 			PropertyFactory.addUserData(new Info(info.getName(),""));
 		}
 	}
 
-	public void createWorkerProperty(String name) throws Exception {
-		InfoArray<String> infoArray=new InfoArray<>(name);
-		addWorkerProperty(infoArray);
+	public void createWorkerProperty(boolean b,String name) throws Exception {
+		AnColumn<String> anColumn =new AnColumn<>(b,name);
+		addWorkerProperty(anColumn);
 	}
 
 	/**
 	 *	移除工人属性
 	 * @param info
 	 */
-	public void removeWorkerProperty(InfoArray info){
+	public void removeWorkerProperty(AnColumn info){
 		if(workerProperty !=null){
 			workerProperty.removeInfoArray(info);
 		}
@@ -378,7 +376,7 @@ public class DBManager {
 	 * @param index
 	 * @return
 	 */
-	public InfoArray getWorkerProperty(int index){
+	public AnColumn getWorkerProperty(int index){
 		if(workerProperty !=null){
 			return workerProperty.findAt(index);
 		}
@@ -390,7 +388,7 @@ public class DBManager {
 	 * @param name
 	 * @return
 	 */
-	public InfoArray getWorkerProperty(String name){
+	public AnColumn getWorkerProperty(String name){
 		if(workerProperty !=null){
 			return workerProperty.find(name);
 		}
@@ -403,7 +401,7 @@ public class DBManager {
 	 * @return
 	 */
 	public String[] getWorkerPropertyArray(String name){
-		InfoArray array=getWorkerProperty(name);
+		AnColumn array=getWorkerProperty(name);
 		String[] strs=new String[array.getSize()];
 		for (int i=0;i<array.getSize();i++){
 			strs[i]= (String) array.get(i);
@@ -416,7 +414,7 @@ public class DBManager {
 	 * 装载工人属性，全盘替换
 	 * @param bean
 	 */
-	public void setWorkerProperty(AnArrayBean bean){
+	public void setWorkerProperty(AnDataTable bean){
 		if(bean!=null){
 			workerProperty =bean;
 		}
@@ -426,14 +424,14 @@ public class DBManager {
 	 * 从文件中装载工人属性
 	 * @return
 	 */
-	public AnArrayBean loadingWorkerProperty(){
+	public AnDataTable loadingWorkerProperty(){
 		//空用户退出
 		if(user==null)
 			return null;
 		//启动加载或者第一次加载
 		if(!workerPropertyLoaded){
 			try {
-				workerProperty =(AnArrayBean) readObject(user.getWorkerPropertyPath());
+				workerProperty =(AnDataTable) readObject(user.getWorkerPropertyPath());
 			} catch (IOException | ClassNotFoundException exception) {
 				workerProperty= PropertyFactory.createWorkerProperty();
 			} finally {
@@ -612,14 +610,14 @@ public class DBManager {
 	 * 加载工地
 	 * @return
 	 */
-	public ArrayList<AnArrayBean> loadingBuildingSiteList(){
+	public ArrayList<AnDataTable> loadingBuildingSiteList(){
 		if (!userLoaded)
 			return null;
 
 		if (buildingSiteLoaded)
 			return buildingSiteLIst;
 		try{
-			buildingSiteLIst= (ArrayList<AnArrayBean>) readObject(user.getBuildingSitePath());
+			buildingSiteLIst= (ArrayList<AnDataTable>) readObject(user.getBuildingSitePath());
 			if (buildingSiteLIst!=null)
 				buildingSiteLoaded=true;
 			return buildingSiteLIst;
@@ -635,11 +633,11 @@ public class DBManager {
 	 * 向DB中添加工地
 	 * @param buildingSite 添加一个工地的实例
 	 */
-	public void createBuildingSite(AnArrayBean buildingSite) throws Exception {
+	public void createBuildingSite(AnDataTable buildingSite) throws Exception {
 		if (!buildingSiteLoaded)
 			return;
 
-		for (AnArrayBean bean:buildingSiteLIst){
+		for (AnDataTable bean:buildingSiteLIst){
 			if (bean.getName().equals(buildingSite.getName()))
 				throw new Exception("工地重名，无法添加到列表中！");
 		}
@@ -657,7 +655,7 @@ public class DBManager {
 	public void createBuildingSite(String name) throws Exception {
 		if (!buildingSiteLoaded)
 			return;
-		AnArrayBean site=PropertyFactory.createBuildingSite();
+		AnDataTable site=PropertyFactory.createBuildingSite();
 		site.setName(name);
 		createBuildingSite(site);
 	}
@@ -667,10 +665,10 @@ public class DBManager {
 	 * @param siteName 工地名字
 	 * @return
 	 */
-	public AnArrayBean getBuildingSite(String siteName){
+	public AnDataTable getBuildingSite(String siteName){
 		if (!buildingSiteLoaded)
 			return null;
-		for (AnArrayBean bean:buildingSiteLIst)
+		for (AnDataTable bean:buildingSiteLIst)
 			if (bean.getName().equals(siteName))
 				return bean;
 		return null;
@@ -684,8 +682,8 @@ public class DBManager {
 	public String[] getBuildingSiteWorkers(String siteName){
 		String[] tmpWorker;
 
-		AnArrayBean site=getBuildingSite(siteName);
-		InfoArray array=site.find(PropertyFactory.LABEL_ID_CARD);
+		AnDataTable site=getBuildingSite(siteName);
+		AnColumn array=site.find(PropertyFactory.LABEL_ID_CARD);
 		if (array!=null){
 			int size=array.getSize();
 
@@ -713,7 +711,7 @@ public class DBManager {
 		if (!buildingSiteLoaded&&!workerListLoaded)
 			return null;
 		ArrayList<String> tmpList=new ArrayList<>();
-		for (AnArrayBean site:buildingSiteLIst){
+		for (AnDataTable site:buildingSiteLIst){
 			for (Object workerId:site.find(PropertyFactory.LABEL_ID_CARD).getValues()){
 				String tmpID= (String) workerId;
 				if (tmpID.equals(id)){
@@ -724,7 +722,7 @@ public class DBManager {
 		return  tmpList;
 	}
 
-	public void deleteBulidingSite(AnArrayBean site){
+	public void deleteBulidingSite(AnDataTable site){
 		if (!buildingSiteLoaded)
 			return;
 		buildingSiteLIst.remove(site);
@@ -752,7 +750,7 @@ public class DBManager {
 		if (!workerListLoaded&&!buildingSiteLoaded)
 			return false;
 
-		for (AnArrayBean tmpSite:buildingSiteLIst){
+		for (AnDataTable tmpSite:buildingSiteLIst){
 			if (tmpSite.getName().equals(site)){
 				//将工人ID添加到工地中:不能相等
 				if (!tmpSite.find(PropertyFactory.LABEL_ID_CARD).contains(id))
@@ -957,7 +955,7 @@ public class DBManager {
 		worker.find(PropertyFactory.LABEL_ID_CARD).setValue(ID);
 		worker.find(PropertyFactory.LABEL_PHONE).setValue(phone);
 		worker.find(PropertyFactory.LABEL_ADDRESS).setValue(address);
-		worker.find(PropertyFactory.LABEL_BANK_ADDRES).setValue(bankAddress);
+		worker.find(PropertyFactory.LABEL_BANK_ADDRESS).setValue(bankAddress);
 		worker.find(PropertyFactory.LABEL_BANK_ID).setValue(bankID);
 		worker.find(PropertyFactory.LABEL_NATION).setValue(nation);
 		worker.find(PropertyFactory.LABEL_ENTRY_TIME).setValue(enD);
@@ -1016,7 +1014,6 @@ public class DBManager {
 	 * @param bean 包装
 	 * @param propertyName 属性名
 	 * @param value 数值
-	 * @return 返回该包装
 	 */
 	public static void removeBeanArrayInfo(AnBean bean,String propertyName,Object value){
 		Info info=bean.find(propertyName);
@@ -1055,7 +1052,7 @@ public class DBManager {
 	 * @return
 	 */
 	@Deprecated
-	public boolean addWorkerToBuildingSite(AnBean bean,AnArrayBean site){
+	public boolean addWorkerToBuildingSite(AnBean bean, AnDataTable site){
 		if (!manager.workerListLoaded&&!manager.buildingSiteLoaded)
 			return false;
 
@@ -1078,6 +1075,39 @@ public class DBManager {
 		return true;
 	}
 
+
+	/**
+	 * DB工具方法，更新工人的工地数据
+	 * 本地需要更新，工地中需要更新工人，工资和日期管理器中也需要更新工人的数据
+	 * @param id 身份证
+	 * @param siteName 工地名称
+	 * @return 添加成功返回true
+	 */
+	public boolean addWorkerToBuildingSite(String id ,String siteName){
+		AnBean worker=getWorker(id);
+		if (worker==null)
+			return false;
+		AnDataTable site=getBuildingSite(siteName);
+		if (site==null)
+			return false;
+
+		//在工人自身属性上添加
+		boolean b=worker.find(PropertyFactory.LABEL_SITE).addListValue(siteName);
+		if (!b)
+			return false;
+
+		//在工地中添加
+		boolean bs=site.find(PropertyFactory.LABEL_SITE).addValue(id);
+		if (!bs){
+			worker.find(PropertyFactory.LABEL_SITE).removeListValue(siteName);
+			return false;
+		}
+
+		//在所有管理器中添加信息
+		updateChildrenManager();
+		return true;
+	}
+
 	/**
 	 * DB工具方法<br/>
 	 * 从工地中删除该工人的记录，受影响的属性也包括工人自身的工地记录
@@ -1089,7 +1119,7 @@ public class DBManager {
 		AnBean worker=manager.getWorker(id);
 		if (worker==null)
 			return false;
-		AnArrayBean site=manager.getBuildingSite(siteName);
+		AnDataTable site=manager.getBuildingSite(siteName);
 		if (site==null)
 			return false;
 
@@ -1134,6 +1164,54 @@ public class DBManager {
 			return true;
 		}
 		return false;
+	}
+
+
+	/**
+	 * 更新工人的工地数据，需要注意的是第二个参数工地数组是指更新之后的数据。
+	 * <br/>
+	 * <p>也就是说从工地选择器中选择的数据，如果不是从选择器中选择的数据将会删除所有工人数据，
+	 * 然后把这个列表中的数据给添加进工人信息中，包括工地管理的数据中也会更新工人数据，受影响的还有子管理器</p>
+	 * @param id 身份证
+	 * @param sites 工地集合
+	 */
+	public void updateWorkerBuildingSite(String id,Object[] sites){
+		AnBean worker=getWorker(id);
+		if (worker==null)
+			return;
+
+		ArrayList<String> oldSite= (ArrayList<String>) worker.find(PropertyFactory.LABEL_SITE).getValue();
+
+		//删除旧工地
+		ArrayList<String> delete=new ArrayList<>();//要删除的工地
+		for (int i=0;i<oldSite.size();i++){
+			boolean found=false;
+			for (Object site:sites){
+				if (site.equals(oldSite.get(i)))
+					found=true;
+			}
+			if (!found)
+				delete.add(oldSite.get(i));//不存在就加入到删除列队中
+		}
+		for (String site:delete){
+			deleteWorkerFromBuildingSite(id,site);
+		}
+
+		//增加新工地
+		ArrayList<String> add=new ArrayList<>();
+		for (Object o:sites){
+			boolean found=false;
+			for (String site:oldSite){
+				if (o.equals(site))
+					found=true;
+			}
+			//不存在就加入到添加列表中
+			if (!found)
+				add.add((String) o);
+		}
+		for (String site:add){
+			addWorkerToSite(id,site);
+		}
 	}
 
 }

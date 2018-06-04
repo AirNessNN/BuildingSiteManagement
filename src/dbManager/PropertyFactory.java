@@ -19,7 +19,7 @@ public class PropertyFactory {
     public static final String LABEL_ENTRY_TIME="入职时间";
     public static final String LABEL_LEAVE_TIME="离职时间";
     public static final String LABEL_BANK_ID="银行卡号";
-    public static final String LABEL_BANK_ADDRES="开户地址";
+    public static final String LABEL_BANK_ADDRESS ="开户地址";
     public static final String LABEL_WORKER_TYPE="工种";
     public static final String LABEL_WORKER_STATE="工人状态";
     public static final String LABEL_TAG="备注";
@@ -58,10 +58,8 @@ public class PropertyFactory {
             new Info<Date>(Info.TYPE_DATE,LABEL_ENTRY_TIME),//入职
             new Info<Date>(Info.TYPE_DATE,LABEL_LEAVE_TIME),//离职
             new Info<String>(Info.TYPE_STRING,LABEL_BANK_ID),//银行卡号
-            new Info<String>(Info.TYPE_STRING,LABEL_BANK_ADDRES),//开户地址
-            new Info<String>(Info.TYPE_STRING,LABEL_WORKER_TYPE),//工种
+            new Info<String>(Info.TYPE_STRING, LABEL_BANK_ADDRESS),//开户地址
             new Info<String>(Info.TYPE_STRING,LABEL_WORKER_STATE),//工作状态
-            new Info<Double>(Info.TYPE_DOUBLE,LABEL_DEAL_LABOUR_COST),//协议工价
             new Info<Double>(Info.TYPE_DOUBLE,LABEL_TOTAL_WORKING_DAY),//合计工日
             new Info<Double>(Info.TYPE_DOUBLE,LABEL_SURPLUS_SALARY),//结余工资
             new Info<Double>(Info.TYPE_DOUBLE,LABEL_DUTY_ARR),//出勤信息
@@ -114,6 +112,7 @@ public class PropertyFactory {
                 }
                 case Info.TYPE_STRING:{
                     Info<String> tmp=new Info<>(Info.TYPE_STRING,info.getName());
+                    tmp.setValue("");
                     worker.addInfo(tmp);
                     break;
                 }
@@ -134,34 +133,34 @@ public class PropertyFactory {
      * 创建一个空的属性，用于收集所有工人属性的值
      * @return
      */
-    public static AnArrayBean createWorkerProperty(){
-        AnArrayBean tmpBean=new AnArrayBean();
+    public static AnDataTable createWorkerProperty(){
+        AnDataTable tmpBean=new AnDataTable();
         for (Info info:WORKER_MODEL){
             try {
                 switch (info.getType()){
                     case Info.TYPE_ARRAY_LIST:{
-                        InfoArray<ArrayList> tmp=new InfoArray<>(info.getName());
-                        tmpBean.addInfoArray(tmp);
+                        AnColumn<ArrayList> tmp=new AnColumn<>(true,info.getName());
+                        tmpBean.addColumn(tmp);
                         break;
                     }
                     case Info.TYPE_DATE:{
-                        InfoArray<Date> tmp=new InfoArray<>(info.getName());
-                        tmpBean.addInfoArray(tmp);
+                        AnColumn<Date> tmp=new AnColumn<>(true,info.getName());
+                        tmpBean.addColumn(tmp);
                         break;
                     }
                     case Info.TYPE_DOUBLE:{
-                        InfoArray<Double> tmp=new InfoArray<>(info.getName());
-                        tmpBean.addInfoArray(tmp);
+                        AnColumn<Double> tmp=new AnColumn<>(true,info.getName());
+                        tmpBean.addColumn(tmp);
                         break;
                     }
                     case Info.TYPE_INTEGER:{
-                        InfoArray<Integer> tmp=new InfoArray<>(info.getName());
-                        tmpBean.addInfoArray(tmp);
+                        AnColumn<Integer> tmp=new AnColumn<>(true,info.getName());
+                        tmpBean.addColumn(tmp);
                         break;
                     }
                     default:
-                        InfoArray<String> tmp=new InfoArray<>(info.getName());
-                        tmpBean.addInfoArray(tmp);
+                        AnColumn<String> tmp=new AnColumn<>(true,info.getName());
+                        tmpBean.addColumn(tmp);
                         if (info.getName().equals(PropertyFactory.LABEL_SEX)){
                             tmp.addValue("男");
                             tmp.addValue("女");
@@ -182,9 +181,9 @@ public class PropertyFactory {
         }
         if(userData!=null){
             for(Info info:userData){
-                InfoArray<String> tmp=new InfoArray<>(info.getName());
+                AnColumn<String> tmp=new AnColumn<>(true,info.getName());
                 try {
-                    tmpBean.addInfoArray(tmp);
+                    tmpBean.addColumn(tmp);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -197,14 +196,22 @@ public class PropertyFactory {
      * 创建一个空的工地，不包含员工
      * @return
      */
-    public static AnArrayBean createBuildingSite(){
-        InfoArray<String> id=new InfoArray<>();
+    public static AnDataTable createBuildingSite(){
+        AnColumn<String> id=new AnColumn<>(false);
         id.setName(PropertyFactory.LABEL_ID_CARD);
 
+        AnColumn<String> workType=new AnColumn<>(true);
+        workType.setName(PropertyFactory.LABEL_WORKER_TYPE);
 
-        AnArrayBean bean=new AnArrayBean();
+        AnColumn<Double> dealSalary=new AnColumn<>(true);
+        dealSalary.setName(PropertyFactory.LABEL_DEAL_LABOUR_COST);
+
+
+        AnDataTable bean=new AnDataTable();
         try {
-            bean.addInfoArray(id);
+            bean.addColumn(id);
+            bean.addColumn(dealSalary);
+            bean.addColumn(workType);
         } catch (Exception e) {
             e.printStackTrace();
         }

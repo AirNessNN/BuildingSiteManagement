@@ -80,15 +80,25 @@ public class WindowBuilder {
     }
 
 
-    public static void showInfoWindow(String id,String site){
+    public static void showInfoWindow(String id, String site, CloseCallback callBack){
         if (infoWindow!=null&&infoWindow.isVisible()){
             infoWindow.requestFocus();
         }
         infoWindow=new InfoWindow();
         infoWindow.initializeWorker(id,site);
+        infoWindow.setCallback(callBack);
         infoWindow.setVisible(true);
     }
 
+
+    public static void showWorkWindow(String id , String site, CloseCallback callBack){
+        if (workerWindow!=null)
+            if (workerWindow.isVisible())
+                workerWindow.dispose();
+        workerWindow=new WorkerWindow();
+        workerWindow.initializeData(id,site);
+        workerWindow.setCallback(callBack);
+    }
 
 
 }

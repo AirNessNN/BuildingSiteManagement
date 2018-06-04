@@ -10,6 +10,8 @@ public class AnBean implements Serializable {
 
     private ArrayList<Info> valueList=null;
 
+    private String beanName="";
+
 
 
 
@@ -21,6 +23,11 @@ public class AnBean implements Serializable {
 
     public AnBean(){
         init();
+    }
+
+    public AnBean(String beanName){
+        init();
+        this.beanName=beanName;
     }
 
 
@@ -102,6 +109,23 @@ public class AnBean implements Serializable {
             }
         }
         return false;
+    }
+
+
+    /**
+     * 设置Bean的名称
+     * @param beanName
+     */
+    public void setBeanName(String beanName) {
+        this.beanName = beanName;
+    }
+
+    /**
+     * 获取Bean的名称
+     * @return
+     */
+    public String getBeanName() {
+        return beanName;
     }
 
     /**

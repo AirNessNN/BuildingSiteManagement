@@ -1,17 +1,11 @@
 package test;
 
 import application.AnUtils;
-import application.InfoWindow;
-import application.WindowBuilder;
-import dbManager.AnBean;
-import dbManager.DBManager;
-import dbManager.PropertyFactory;
-import dbManager.User;
+import dbManager.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 public class Test extends JFrame{
 
@@ -55,17 +49,28 @@ public class Test extends JFrame{
 		//wd.setVisible(true);
 		//AnPopDialog.show(null,"阿萨德和考拉上的痕迹卡的阿手机客户端按实际的",AnPopDialog.SHORT_TIME)
 		//System.out.println(EntryWindow.showWindow());
-		/*InfoWindow infoWindow=new InfoWindow();
+		/*AnBean worker=DBManager.getManager().getWorker(0);
+		InfoWindow infoWindow=new InfoWindow();
+		infoWindow.initializeWorker(
+				DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD),
+				DBManager.getManager().getWorkerAt(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD)).get(0)
+				);
 		infoWindow.setVisible(true);*/
-		Collection list=new Vector();
-		list.add("sdasdas");
-		ArrayList list1=new ArrayList();
-		list1.add("sadas");
-		list1.add("213213");
-		list.add(list1);
 
-		printList(list,list,"");
-		
+		AnDataTable dataTable=PropertyFactory.createBuildingSite();
+		dataTable.setName("测试表格");
+
+		dataTable.addRow("112","5000","其他");
+		dataTable.addRow("113","6000","点工");
+		dataTable.addRow("114","4550","点工");
+		System.out.println(dataTable);
+
+		dataTable.setKey(PropertyFactory.LABEL_ID_CARD);
+		System.out.println(dataTable.selectRow("113"));
+		System.out.println(dataTable.getSelectedRowAt(PropertyFactory.LABEL_DEAL_LABOUR_COST));
+		dataTable.removeRow(1);
+		System.out.println(dataTable);
+
 
 
 
