@@ -1,6 +1,7 @@
 package test;
 
 import application.AnUtils;
+import application.HorizonDataFiller;
 import dbManager.*;
 
 import javax.swing.*;
@@ -57,19 +58,6 @@ public class Test extends JFrame{
 				);
 		infoWindow.setVisible(true);*/
 
-		AnDataTable dataTable=PropertyFactory.createBuildingSite();
-		dataTable.setName("测试表格");
-
-		dataTable.addRow("112","5000","其他");
-		dataTable.addRow("113","6000","点工");
-		dataTable.addRow("114","4550","点工");
-		System.out.println(dataTable);
-
-		dataTable.setKey(PropertyFactory.LABEL_ID_CARD);
-		System.out.println(dataTable.selectRow("113"));
-		System.out.println(dataTable.getSelectedRowAt(PropertyFactory.LABEL_DEAL_LABOUR_COST));
-		dataTable.removeRow(1);
-		System.out.println(dataTable);
 
 
 

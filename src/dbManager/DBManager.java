@@ -8,8 +8,6 @@ import javax.swing.*;
 
 import application.Application;
 import application.EntryWindow;
-import application.WindowBuilder;
-import component.AnPopDialog;
 import resource.Resource;
 import test.Test;
 
@@ -321,16 +319,17 @@ public class DBManager {
 			inf2.setValue(Test.IDRandom());
 			w.find(PropertyFactory.LABEL_PHONE).setValue("13123376032");
 			w.find(PropertyFactory.LABEL_SEX).setValue(workerProperty.find(PropertyFactory.LABEL_SEX).getValues().get(r.nextInt(workerProperty.find(PropertyFactory.LABEL_SEX).getSize())));//性别
-			w.find(PropertyFactory.LABEL_WORKER_STATE).setValue(workerProperty.find(PropertyFactory.LABEL_WORKER_STATE).getValues().get(r.nextInt(workerProperty.find(PropertyFactory.LABEL_WORKER_STATE).getSize())));//状态
 			w.find(PropertyFactory.LABEL_BANK_ADDRESS).setValue("乱写的地址");
 			//工地
-			workerList.add(w);
-			addWorkerToSite(w.find(PropertyFactory.LABEL_ID_CARD).getValueString(),buildingSiteLIst.get(r.nextInt(2)).getName());
-
+			addWorker(w);
+			int ind=r.nextInt(workerProperty.find(PropertyFactory.LABEL_WORKER_TYPE).getSize());
+			System.out.println(addWorkerToSite(
+					w.find(PropertyFactory.LABEL_ID_CARD).getValueString(),
+					buildingSiteLIst.get(r.nextInt(buildingSiteLIst.size())).getName(),
+					(double) r.nextInt(10000),
+					(String) workerProperty.find(PropertyFactory.LABEL_WORKER_TYPE).get(ind)
+			));
 		}
-
-
-
 	}
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -744,26 +743,22 @@ public class DBManager {
 	 * 将工人列表中找到的工人实例添加到工地列表中指定的工地中去
 	 * @param id 身份证
 	 * @param site 工地
-	 * @return
+	 * @param dealSalary 协议工价
+	 * @param workType 工种
+	 * @return 添加成功返回true
 	 */
-	public boolean addWorkerToSite(String id,String site){
+	public boolean addWorkerToSite(String id,String site,Double dealSalary,String workType){
 		if (!workerListLoaded&&!buildingSiteLoaded)
 			return false;
 
-		for (AnDataTable tmpSite:buildingSiteLIst){
-			if (tmpSite.getName().equals(site)){
-				//将工人ID添加到工地中:不能相等
-				if (!tmpSite.find(PropertyFactory.LABEL_ID_CARD).contains(id))
-					tmpSite.find(PropertyFactory.LABEL_ID_CARD).addValue(id);
+		AnDataTable dt=getBuildingSite(site);
+		if (dt==null)
+			return false;
+		if (!dt.addRow(id,dealSalary,workType))
+			return false;
 
-				//更新工人自身属性
-				AnBean worker=getWorker(id);
-				boolean b=worker.find(PropertyFactory.LABEL_SITE).addListValue(site);
-				updateChildrenManager();
-				return b;
-			}
-		}
-		return false;
+		updateChildrenManager();
+		return true;
 	}
 
 	/**
@@ -778,6 +773,7 @@ public class DBManager {
 		return sites;
 	}
 
+	@Deprecated
 	public void updateBuildingSiteInfo(){
 		if (!workerListLoaded&&!buildingSiteLoaded)
 			return;
@@ -1081,9 +1077,11 @@ public class DBManager {
 	 * 本地需要更新，工地中需要更新工人，工资和日期管理器中也需要更新工人的数据
 	 * @param id 身份证
 	 * @param siteName 工地名称
+	 * @param dealSalary 约定工资
+	 * @param workType 工种
 	 * @return 添加成功返回true
 	 */
-	public boolean addWorkerToBuildingSite(String id ,String siteName){
+	public boolean addWorkerToBuildingSite(String id ,String siteName,double dealSalary,String workType){
 		AnBean worker=getWorker(id);
 		if (worker==null)
 			return false;
@@ -1097,8 +1095,8 @@ public class DBManager {
 			return false;
 
 		//在工地中添加
-		boolean bs=site.find(PropertyFactory.LABEL_SITE).addValue(id);
-		if (!bs){
+		boolean bs=site.addRow(id,dealSalary,workType);
+		if (!bs){//如果添加失败就移除工人自身属性
 			worker.find(PropertyFactory.LABEL_SITE).removeListValue(siteName);
 			return false;
 		}
@@ -1124,7 +1122,8 @@ public class DBManager {
 			return false;
 
 		worker.find(PropertyFactory.LABEL_SITE).removeListValue(siteName);
-		site.find(PropertyFactory.LABEL_SITE).removeValue(id);
+		site.setKey(PropertyFactory.LABEL_ID_CARD);
+		site.removeRow(id);
 		manager.updateChildrenManager();
 		return true;
 	}
@@ -1144,24 +1143,7 @@ public class DBManager {
 		AnBean worker=EntryWindow.showWindow();
 		boolean createFlag=addWorker(worker);//创建完成之后就添加
 		if (worker!=null&&createFlag){
-			int result=JOptionPane.showConfirmDialog(
-					WindowBuilder.getBuildingSiteChooser(),
-					"是否要选择"+worker.find(PropertyFactory.LABEL_NAME).getValueString()+"的工地？",
-					"提示",
-					JOptionPane.YES_NO_OPTION);
-			if (result==JOptionPane.OK_OPTION){//启动工地选择
-				Object[] selectedSites=WindowBuilder.showBuildingSiteSelectingWindow(
-						DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD)
-				);//获取用户选择的工地
-				for (Object site:selectedSites)
-					addWorkerToSite(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString(), (String) site);
-			}
-			AnPopDialog.show(
-					WindowBuilder.getBuildingSiteChooser(),
-					"创建 "+worker.find(PropertyFactory.LABEL_NAME).getValueString()+" 完成！",
-					AnPopDialog.SHORT_TIME
-			);
-			return true;
+			//工人选择工地
 		}
 		return false;
 	}
@@ -1174,8 +1156,10 @@ public class DBManager {
 	 * 然后把这个列表中的数据给添加进工人信息中，包括工地管理的数据中也会更新工人数据，受影响的还有子管理器</p>
 	 * @param id 身份证
 	 * @param sites 工地集合
+	 * @param dealSalarys 工资集合
+	 * @param types 工种集合
 	 */
-	public void updateWorkerBuildingSite(String id,Object[] sites){
+	public void updateWorkerBuildingSite(String id,Object[] sites,Double[] dealSalarys,String[] types){
 		AnBean worker=getWorker(id);
 		if (worker==null)
 			return;
@@ -1209,8 +1193,8 @@ public class DBManager {
 			if (!found)
 				add.add((String) o);
 		}
-		for (String site:add){
-			addWorkerToSite(id,site);
+		for(int i=0;i<sites.length;i++){
+			addWorkerToSite(id, (String) sites[i],dealSalarys[i],types[i]);
 		}
 	}
 

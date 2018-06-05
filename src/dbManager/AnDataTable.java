@@ -5,8 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * 封装拥有名字集合和它对应的集合值的集合，
- * 例如：属性封装器，封装工地中所有工地
+ * <H2>An轻量级数据容器</H2>
+ * <li>表格模拟：使用Cell、Row、Column操作其中的数据，作为表格使用时，将无法识别空数据</li>
+ * <li>JavaBean：属性集合的集合，在此容器中可以存放封装有一个对象集合和属性名的属性包装对象，并且支持属性查询和内容查询</li>
+ * <br/>
+ * <p>属性包装类使用AnColumn来实现</p>
+ * @see AnColumn
  */
 public class AnDataTable implements Serializable{
 
@@ -208,7 +212,7 @@ public class AnDataTable implements Serializable{
         if (objects.length!=values.size())
             return false;
 
-        //排重
+        //排重；排重是排重不能重复的
         boolean found=false;
         for (int i=0;i<objects.length;i++){
             if (values.get(i).contains(objects[i])&&!values.get(i).isRepetable())
@@ -399,7 +403,66 @@ public class AnDataTable implements Serializable{
     }
 
 
+    /**
+     * 返回最小行数，因为有可能在表中的某一行并不是这个值，为了保证不发生异常，我们返回表中最小行数
+     * @return 最小行数
+     */
+    public int getRowCount(){
+        int count=Integer.MAX_VALUE;
+        for (AnColumn column:values){
+            if (count>column.getSize())
+                count=column.getSize();
+        }
+        return count;
+    }
 
+    /**
+     * 返回列数
+     * @return 返回列数
+     */
+    public int getColumnCount(){
+        return values.size();
+    }
+
+    /**
+     * 返回表名
+     * @return 表名数组
+     */
+    public String[] getColumnName(){
+        String[] names=new String[getColumnCount()];
+        for (int i=0;i<getColumnCount();i++){
+            names[i]=values.get(i).getName();
+        }
+        return names;
+    }
+
+    public int getKeyIndex(){
+        if (key==null)
+            return -1;
+        return getColumnIndex(key);
+    }
+
+    public int getColumnIndex(String column){
+        ArrayList<String> tmp=new ArrayList<>();
+        tmp.addAll(Arrays.asList(getColumnName()));
+        return tmp.indexOf(column);
+    }
+
+    /**
+     * <h2>获取下标所在的列的值</h2>
+     * <P>使用模拟表格操作需要确保所有列的单元格数量应该相同，否则将无法读取到数据</P>
+     * @param columName 列名
+     * @param rowIndex 单元格下标
+     * @return 读取返回非空值
+     */
+    public Object getCellAt(String columName, int rowIndex){
+        if (rowIndex>=getRowCount())
+            return null;
+        int col=getColumnIndex(columName);
+        if (col==-1)
+            return null;
+        return getCell(rowIndex,col);
+    }
 
 
 

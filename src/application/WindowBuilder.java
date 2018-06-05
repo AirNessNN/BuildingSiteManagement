@@ -25,7 +25,7 @@ public class WindowBuilder {
     /**
      *显示并获取到用户所选的工地，返回工地的名字数组
      */
-    public static Object[] showBuildingSiteSelectingWindow(String id){
+    public static void showBuildingSiteSelectingWindow(String id,CloseCallback callback){
         Chooser chooser=new Chooser() {
             @Override
             public String[] addEvent() {
@@ -59,9 +59,10 @@ public class WindowBuilder {
             }
         };
 
-        buildingSiteChooser =new AnDataChooser(id,chooser);
+        buildingSiteChooser =new AnDataChooser("工地选择器","从右边的按钮进行操作",id,chooser,1);
         buildingSiteChooser.setChooser(chooser);
-        return buildingSiteChooser.getValues();
+        String[] sites= (String[]) buildingSiteChooser.getValues();
+
     }
 
     public static Component getBuildingSiteChooser(){
@@ -98,6 +99,7 @@ public class WindowBuilder {
         workerWindow=new WorkerWindow();
         workerWindow.initializeData(id,site);
         workerWindow.setCallback(callBack);
+        workerWindow.setVisible(true);
     }
 
 

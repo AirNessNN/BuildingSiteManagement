@@ -2,6 +2,7 @@ package dbManager;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * 属性集合Bean，封装拥有一个名称，和多个值的属性
@@ -84,8 +85,10 @@ public class AnColumn<T>  implements Serializable{
     public boolean contains(T value){
         if (values==null)
             return false;
+        if (value==null)return false;
         for(T t:values){
-            if (t.equals(value)){
+
+            if (t!=null&&t.equals(value)){
                 return true;
             }
         }

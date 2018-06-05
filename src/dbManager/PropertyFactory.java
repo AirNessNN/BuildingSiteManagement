@@ -23,7 +23,7 @@ public class PropertyFactory {
     public static final String LABEL_WORKER_TYPE="工种";
     public static final String LABEL_WORKER_STATE="工人状态";
     public static final String LABEL_TAG="备注";
-    public static final String LABEL_DEAL_LABOUR_COST ="协议工价";
+    public static final String LABEL_DEAL_SALARY ="协议工价";
     public static final String LABEL_TOTAL_WORKING_DAY="合计工日";
     public static final String LABEL_SURPLUS_SALARY="结余工资";
     public static final String LABEL_SALARY_GET_ARR="工资领取信息";
@@ -31,19 +31,16 @@ public class PropertyFactory {
     public static final String LABEL_COST_OF_LIVING ="已领取的生活费";
     public static final String LABEL_SITE="所属工地";
     public static final String LABEL_PHONE="电话号码";
+    public static final String LABEL_PROJECT_NAME="项目名称";
+    public static final String LAB_UNIT_OF_BUILD="建设单位";
+    public static final String LAB_UNIT_OF_DO="施工单位";
 
     //设置属性
     public static final String SETTING_WORKER_INDEX="工人编号";
 
 
-
     /**
-     * 预设数据：index
-     * 0=名字
-     * 1=住址
-     *
-     *
-     *
+     * 工人属性模型
      */
     private static final Info<?>[] WORKER_MODEL={
             new Info<Integer>(Info.TYPE_INTEGER,LABEL_NUMBER),//序号
@@ -59,13 +56,18 @@ public class PropertyFactory {
             new Info<Date>(Info.TYPE_DATE,LABEL_LEAVE_TIME),//离职
             new Info<String>(Info.TYPE_STRING,LABEL_BANK_ID),//银行卡号
             new Info<String>(Info.TYPE_STRING, LABEL_BANK_ADDRESS),//开户地址
-            new Info<String>(Info.TYPE_STRING,LABEL_WORKER_STATE),//工作状态
-            new Info<Double>(Info.TYPE_DOUBLE,LABEL_TOTAL_WORKING_DAY),//合计工日
-            new Info<Double>(Info.TYPE_DOUBLE,LABEL_SURPLUS_SALARY),//结余工资
-            new Info<Double>(Info.TYPE_DOUBLE,LABEL_DUTY_ARR),//出勤信息
-            new Info<Double>(Info.TYPE_DOUBLE,LABEL_COST_OF_LIVING),//领取的生活费
-            new Info<ArrayList<String>>(Info.TYPE_ARRAY_LIST,LABEL_SITE),//所属工地
             new Info<String>(Info.TYPE_STRING,LABEL_TAG)//备注
+    };
+
+    /**
+     * 普通属性模型
+     */
+    private static final Info<?>[] PROPERTY_MODEL={
+            new Info<String>(Info.TYPE_STRING,LABEL_SEX),//性别
+            new Info<String>(Info.TYPE_STRING,LABEL_NATION),//民族
+            new Info<>(Info.TYPE_STRING,LABEL_SITE),//工地
+            new Info<>(Info.TYPE_STRING,LABEL_WORKER_TYPE),//工种
+            new Info<>(Info.TYPE_STRING,LABEL_WORKER_STATE)//状态
     };
 
     /**
@@ -102,11 +104,13 @@ public class PropertyFactory {
                 }
                 case Info.TYPE_DOUBLE:{
                     Info<Double> tmp=new Info<>(Info.TYPE_DOUBLE,info.getName());
+                    tmp.setValue(0d);
                     worker.addInfo(tmp);
                     break;
                 }
                 case Info.TYPE_INTEGER:{
                     Info<Integer> tmp=new Info<>(Info.TYPE_INTEGER,info.getName());
+                    tmp.setValue(0);
                     worker.addInfo(tmp);
                     break;
                 }
@@ -135,7 +139,7 @@ public class PropertyFactory {
      */
     public static AnDataTable createWorkerProperty(){
         AnDataTable tmpBean=new AnDataTable();
-        for (Info info:WORKER_MODEL){
+        for (Info info:PROPERTY_MODEL){
             try {
                 switch (info.getType()){
                     case Info.TYPE_ARRAY_LIST:{
@@ -175,6 +179,15 @@ public class PropertyFactory {
                             tmp.addValue("点工");
                             tmp.addValue("其他");
                         }
+                        if (info.getName().equals(PropertyFactory.LABEL_NATION)){
+                            tmp.addValue("汉族");
+                            tmp.addValue("回族");
+                            tmp.addValue("维吾尔族");
+                            tmp.addValue("壮族");
+                            tmp.addValue("俄罗斯族");
+                            tmp.addValue("蒙古族");
+                            tmp.addValue("藏族");
+                        }
                 }
             }catch (Exception e){
             }
@@ -197,14 +210,32 @@ public class PropertyFactory {
      * @return
      */
     public static AnDataTable createBuildingSite(){
-        AnColumn<String> id=new AnColumn<>(false);
+        AnColumn<String> id=new AnColumn<>(false);//ID：不可重复
         id.setName(PropertyFactory.LABEL_ID_CARD);
 
-        AnColumn<String> workType=new AnColumn<>(true);
+        AnColumn<String> workType=new AnColumn<>(true);//月工资：可重复
         workType.setName(PropertyFactory.LABEL_WORKER_TYPE);
 
-        AnColumn<Double> dealSalary=new AnColumn<>(true);
-        dealSalary.setName(PropertyFactory.LABEL_DEAL_LABOUR_COST);
+        AnColumn<Double> dealSalary=new AnColumn<>(true);//工种：可重复
+        dealSalary.setName(PropertyFactory.LABEL_DEAL_SALARY);
+
+        AnColumn<Date> entry=new AnColumn<>(true);//入职日期：可重复
+        entry.setName(PropertyFactory.LABEL_ENTRY_TIME);
+
+        AnColumn<Date> leave=new AnColumn<>(true);
+        leave.setName(LABEL_LEAVE_TIME);
+
+        AnColumn<String> state=new AnColumn<>(true);
+        state.setName(LABEL_WORKER_STATE);
+
+        AnColumn<String> projectName=new AnColumn<>(false);
+        projectName.setName(LABEL_PROJECT_NAME);
+
+        AnColumn<String> build=new AnColumn<>(false);
+        build.setName(LAB_UNIT_OF_BUILD);
+
+        AnColumn<String> doit=new AnColumn<>(false);
+        doit.setName(LAB_UNIT_OF_DO);
 
 
         AnDataTable bean=new AnDataTable();

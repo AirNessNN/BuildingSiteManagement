@@ -1,5 +1,6 @@
 package application;
 
+import com.sun.xml.internal.bind.v2.model.core.ID;
 import component.*;
 import dbManager.*;
 
@@ -19,7 +20,7 @@ public class WorkerWindow extends Window {
     private AnLabel labName;//名字
     private AnLabel labType;//工种
 	private AnLabel labPhone;//电话号码
-	private AnLabel labSalaryOfMonth;
+	private AnLabel labDealSalary;
 	private AnLabel labSurplus;
 	private AnLabel labPaidLivingCosts;
 	private AnLabel labPaidWages;
@@ -304,11 +305,11 @@ public class WorkerWindow extends Window {
 								lab = new JLabel("");
 								panel_6.add(lab);
 
-								labSalaryOfMonth = new AnLabel("0");
-								labSalaryOfMonth.setHorizontalAlignment(SwingConstants.RIGHT);
-								labSalaryOfMonth.setFont(new Font("微软雅黑", Font.PLAIN, 15));
-								labSalaryOfMonth.setForeground(SystemColor.textHighlight);
-								panel_6.add(labSalaryOfMonth);
+								labDealSalary = new AnLabel("0");
+								labDealSalary.setHorizontalAlignment(SwingConstants.RIGHT);
+								labDealSalary.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+								labDealSalary.setForeground(SystemColor.textHighlight);
+								panel_6.add(labDealSalary);
 
 								JLabel label_17 = new JLabel(" 元");
 								label_17.setFont(new Font("微软雅黑", Font.PLAIN, 15));
@@ -355,6 +356,8 @@ public class WorkerWindow extends Window {
 		//因为数据保存是在数据修改之后，事件监听器之间有先后顺序
 		checkInPanel.setActionListener((e)->{
 			if (e.getAction()==AnActionEvent.CILCKED){
+				if (cobSite.getSelectedItem()==null)
+					return;
 				checkInManager.setWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString(), checkInPanel.getSource());
 				showWorkDay(checkInPanel.getSource());
 			}
@@ -392,6 +395,8 @@ public class WorkerWindow extends Window {
 
 		salaryPanel.setActionListener((e)->{
 			if(e.getAction()==AnActionEvent.CILCKED){
+				if (cobSite.getSelectedItem()==null)
+					return;
 				salaryManager.setWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString(),salaryPanel.getSource());
 				showSalaryDay(salaryPanel.getSource());
 			}
@@ -415,13 +420,17 @@ public class WorkerWindow extends Window {
 
 		btnInfo.addActionListener((e)->{
 			//创建InfoWindow
-			WindowBuilder.showInfoWindow(labIDCard.getText(),cobSite.getSelectedItem().toString(),(values)->{
+			String siteName;
+			if (cobSite.getSelectedItem()==null)
+				siteName=null;
+			else siteName=cobSite.getSelectedItem().toString();
+
+			WindowBuilder.showInfoWindow(labIDCard.getText(),siteName,(values)->{
 				String id= (String) values[0];
 				String site= (String) values[1];
 				initializeData(id, site);
 				return true;
 			});
-			initializeData();
 		});
 	}
 
@@ -436,6 +445,8 @@ public class WorkerWindow extends Window {
 	}
 
 	private boolean initializeData(){
+		if (cobSite.getSelectedItem()==null)
+			return initializeData(labIDCard.getText(),null);
 		return initializeData(labIDCard.getText(),cobSite.getSelectedItem().toString());
 	}
 
@@ -452,86 +463,30 @@ public class WorkerWindow extends Window {
 		if (worker==null)
 			return false;
 
-		//填补工人的属性信息
+		//填补工人的属性信息：与工人相关的信息
+		SimpleDateFormat sm=new SimpleDateFormat("yyy年MM月dd日");
 		labName.setText(worker.find(PropertyFactory.LABEL_NAME).getValueString());
 		labIDCard.setText(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString());
-		labType.setText(worker.find(PropertyFactory.LABEL_WORKER_TYPE).getValueString());
 		labPhone.setText(worker.find(PropertyFactory.LABEL_PHONE).getValueString());
-		labelState.setText(worker.find(PropertyFactory.LABEL_WORKER_STATE).getValueString());
-		SimpleDateFormat sm=new SimpleDateFormat("yyy年MM月dd日");
 		labBornDate.setText(sm.format(AnUtils.convertBornDate(labIDCard.getText())));
 		labAge.setText(String.valueOf(AnUtils.convertAge(labIDCard.getText()))+"岁");
 
 
 		/*
-		**获取工地列表**
-			在获取列表的时候传入参数可能是”全部”，
-			如果是"全部“，就默认加载第一个工地
+		**获取工地列表**  填充工人所在工地的信息
 		 */
-		if (site.equals("全部")){
-			ArrayList<String> tmpSites=DBManager.getManager().getWorkerAt(ID);//获取到工人所在的工地列表
-			if (!tmpSites.contains(site))
-				return false;
-			cobSite.setModel(new DefaultComboBoxModel(AnUtils.toArray(tmpSites)));
-			cobSite.setSelectedItem(site);
+		if (site==null){
+			checkInPanel.setEnabled(false);
+			salaryPanel.setEnabled(false);
+			return true;
 		}
-
-		//填补工人的工地信息
-
-
-		//
-		assert DBManager.getManager() != null;
-		for (AnBean anBean :DBManager.getManager().loadingWorkerList()){
-			if(anBean.find(PropertyFactory.LABEL_ID_CARD).getValueString().equals(ID)){
-				if (!site.equals("全部")){
-					ArrayList<String> tmpSite=DBManager.getManager().getWorkerAt(ID);
-					if (!tmpSite.contains(site))
-						return false;
-				}
-				worker= anBean;//找到了该工人，这么判断是因为身份相同的人在同一个工地只能出现一次
-
-				labName.setText(worker.find(PropertyFactory.LABEL_NAME).getValueString());
-				labIDCard.setText(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString());
-				labType.setText(worker.find(PropertyFactory.LABEL_WORKER_TYPE).getValueString());
-				labPhone.setText(worker.find(PropertyFactory.LABEL_PHONE).getValueString());
-				labelState.setText(worker.find(PropertyFactory.LABEL_WORKER_STATE).getValueString());
-				SimpleDateFormat ssm=new SimpleDateFormat("yyy年MM月dd日");
-				labBornDate.setText(ssm.format(AnUtils.convertBornDate(labIDCard.getText())));
-				labAge.setText(String.valueOf(AnUtils.convertAge(labIDCard.getText()))+"岁");
-
-
-
-				//获取该工人的工地
-				cobSite.setModel(new DefaultComboBoxModel(DBManager.getManager().getWorkerAt(labIDCard.getText()).toArray()));
-				cobSite.setSelectedItem(site);
-
-				checkInPanel.setMaxValue(10);//设置最大数值的颜色显示，因为有小数，所以扩大10倍
-
-				Double dv= Double.valueOf(worker.find(PropertyFactory.LABEL_DEAL_LABOUR_COST).getValueString());
-				salaryPanel.setMaxValue(dv.intValue());//设置工资管理器色准为这个工人的约定工资，最大领取到的也只能是约定工资
-				//考勤数据
-				DBManager manager=DBManager.getManager();
-				checkInManager=manager.getCheckInManager();
-				ArrayList<IDateValueItem> tmpCheckInList=checkInManager.getWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString());
-				checkInPanel.setSourceDates(tmpCheckInList);
-				if (tmpCheckInList!=null)
-					showWorkDay(tmpCheckInList);
-
-				salaryManager=manager.getSalaryManager();
-				salaryPanel.setSourceDates(salaryManager.getWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString()));
-				ArrayList<IDateValueItem> tmpSalaryList=salaryManager.getWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString());
-				salaryPanel.setSourceDates(tmpSalaryList);
-				if (tmpSalaryList!=null)
-					showSalaryDay(tmpSalaryList);
-
-
-				//工资信息
-				labSalaryOfMonth.setText(worker.find(PropertyFactory.LABEL_DEAL_LABOUR_COST).getValueString());
-
-				return true;
-			}
+		try{
+			showBuildingSiteInfo(ID,site);
+		}catch (Exception e){
+			e.printStackTrace();
+			return false;
 		}
-		return false;
+		return true;
 	}
 
 	/**
@@ -579,13 +534,36 @@ public class WorkerWindow extends Window {
 		if (b=site==null)
 			return;
 
+		DBManager manager=DBManager.getManager();//获取管理器
 		//获取工人全部的工地列表，如果工地不存在，退出
-		if (b=!DBManager.getManager().getWorkerAt(id).contains(siteName))
+		if (b=!manager.getWorkerAt(id).contains(siteName))//判断有没有在该工地上班
 			return;
-
 		//存在
+		site.selectRow(PropertyFactory.LABEL_ID_CARD,id);//选择该工人的信息
 
+		//显示
+		cobSite.setModel(new DefaultComboBoxModel(AnUtils.toArray(manager.getWorkerAt(id))));
+		if (!siteName.equals("全部")){
+			cobSite.setSelectedItem(siteName);
+		}else
+			cobSite.setSelectedIndex(0);
+		labDealSalary.setText(String.valueOf(site.getSelectedRowAt(PropertyFactory.LABEL_DEAL_SALARY)));
+		labType.setText((String) site.getSelectedRowAt(PropertyFactory.LABEL_WORKER_TYPE));
 
+		//对于工地显示的两个子管理器
+		checkInPanel.setMaxValue(10);//设置出勤容器的颜色标准数值
+		Double dv=(Double) site.getSelectedRowAt(PropertyFactory.LABEL_DEAL_SALARY);
+		salaryPanel.setMaxValue(dv.intValue());//设置工资容器颜色标准数值为约定的工资
+
+		//填充容器
+		checkInManager=manager.getCheckInManager();
+		salaryManager=manager.getSalaryManager();
+
+		checkInPanel.setSourceDates(checkInManager.getWorkerDateValueList(id,siteName));
+		salaryPanel.setSourceDates(salaryManager.getWorkerDateValueList(id,siteName));
+
+		showSalaryDay(salaryManager.getWorkerDateValueList(id,siteName));
+		showWorkDay(checkInManager.getWorkerDateValueList(id,siteName));
 
 
 	}

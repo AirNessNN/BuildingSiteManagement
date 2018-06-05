@@ -251,70 +251,7 @@ public class AnDataValuePanel extends JPanel {
 				dates[index].setBackground(Color.WHITE);
 				panels[i].add(dates[index]);
 				dates[index].setActionListener((e)->{
-					AnTextButton tb;
-                    //获取当前日期
-                    Calendar c=Calendar.getInstance();
-                    c.setTime(date);
-                    int year=c.get(Calendar.YEAR);
-                    int month=c.get(Calendar.MONTH);
-                    int day;
-                    Date tmpd;
-                    SimpleDateFormat s;
-                    String stringDate="";
-                    if (!e.getTag().equals("")){
-                        //设置点击的日期
-                        day=Integer.valueOf(e.getTag());
-                        tmpd=new Date();
-                        c.setTime(tmpd);
-                        c.set(year,month,day);
-                        tmpd=c.getTime();
-                        //格式化日期
-                        s=new SimpleDateFormat("yyyy-MM-dd");
-                        stringDate=s.format(tmpd);
-                    }
-					switch (e.getAction()){
-						case AnActionEvent.CILCKED:
-							if (valueCallback!=null){
-								try {
-									Date date=AnUtils.getDate(stringDate,"yyy-MM-dd");
-									setValueFromDate(date,valueCallback.setObject(getValueFromDate(date)));
-									setDateComponentLocation();
-								} catch (ParseException e1) {
-									System.out.println(e1.getErrorOffset());
-								}
-							}
-							if (listener!=null){
-                                listener.actionPerformed(new AnActionEvent(e.getSource(),AnActionEvent.CILCKED,stringDate));
-                            }
-							break;
-						case AnActionEvent.ENTERED:
-							tb= (AnTextButton) e.getSource();
-							if (e.getTag().equals(""))
-								break;
-							tb.setBackground(Color.lightGray);
-							if (listener!=null)
-								listener.actionPerformed(new AnActionEvent(e.getSource(),AnActionEvent.ENTERED,stringDate));
-							break;
-						case AnActionEvent.EXITED:
-							tb= (AnTextButton) e.getSource();
-							if (e.getTag().equals(""))
-								break;
-							if (tb.getNormalColor()==null)
-							    tb.setBackground(Color.white);
-							else
-							    tb.setBackground(tb.getNormalColor());
-							if (listener!=null)
-								listener.actionPerformed(new AnActionEvent(e.getSource(),AnActionEvent.EXITED,stringDate));
-							break;
-						case AnActionEvent.PRESSED:
-							if (listener!=null)
-								listener.actionPerformed(new AnActionEvent(e.getSource(),AnActionEvent.PRESSED,stringDate));
-							break;
-						case AnActionEvent.RELEASEED:
-							if (listener!=null)
-								listener.actionPerformed(new AnActionEvent(e.getSource(),AnActionEvent.RELEASEED,stringDate));
-							break;
-					}
+					action(e);
 				});
 			}
 			System.gc();//清理上次填充的控件
@@ -434,7 +371,6 @@ public class AnDataValuePanel extends JPanel {
 			}
 			repaint();
 		});
-
 	}
 
 	private void setDateComponentLocation() {
@@ -597,4 +533,91 @@ public class AnDataValuePanel extends JPanel {
     public void setValueCallback(IValueCallback callback){
 		this.valueCallback=callback;
 	}
+
+	public void setEnabled(boolean enabled){
+		if (enabled){
+			for (AnTextButton textButton:dates){
+				textButton.setActionListener(actionListener);
+			}
+		}else{
+			for (AnTextButton textButton:dates){
+				textButton.setActionListener(null);
+			}
+		}
+	}
+
+
+	void action(AnActionEvent e){
+		AnTextButton tb;
+		//获取当前日期
+		Calendar c=Calendar.getInstance();
+		c.setTime(date);
+		int year=c.get(Calendar.YEAR);
+		int month=c.get(Calendar.MONTH);
+		int day;
+		Date tmpd;
+		SimpleDateFormat s;
+		String stringDate="";
+		if (!e.getTag().equals("")){
+			//设置点击的日期
+			day=Integer.valueOf(e.getTag());
+			tmpd=new Date();
+			c.setTime(tmpd);
+			c.set(year,month,day);
+			tmpd=c.getTime();
+			//格式化日期
+			s=new SimpleDateFormat("yyyy-MM-dd");
+			stringDate=s.format(tmpd);
+		}
+		switch (e.getAction()){
+			case AnActionEvent.CILCKED:
+				if (valueCallback!=null){
+					try {
+						Date date=AnUtils.getDate(stringDate,"yyy-MM-dd");
+						setValueFromDate(date,valueCallback.setObject(getValueFromDate(date)));
+						setDateComponentLocation();
+					} catch (ParseException e1) {
+						System.out.println(e1.getErrorOffset());
+					}
+				}
+				if (listener!=null){
+					listener.actionPerformed(new AnActionEvent(e.getSource(),AnActionEvent.CILCKED,stringDate));
+				}
+				break;
+			case AnActionEvent.ENTERED:
+				tb= (AnTextButton) e.getSource();
+				if (e.getTag().equals(""))
+					break;
+				tb.setBackground(Color.lightGray);
+				if (listener!=null)
+					listener.actionPerformed(new AnActionEvent(e.getSource(),AnActionEvent.ENTERED,stringDate));
+				break;
+			case AnActionEvent.EXITED:
+				tb= (AnTextButton) e.getSource();
+				if (e.getTag().equals(""))
+					break;
+				if (tb.getNormalColor()==null)
+					tb.setBackground(Color.white);
+				else
+					tb.setBackground(tb.getNormalColor());
+				if (listener!=null)
+					listener.actionPerformed(new AnActionEvent(e.getSource(),AnActionEvent.EXITED,stringDate));
+				break;
+			case AnActionEvent.PRESSED:
+				if (listener!=null)
+					listener.actionPerformed(new AnActionEvent(e.getSource(),AnActionEvent.PRESSED,stringDate));
+				break;
+			case AnActionEvent.RELEASEED:
+				if (listener!=null)
+					listener.actionPerformed(new AnActionEvent(e.getSource(),AnActionEvent.RELEASEED,stringDate));
+				break;
+		}
+	}
+
+	AnActionListener actionListener=new AnActionListener() {
+		@Override
+		public void actionPerformed(AnActionEvent event) {
+			action(event);
+		}
+	};
 }

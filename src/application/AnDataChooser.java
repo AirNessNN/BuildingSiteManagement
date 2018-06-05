@@ -10,6 +10,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * An数据选择器
+ */
 class AnDataChooser extends JDialog implements BuildingSiteOperator {
     public static final int MESSAGE_ADD_TITLE=1;
     public static final int MESSAGE_ADD_MESSAGE=0;
@@ -28,17 +31,18 @@ class AnDataChooser extends JDialog implements BuildingSiteOperator {
 	private JButton btnAdd;
 	private JButton btnDel;
 
-	private Chooser chooser=null;//选择器自定义模型
+	private Chooser chooser;//选择器自定义模型
+    private int dataSize=1;
 
-    private void initComponent(){
-        setTitle("工地选择器");
+    private void initComponent(String title,String toolTip){
+        setTitle(title);
         getContentPane().setLayout(null);
         setSize(450,533);
         setLocationRelativeTo(null);
         setResizable(false);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        JLabel lblctrl = new JLabel("从右边的加减增删数据");
+        JLabel lblctrl = new JLabel(toolTip);
         lblctrl.setForeground(SystemColor.textHighlight);
         lblctrl.setFont(new Font("幼圆", Font.PLAIN, 19));
         lblctrl.setBounds(10, 10, 404, 26);
@@ -130,13 +134,22 @@ class AnDataChooser extends JDialog implements BuildingSiteOperator {
             setSource(arrayList.toArray());
     }
 
-    AnDataChooser(String id,Chooser chooser){
-        initComponent();
+    /**
+     * 构造一个自定义标题，自定义内容提示文本，输入ID，自定义所有事件，并且输入固定集合的选择器
+     * @param title 标题
+     * @param toolTip 提示文本
+     * @param id 身份证
+     * @param chooser 选择器
+     * @param dataSize 数据集合数量
+     */
+    AnDataChooser(String title,String toolTip,String id,Chooser chooser,int dataSize){
+        initComponent(title,toolTip);
         initEvent();
         initData(id);
         this.chooser=chooser;
         setModal(true);
         setVisible(true);
+        this.dataSize=dataSize;
     }
 
 

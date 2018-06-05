@@ -192,8 +192,8 @@ public class InfoWindow extends Window implements ComponentLoader {
 
         btnSite.addActionListener((e)->{
             String id=worker.find(PropertyFactory.LABEL_ID_CARD).getValueString();
-            Object[] sites=WindowBuilder.showBuildingSiteSelectingWindow(id);
-            DBManager.getManager().updateWorkerBuildingSite(id,sites);
+            //Object[] sites=WindowBuilder.showBuildingSiteSelectingWindow(id);
+            //DBManager.getManager().updateWorkerBuildingSite(id,sites);
         });
 
         btnSave.addActionListener((e)->{
@@ -266,6 +266,8 @@ public class InfoWindow extends Window implements ComponentLoader {
         infoTable.setCheckPoint();
 
         //加载出勤
+        if (site==null)
+            return;
         assert DBManager.getManager() != null;
         ArrayList<IDateValueItem> tmpCheckIn=DBManager.getManager().getCheckInManager()
                 .getWorkerDateValueList(

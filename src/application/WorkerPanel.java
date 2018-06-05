@@ -303,10 +303,12 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount()==2){
                     AnInfoListDataModel model=list.getElementAt(list.getSelectedIndex());
-                    WorkerWindow wd=new WorkerWindow();
-                    boolean b=wd.initializeData(model.getInfo(), cobBuildingSite.getSelectedItem().toString());
-                    System.out.println(b);
-                    wd.setVisible(true);
+                    String siteName=cobBuildingSite.getSelectedItem().toString();
+
+                    WindowBuilder.showWorkWindow(model.getInfo(),siteName.equals("全部")?null:siteName,(values)->{
+
+                        return true;
+                    });
                 }
             }
         });
