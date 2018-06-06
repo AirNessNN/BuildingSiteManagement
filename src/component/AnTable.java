@@ -288,6 +288,13 @@ public class AnTable extends JTable{
 	}
 
 	/**
+	 * 清除检查点
+	 */
+	public void clearCheckPoint(){
+		oldValues=null;
+	}
+
+	/**
 	 * 检查已经设置的检查点，判断是否有数据发生改变
 	 * @return 如果已经设置检查点，则判断数据是否一致，返回改动的单元格坐标
 	 */

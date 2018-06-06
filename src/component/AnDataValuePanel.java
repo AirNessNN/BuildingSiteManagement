@@ -20,6 +20,8 @@ import java.awt.Font;
 @SuppressWarnings("serial")
 public class AnDataValuePanel extends JPanel {
 
+	boolean isEnabled=true;
+
     /**
      * AnDateValuePanel的数据对比回调
      */
@@ -250,9 +252,10 @@ public class AnDataValuePanel extends JPanel {
 				dates[index].setHandCursor(false);
 				dates[index].setBackground(Color.WHITE);
 				panels[i].add(dates[index]);
-				dates[index].setActionListener((e)->{
-					action(e);
-				});
+				if (isEnabled)
+					dates[index].setActionListener((e)->{
+						action(e);
+					});
 			}
 			System.gc();//清理上次填充的控件
 		}
@@ -535,6 +538,7 @@ public class AnDataValuePanel extends JPanel {
 	}
 
 	public void setEnabled(boolean enabled){
+
 		if (enabled){
 			for (AnTextButton textButton:dates){
 				textButton.setActionListener(actionListener);

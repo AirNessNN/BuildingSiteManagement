@@ -1,7 +1,6 @@
 package test;
 
 import application.AnUtils;
-import application.HorizonDataFiller;
 import dbManager.*;
 
 import javax.swing.*;
@@ -54,12 +53,26 @@ public class Test extends JFrame{
 		InfoWindow infoWindow=new InfoWindow();
 		infoWindow.initializeWorker(
 				DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD),
-				DBManager.getManager().getWorkerAt(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD)).get(0)
+				DBManager.getManager().getWorkerAt(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD)).getColumn(0)
 				);
 		infoWindow.setVisible(true);*/
 
+		/*AnColumn column=new AnColumn(true,true,"哈哈");
+		column.addValue(2);
+		column.addValue(null);
+		column.addValue(null);
+		column.addValue(12);
+		column.addValue(null);
+		column.set(100,"");
+		System.out.println(column.indexOf(null));
+		System.out.println(column.size());
+		column.setNullAble(false);
+		System.out.println(column.size());
+		AnDataTable dataTable=PropertyFactory.createBuildingSite();
+		dataTable.setName("测试工地");
+		System.out.println(dataTable);*/
 
-
+		System.out.println(DBManager.getManager().getSalaryManager().getDataBase().get(0));
 
 
 	}

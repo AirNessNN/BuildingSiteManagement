@@ -305,7 +305,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
                     AnInfoListDataModel model=list.getElementAt(list.getSelectedIndex());
                     String siteName=cobBuildingSite.getSelectedItem().toString();
 
-                    WindowBuilder.showWorkWindow(model.getInfo(),siteName.equals("全部")?null:siteName,(values)->{
+                    WindowBuilder.showWorkWindow(model.getInfo(),siteName,(values)->{
 
                         return true;
                     });
@@ -315,6 +315,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
 
         //工地筛选事件
         cobBuildingSite.addItemListener(e -> {
+            searchBox.setText("输入名字或身份证信息查找");
             loadingList();
         });
 
@@ -422,7 +423,11 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
            beans=DBManager.getManager().loadingWorkerList();
        }else{
            String value =(String)cobBuildingSite.getSelectedItem();
-           beans=DBManager.getManager().getWorkerListWhere("所属工地",value);
+           AnDataTable dataTable=DBManager.getManager().getBuildingSite(value);
+           beans=new ArrayList<>();
+           for (Object id:dataTable.findColumn(PropertyFactory.LABEL_ID_CARD).toArray()){
+                beans.add(DBManager.getManager().getWorker((String) id));
+           }
        }
        for(AnBean anBean :beans){
             //获取Info属性
@@ -452,38 +457,38 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
 
         cobBuildingSite.removeAllItems();
         cobBuildingSite.addItem("全部");
-        AnColumn<String> anColumn =property.find(PropertyFactory.LABEL_SITE);
-        for (String value: anColumn.getValues()){
-            cobBuildingSite.addItem(value);
-            cobSiteFrom.addItem(value);
+        AnColumn anColumn =property.findColumn(PropertyFactory.LABEL_SITE);
+        for (Object value: anColumn.getValues()){
+            cobBuildingSite.addItem((String) value);
+            cobSiteFrom.addItem((String) value);
         }
         cobBuildingSite.setSelectedIndex(0);
         table.addComponentCell(cobSiteFrom,23,1);
 
         cobSex.removeAllItems();
-        AnColumn<String> sex=property.find(PropertyFactory.LABEL_SEX);
-        cobSex.addItem(sex.getValues().get(0));
-        cobSex.addItem(sex.getValues().get(1));
+        AnColumn sex=property.findColumn(PropertyFactory.LABEL_SEX);
+        cobSex.addItem((String) sex.getValues().get(0));
+        cobSex.addItem((String) sex.getValues().get(1));
         table.addComponentCell(cobSex,8,1);
 
         cobNation.removeAllItems();
         cobNation.removeAllItems();
-        AnColumn<String> nation=property.find(PropertyFactory.LABEL_NATION);
-        for (String value:nation.getValues()){
-            cobNation.addItem(value);
+        AnColumn nation=property.findColumn(PropertyFactory.LABEL_NATION);
+        for (Object value:nation.getValues()){
+            cobNation.addItem((String) value);
         }
         table.addComponentCell(cobNation,9,1);
 
         cobWorkerState.removeAllItems();
-        AnColumn<String> workerState=property.find(PropertyFactory.LABEL_WORKER_STATE);
-        for (String value:workerState.getValues())
-            cobWorkerState.addItem(value);
+        AnColumn workerState=property.findColumn(PropertyFactory.LABEL_WORKER_STATE);
+        for (Object value:workerState.getValues())
+            cobWorkerState.addItem((String) value);
         table.addComponentCell(cobWorkerState,15,1);
 
         cobWorkerType.removeAllItems();
-        AnColumn<String> workerType=property.find(PropertyFactory.LABEL_WORKER_TYPE);
-        for (String value:workerType.getValues())
-            cobWorkerType.addItem(value);
+        AnColumn workerType=property.findColumn(PropertyFactory.LABEL_WORKER_TYPE);
+        for (Object value:workerType.getValues())
+            cobWorkerType.addItem((String) value);
         table.addComponentCell(cobWorkerType,14,1);
 
         table.addComponentCell(dataCob,7,1);

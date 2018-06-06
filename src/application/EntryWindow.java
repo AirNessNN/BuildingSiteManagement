@@ -46,6 +46,7 @@ public class EntryWindow extends JDialog {
         SpringLayout springLayout = new SpringLayout();
         getContentPane().setLayout(springLayout);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
 
         JScrollPane scrollPane = new JScrollPane();
         springLayout.putConstraint(SpringLayout.NORTH, scrollPane, 0, SpringLayout.NORTH, getContentPane());
@@ -115,10 +116,6 @@ public class EntryWindow extends JDialog {
         AnComboBoxEditor sexEdit= new AnComboBoxEditor();
         sexEdit.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_SEX)));
         table.addComponentCell(sexEdit,4,1);
-
-        AnComboBoxEditor workerTypeEditor=new AnComboBoxEditor();
-        workerTypeEditor.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_WORKER_TYPE)));
-        table.addComponentCell(workerTypeEditor,9,1);
 
         AnComboBoxEditor nationEditor=new AnComboBoxEditor();
         nationEditor.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_NATION)));

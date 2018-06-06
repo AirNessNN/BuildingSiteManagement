@@ -1,5 +1,6 @@
 package dbManager;
 
+import application.AnUtils;
 import component.IDateValueItem;
 
 import java.io.Serializable;
@@ -44,5 +45,14 @@ public class DateValueInfo implements Serializable, IDateValueItem {
     @Override
     public String getTag() {
         return tag;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof IDateValueItem){
+            IDateValueItem item= (IDateValueItem) obj;
+            return AnUtils.isDateYMDEquality(date,item.getDate());
+        }
+        return false;
     }
 }

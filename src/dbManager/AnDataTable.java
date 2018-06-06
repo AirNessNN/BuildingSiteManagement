@@ -19,6 +19,37 @@ public class AnDataTable implements Serializable{
     private String name="";//该集合的名称
     private String key=null;//主键
 
+    private ArrayList<AnBean> infos;//该数据表的信息
+
+
+
+
+
+
+
+
+    //构造
+    public AnDataTable(){
+        values=new ArrayList<>();
+    }
+
+    public AnDataTable(String name){
+        values=new ArrayList<>();
+        this.name=name;
+    }
+
+    public AnDataTable(AnColumn... arrays){
+        values=new ArrayList<>();
+        values.addAll(Arrays.asList(arrays));
+    }
+
+
+
+
+
+
+
+    //方法
     /**
      * 获取所有元素
      * @return 元素
@@ -26,8 +57,13 @@ public class AnDataTable implements Serializable{
     public ArrayList<AnColumn> getValues() {
         if (values==null)
             return new ArrayList<>();
-        return values;
+        return new ArrayList<>(values);
     }
+
+
+
+
+
 
     /**
      * 填充元素
@@ -41,45 +77,34 @@ public class AnDataTable implements Serializable{
 
 
 
-    //构造
-    public AnDataTable(){
-        values=new ArrayList<>();
-    }
-    public AnDataTable(String name){
-        values=new ArrayList<>();
-        this.name=name;
-    }
-    public AnDataTable(AnColumn<?>... arrays){
-        values=new ArrayList<>();
-        values.addAll(Arrays.asList(arrays));
-    }
 
 
-    //方法
 
     /**
      * 添加一个属性集合列
      * @param e 属性结婚
      * @throws Exception 相同抛出异常
      */
-    public void addColumn(AnColumn<?> e) throws Exception {
+    public void addColumn(AnColumn e) throws Exception {
         if(values==null)
             return;
         //属性名不能相同
-        for (AnColumn anColumn :values){
-            if (e.getName().equals(anColumn.getName()))
-                throw new Exception("属性名称不能相同");
-        }
+        if (values.contains(e))
+            throw new Exception("属性名称不能相同");
         values.add(e);
         selectedRowIndex =-1;
     }
+
+
+
+
+
 
     /**
      * 移除一个属性
      * @param e 要移除的属性
      */
-    public void removeInfoArray(AnColumn<?> e){
-
+    public void removeColumn(AnColumn e){
         if(values==null)
             return;
         values.remove(e);
@@ -88,11 +113,16 @@ public class AnDataTable implements Serializable{
             key=null;
     }
 
+
+
+
+
+
     /**
      * 通过下标移除一个属性
      * @param index 下标
      */
-    public void removeAt(int index){
+    public void removeColumnAt(int index){
         if (values==null)
             return;
         if (values.get(index).getName().equals(key))
@@ -101,23 +131,38 @@ public class AnDataTable implements Serializable{
         selectedRowIndex =-1;
     }
 
-    public AnColumn<?> get(int index){
+
+
+
+
+
+    /**
+     * 通过下标获取行
+     * @param index
+     * @return
+     */
+    public AnColumn getColumn(int index){
         if (values==null)
             return null;
         return values.get(index);
     }
 
+
+
+
+
+
     /**
      * 通过名字添加info的数据值
-     * @param name 名称
+     * @param columnName 名称
      * @param value 值
      * @return 操作成功返回True
      */
-    public boolean addValueTo(String name,Object value){
+    public boolean addValueTo(String columnName,Object value){
         if(null==value)
             return false;
         for (AnColumn anColumn :values){
-            if (anColumn.getName().equals(name)){
+            if (anColumn.getName().equals(columnName)){
                 anColumn.addValue(value);
                 return true;
             }
@@ -125,12 +170,17 @@ public class AnDataTable implements Serializable{
         return false;
     }
 
+
+
+
+
+
     /**
      * 通过名字查找出属性节点
      * @param name 属性名
      * @return 返回属性节点
      */
-    public AnColumn find(String name){
+    public AnColumn findColumn(String name){
         if (null==values)
             return null;
         for(AnColumn info:values){
@@ -141,23 +191,33 @@ public class AnDataTable implements Serializable{
         return null;
     }
 
+
+
+
+
+
     /**
      * 通过下标返回节点
      * @param index 下标
      * @return 节点
      */
-    public AnColumn findAt(int index){
+    public AnColumn columnAt(int index){
         if (null==values)
             return null;
         return values.get(index);
     }
+
+
+
+
+
 
     /**
      * 返回该节点所在的下标
      * @param property 节点
      * @return 下标
      */
-    public int indexOf(AnColumn property){
+    public int columnIndexOf(AnColumn property){
         for (int i=0;i<this.values.size();i++){
             if (values.get(i).equals(property))
                 return i;
@@ -165,25 +225,57 @@ public class AnDataTable implements Serializable{
         return -1;
     }
 
+
+
+
+
+
     /**
      * 通过属性名返回下标
      * @param propertyName 属性名
      * @return 下标
      */
-    public int indexOf(String propertyName){
-        return indexOf(find(propertyName));
+    public int columnIndexOf(String propertyName){
+        return columnIndexOf(findColumn(propertyName));
     }
 
+
+
+
+
+
+    /**
+     * 返回AnColumn的数量
+     * @return Size
+     */
     public int getSize(){
         if (null==values)
             return 0;
         return values.size();
     }
 
+
+
+
+
+
+    /**
+     * 获取表名
+     * @return 名称
+     */
     public String getName(){
         return name;
     }
 
+
+
+
+
+
+    /**
+     * 设置表名
+     * @param name 名称
+     */
     public void setName(String name) {
         this.name = name;
     }
@@ -202,9 +294,9 @@ public class AnDataTable implements Serializable{
     /**
      * 增加一行，并且填充数据，存在表头多少就添加多少数据，多或少数据都导致添加失败
      * @param objects 数据集
-     * @return 成功返回True
+     * @return 成功返回True，需要注意的是，之后一条数据都没有添加进去的时候才会返回false，添加部分数据返回都是true
      */
-    public boolean addRow(Object... objects){
+    public boolean addRow(Object[] objects){
         if (objects==null)
             return false;
         if (objects.length==0)
@@ -212,16 +304,57 @@ public class AnDataTable implements Serializable{
         if (objects.length!=values.size())
             return false;
 
-        //排重；排重是排重不能重复的
-        boolean found=false;
-        for (int i=0;i<objects.length;i++){
-            if (values.get(i).contains(objects[i])&&!values.get(i).isRepetable())
-                found=true;//发现有一条重复数据就停止添加
+        int index= getMinRowCount();
+        int i=0;
+        boolean added=false;
+        for (AnColumn column:values){
+            if (index==column.size()){
+                column.addValue(objects[i]);
+                added=true;
+            }
+            i++;
         }
-        if (found)return false;
-        for (int i=0;i<objects.length;i++) values.get(i).addValue(objects[i]);
+        return added;
+    }
+
+
+
+
+
+
+    /**
+     * 向表中某一行插入指定列的数据，
+     * <li>插入的指定列中是否容纳重复的数据要依据该列是否支持可重复的数据插入</li>
+     * @param columnNames 列名集合
+     * @param objects 数据集合
+     * @param index 行下标
+     * @return 成功返回true
+     */
+    public boolean insertRow(String[] columnNames,Object[] objects,int index) {
+        if (columnNames==null||columnNames.length==0)
+            return false;
+        if (columnNames.length!=objects.length)
+            return false;
+
+        //检查下标
+        for (int i=0;i<columnNames.length;i++){
+            AnColumn column=findColumn(columnNames[i]);
+            if (index>=column.size()){//大于下标
+                return false;
+            }
+        }
+        //添加
+        for (int i=0;i<columnNames.length;i++){
+            AnColumn column=findColumn(columnNames[i]);
+            column.set(index,objects[i]);
+        }
         return true;
     }
+
+
+
+
+
 
     /**
      * 插入一条数据，数据不能相同，相同则失败
@@ -230,8 +363,13 @@ public class AnDataTable implements Serializable{
      */
     @Deprecated
     public boolean insertRow(Object... objects){
-        return true;
+        return false;
     }
+
+
+
+
+
 
     /**
      * 通过Index移除一整行数据
@@ -239,7 +377,7 @@ public class AnDataTable implements Serializable{
      * @return 成功返回true
      */
     public boolean removeRow(int rowIndex){
-        if (values.get(0).getSize()<rowIndex)
+        if (values.get(0).size()<rowIndex)
             return false;
         for (int i=0;i<values.size();i++){
             values.get(i).removeValue(values.get(i).get(rowIndex));
@@ -247,12 +385,17 @@ public class AnDataTable implements Serializable{
         return true;
     }
 
+
+
+
+
+
     /**
      * 根据主键值移除整行数据，如果没设置主键，移除失败
      * @param value 主键的值
      * @return 成功返回True
      */
-    public boolean removeRow(Object value){
+    public boolean removeKeyRow(Object value){
         if (value==null)
             return false;
         if (values.size()==0)
@@ -261,7 +404,7 @@ public class AnDataTable implements Serializable{
             return false;
         int index=-1;
 
-        AnColumn column=find(key);
+        AnColumn column= findColumn(key);
         index=column.indexOf(value);
         if (index==-1)
             return false;
@@ -271,6 +414,11 @@ public class AnDataTable implements Serializable{
         return true;
     }
 
+
+
+
+
+
     /**
      * 获取单元格中的数据
      * @param row 行
@@ -278,16 +426,21 @@ public class AnDataTable implements Serializable{
      * @return 单元格的值
      */
     public Object getCell(int row,int col){
-        if (values.size()<col)
+        if (values.size()<col||col<0)
             return null;
         if (values.size()==0)
             return null;
         AnColumn column=values.get(col);
-        if (column.getSize()==0||column.getSize()<row)
+        if (column.size()==0||column.size()<row)
             return null;
 
         return column.get(row);
     }
+
+
+
+
+
 
     /**
      * 设置单元格 ，注意：单元格中一行的数据不能相同，且此方法用于更改单元格中的信息
@@ -297,8 +450,13 @@ public class AnDataTable implements Serializable{
      */
     public void setCell(int row,int col,Object value){
         if (getCell(row,col)==null)return;
-        values.get(col).getValues().set(row,value);
+        values.get(col).set(row,value);
     }
+
+
+
+
+
 
     /**
      * 返回选中行中存在的属性名的值
@@ -308,23 +466,32 @@ public class AnDataTable implements Serializable{
     public Object getSelectedRowAt(String propertyName){
         if (selectedRowIndex ==-1)return null;
 
-        AnColumn column=find(propertyName);
+        AnColumn column= findColumn(propertyName);
         if (column==null)return null;
 
         return column.get(selectedRowIndex);
     }
+
+
+
+
+
 
     /**
      * 设置选中行中的单元格的数据
      * @param propertyName 属性名
      * @param value 值
      */
-    public void setSelectedRowAt(String propertyName, Object value){
+    public void setSelectedRow(String propertyName, Object value){
         if (selectedRowIndex ==-1)return;
 
-        AnColumn column=find(propertyName);
+        AnColumn column= findColumn(propertyName);
         column.set(selectedRowIndex,value);
     }
+
+
+
+
 
     /**
      * 返回选中行列的值
@@ -337,6 +504,11 @@ public class AnDataTable implements Serializable{
         return values.get(col).get(selectedRowIndex);
     }
 
+
+
+
+
+
     /**
      * 设置选中行中的单元格的数据
      * @param col 属性名
@@ -346,6 +518,11 @@ public class AnDataTable implements Serializable{
         if (getSelectedRowAt(col)==null)return;
         values.get(col).set(selectedRowIndex,value);
     }
+
+
+
+
+
 
     /**
      * 选择一行
@@ -357,27 +534,42 @@ public class AnDataTable implements Serializable{
         return selectedRowIndex =rowIndex;
     }
 
+
+
+
+
+
     /**
      * 通过一个列的值选择一行
-     * @param key 键
+     * @param columnName 键
      * @param v 值
      */
-    public int selectRow(String key,Object v){
+    public int selectRow(String columnName,Object v){
         selectedRowIndex =-1;//初始化选择
 
-        AnColumn column=find(key);
+        AnColumn column= findColumn(columnName);
         if (column==null)return selectedRowIndex;
 
         return selectRow(column.indexOf(v));
     }
 
+
+
+
+
+
     /**
      * 通过主键选择一行
      * @param v 值
      */
-    public int selectRow(Object v){
+    public int selectRowOfKey(Object v){
         return selectRow(key,v);
     }
+
+
+
+
+
 
     /**
      * 清除选择的项目，选择值为-1
@@ -386,6 +578,11 @@ public class AnDataTable implements Serializable{
         selectedRowIndex =-1;
     }
 
+
+
+
+
+
     /**
      * 返回表格选择的行的下标
      * @return 返回下标
@@ -393,6 +590,11 @@ public class AnDataTable implements Serializable{
     public int getSelectedRowIndex() {
         return selectedRowIndex;
     }
+
+
+
+
+
 
     /**
      * 设置主键，如果将主键设置为null，则是清除主键
@@ -403,18 +605,61 @@ public class AnDataTable implements Serializable{
     }
 
 
+
+
+
+
     /**
      * 返回最小行数，因为有可能在表中的某一行并不是这个值，为了保证不发生异常，我们返回表中最小行数
      * @return 最小行数
      */
-    public int getRowCount(){
+    public int getMinRowCount(){
         int count=Integer.MAX_VALUE;
         for (AnColumn column:values){
-            if (count>column.getSize())
-                count=column.getSize();
+            if (count>column.size())
+                count=column.size();
         }
         return count;
     }
+
+
+
+
+
+
+    /**
+     * 返回其中最大行数
+     * @return 最大行数
+     */
+    public int getMaxRowCount(){
+        int count=Integer.MIN_VALUE;
+        for (AnColumn column:values){
+            if (column.size()>count)
+                count=column.size();
+        }
+        return count;
+    }
+
+
+
+
+
+
+    /**
+     * 获取该列的行数
+     * @param columnIndex 列下标
+     * @return 行数
+     */
+    public int getColumnRowCount(int columnIndex){
+        if (columnIndex>=getColumnCount())
+            return 0;
+        return getColumn(columnIndex).size();
+    }
+
+
+
+
+
 
     /**
      * 返回列数
@@ -423,6 +668,11 @@ public class AnDataTable implements Serializable{
     public int getColumnCount(){
         return values.size();
     }
+
+
+
+
+
 
     /**
      * 返回表名
@@ -436,17 +686,41 @@ public class AnDataTable implements Serializable{
         return names;
     }
 
+
+
+
+
+
+    /**
+     *获取主键的列下标
+     * @return 列下标
+     */
     public int getKeyIndex(){
         if (key==null)
             return -1;
         return getColumnIndex(key);
     }
 
+
+
+
+
+
+    /**
+     * 获取该列的下标
+     * @param column 列名
+     * @return 下标
+     */
     public int getColumnIndex(String column){
         ArrayList<String> tmp=new ArrayList<>();
         tmp.addAll(Arrays.asList(getColumnName()));
         return tmp.indexOf(column);
     }
+
+
+
+
+
 
     /**
      * <h2>获取下标所在的列的值</h2>
@@ -456,12 +730,33 @@ public class AnDataTable implements Serializable{
      * @return 读取返回非空值
      */
     public Object getCellAt(String columName, int rowIndex){
-        if (rowIndex>=getRowCount())
+        if (rowIndex>= getMinRowCount())
             return null;
         int col=getColumnIndex(columName);
         if (col==-1)
             return null;
         return getCell(rowIndex,col);
+    }
+
+
+
+
+
+
+    /**
+     * <h2>设置下标所在列的值</h2>
+     * @param columnName 列名
+     * @param rowIndex 行下标
+     * @param v 值
+     * @return 成功返回true
+     */
+    public boolean setCellAt(String columnName,int rowIndex,Object v){
+        AnColumn column=findColumn(columnName);
+        if (column==null)
+            return false;
+        if (rowIndex>=column.size()||rowIndex<0)
+            return false;
+        return column.set(rowIndex,v);
     }
 
 
@@ -482,7 +777,7 @@ public class AnDataTable implements Serializable{
             }
             sb.append('\n');
         }
-        sb.append("rowSize："+values.get(0).getSize()+"\n");
+        sb.append("rowSize："+values.get(0).size()+"\n");
         sb.append("columnSize："+values.size()+" }\n");
         return sb.toString();
     }

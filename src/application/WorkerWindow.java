@@ -1,6 +1,5 @@
 package application;
 
-import com.sun.xml.internal.bind.v2.model.core.ID;
 import component.*;
 import dbManager.*;
 
@@ -359,7 +358,7 @@ public class WorkerWindow extends Window {
 				if (cobSite.getSelectedItem()==null)
 					return;
 				checkInManager.setWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString(), checkInPanel.getSource());
-				showWorkDay(checkInPanel.getSource());
+				showCheckInData(checkInPanel.getSource());
 			}
 		});
 		//这里设置每次点击的值，第一次设置为全勤，第二次让用户自己选择
@@ -398,7 +397,7 @@ public class WorkerWindow extends Window {
 				if (cobSite.getSelectedItem()==null)
 					return;
 				salaryManager.setWorkerDateValueList(labIDCard.getText(),cobSite.getSelectedItem().toString(),salaryPanel.getSource());
-				showSalaryDay(salaryPanel.getSource());
+				showSalaryData(salaryPanel.getSource());
 			}
 		});
 
@@ -475,11 +474,6 @@ public class WorkerWindow extends Window {
 		/*
 		**获取工地列表**  填充工人所在工地的信息
 		 */
-		if (site==null){
-			checkInPanel.setEnabled(false);
-			salaryPanel.setEnabled(false);
-			return true;
-		}
 		try{
 			showBuildingSiteInfo(ID,site);
 		}catch (Exception e){
@@ -493,7 +487,7 @@ public class WorkerWindow extends Window {
 	 * 计算合计工日，并保存到工人属性中去
 	 * @param list
 	 */
-	private void showWorkDay(ArrayList<IDateValueItem> list){
+	private void showCheckInData(ArrayList<IDateValueItem> list){
 		double days=0f;
 
 		for (IDateValueItem item:list){
@@ -503,14 +497,13 @@ public class WorkerWindow extends Window {
 			}catch (Exception ex){ }
 		}
 		labWorkDay.setText(String.valueOf(days));
-		worker.find(PropertyFactory.LABEL_TOTAL_WORKING_DAY).setValue(days);
 	}
 
 	/**
 	 * 计算工人领取的生活费，并保存到工人属性中
-	 * @param list
+	 * @param list 时间和数据的包装表
 	 */
-	private void showSalaryDay(ArrayList<IDateValueItem> list){
+	private void showSalaryData(ArrayList<IDateValueItem> list){
 		double livingCosts=0d;
 		for (IDateValueItem item:list){
 			try{
@@ -519,7 +512,6 @@ public class WorkerWindow extends Window {
 			}catch (Exception ex){ }
 		}
 		labPaidLivingCosts.setText(String.valueOf(livingCosts));
-		worker.find(PropertyFactory.LABEL_COST_OF_LIVING).setValue(livingCosts);
 	}
 
 
@@ -529,24 +521,33 @@ public class WorkerWindow extends Window {
 	 * @param siteName
 	 */
 	public void showBuildingSiteInfo(String id,String siteName){
-		boolean b=false;
-		AnDataTable site=DBManager.getManager().getBuildingSite(siteName);
-		if (b=site==null)
-			return;
 
 		DBManager manager=DBManager.getManager();//获取管理器
-		//获取工人全部的工地列表，如果工地不存在，退出
-		if (b=!manager.getWorkerAt(id).contains(siteName))//判断有没有在该工地上班
-			return;
-		//存在
-		site.selectRow(PropertyFactory.LABEL_ID_CARD,id);//选择该工人的信息
+		//加载工人的工地是全部的时候，需要判断工人有没有加入工地
+		if (siteName.equals("全部")){
+			//检查工人是不是没有加入工地
+			if (manager.getWorkerAt(id).size()==0){
+				cobSite.setVisible(false);//关闭工地选择的显示
+				checkInPanel.setEnabled(false);//关闭日期容器
+				salaryPanel.setEnabled(false);//同上
+				return;
+			}
+			//工人有工地，更改siteName为第一个找到的工地
+			siteName=manager.getWorkerAt(id).get(0);
+		}
 
+		AnDataTable site=DBManager.getManager().getBuildingSite(siteName);
+		if (site==null)
+			return;
+		//获取工人全部的工地列表，如果工地不存在，退出
+		if (!manager.getWorkerAt(id).contains(siteName))//判断有没有在该工地上班
+			return;
+		//以下都是在此工地找到工人
+
+		site.selectRow(PropertyFactory.LABEL_ID_CARD,id);//选择该工人的信息
 		//显示
 		cobSite.setModel(new DefaultComboBoxModel(AnUtils.toArray(manager.getWorkerAt(id))));
-		if (!siteName.equals("全部")){
-			cobSite.setSelectedItem(siteName);
-		}else
-			cobSite.setSelectedIndex(0);
+		cobSite.setSelectedItem(siteName);
 		labDealSalary.setText(String.valueOf(site.getSelectedRowAt(PropertyFactory.LABEL_DEAL_SALARY)));
 		labType.setText((String) site.getSelectedRowAt(PropertyFactory.LABEL_WORKER_TYPE));
 
@@ -562,8 +563,9 @@ public class WorkerWindow extends Window {
 		checkInPanel.setSourceDates(checkInManager.getWorkerDateValueList(id,siteName));
 		salaryPanel.setSourceDates(salaryManager.getWorkerDateValueList(id,siteName));
 
-		showSalaryDay(salaryManager.getWorkerDateValueList(id,siteName));
-		showWorkDay(checkInManager.getWorkerDateValueList(id,siteName));
+		showSalaryData(salaryPanel.getSource());
+		showCheckInData(checkInPanel.getSource());
+
 
 
 	}

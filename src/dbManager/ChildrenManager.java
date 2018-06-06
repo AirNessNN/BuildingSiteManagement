@@ -20,7 +20,7 @@ import java.util.Date;
  *
  *  工资数据结构：
  *           ArrayList管理所有工资
- *              AnArrayBean是一个工人的实例，其中包含几个属性，一个是工资领取记录，也该是生活费发放记录
+ *              AnDataTable是一个工人的实例，其中包含几个属性，一个是工资领取记录，也该是生活费发放记录
  *                  AnColumn 是上述每个属性的实例，其中存放了日期和领取的钱数量
  */
 public class ChildrenManager implements Loadable {
@@ -57,28 +57,28 @@ public class ChildrenManager implements Loadable {
     public boolean updateData(String id, String site, Date date, int mod, Object value,String tag) throws Exception{
 
         AnDataTable worker;
-        AnColumn<IDateValueItem> dateList = null;
+        AnColumn siteData = null;
         for (AnDataTable bean: workList){
             if (bean.getName().equals(id)) {
                 worker = bean;
-                dateList=(AnColumn<IDateValueItem>) worker.find(site);
+                siteData=worker.findColumn(site);
                 break;
             }
         }
-        if (dateList==null)
+        if (siteData==null)
             return false;
 
         //开始操作
         switch (mod){
             case ChildrenManager.MOD_ADD:
-                for (IDateValueItem item:dateList.getValues()){
+                ArrayList<IDateValueItem> tmp1 = siteData.getValues();
+                for (IDateValueItem item:tmp1){
                     if (AnUtils.isDateYMDEquality(item.getDate(),date))
                         throw new Exception("在数据中存在相同的日期！");
                 }
-                dateList.addValue(new DateValueInfo(date,value,tag));
-                return true;
+                return siteData.addValue(new DateValueInfo(date,value,tag));
             case ChildrenManager.MOD_ALTER: {
-                ArrayList<IDateValueItem> tmp = dateList.getValues();//获取该员工在该工地的所有考勤记录
+                ArrayList<IDateValueItem> tmp = siteData.getValues();//获取该员工在该工地的所有考勤记录
                 for (IDateValueItem info : tmp) {
                     //日期相等的情况下
                     if (AnUtils.isDateYMDEquality(date,info.getDate())) {
@@ -90,7 +90,7 @@ public class ChildrenManager implements Loadable {
                 return true;
             }
             case ChildrenManager.MOD_DEL: {
-                ArrayList<IDateValueItem> tmpValue = dateList.getValues();
+                ArrayList<IDateValueItem> tmpValue = siteData.getValues();
                 IDateValueItem delete = null;
                 for (IDateValueItem info : tmpValue) {
 
@@ -118,11 +118,11 @@ public class ChildrenManager implements Loadable {
      */
     public boolean updateDate(String id,String site,Date od,Date nd){
         AnDataTable worker;
-        AnColumn<IDateValueItem> dateList = null;
+        AnColumn dateList = null;
         for (AnDataTable bean: workList){
             if (bean.getName().equals(id)) {
                 worker = bean;
-                dateList=(AnColumn<IDateValueItem>) worker.find(site);
+                dateList=worker.findColumn(site);
                 break;
             }
         }
@@ -152,62 +152,77 @@ public class ChildrenManager implements Loadable {
      * 从DB管理中获取到所有工人列表，更新此子管理器中工人的信息
      * 调用次方法，可以保持此子管理器的数据与主管理器中内容保持一致
      */
-    public void updateWorkerList(){
+    public void updateWorkerList() throws Exception {
         if (prepared){
-            ArrayList<AnBean> beans= DBManager.getManager() != null ? DBManager.getManager().loadingWorkerList() : null;
+            DBManager manager=DBManager.getManager();
+            assert manager != null;
 
-           //更新出勤信息
-            //新增工人
-            assert beans != null;
-            for (AnBean bean:beans){
-                String id=bean.find(PropertyFactory.LABEL_ID_CARD).getValueString();
-               boolean found=false;
+            String[] siteNames=manager.getFullBuildingSiteName();
 
-               for (AnDataTable info: workList){
-                    if (id.equals(info.getName()))
-                        found=true;
-               }
 
-               //未发现就创建这个工人的日期信息
-               if (!found){
-                   AnDataTable tmp=new AnDataTable();//创建出勤信息
-                   tmp.setName(id);
+            for (String siteName : siteNames){
+                AnDataTable site=manager.getBuildingSite(siteName);
+                for (int i=0;i<site.findColumn(PropertyFactory.LABEL_ID_CARD).size();i++){
+                    String id= (String) site.findColumn(PropertyFactory.LABEL_ID_CARD).get(i);
+                    /*
+                    上面的两层循环用于遍历工地中的所有工人，
+                    主要获得两个参数：工地和身份证。
+                    这两个参数用来更新子管理器的所有数据。
 
-                   //填充工人的工地信息
-                   assert DBManager.getManager() != null;
-                   ArrayList<String> sites=DBManager.getManager().getWorkerAt(id);
-                   for (String siteName:sites){
-                       AnColumn<ArrayList> tmpCheckIn=new AnColumn<>(false);
-                       tmpCheckIn.setName(siteName);
-                       try {
-                           tmp.addColumn(tmpCheckIn);
-                       } catch (Exception e) {
-                           e.printStackTrace();
-                       }
-                   }
-                    workList.add(tmp);
-               }
+                    子管理器是一个DataTable一个工人，
+                    Column是工地的所有记录。
+                    子管理器中没有找到工地，就需要添加进入，因为所有数据以工地表中的数据为准
+                     */
+                    //判断此工人是否存在
+                    boolean found=false;
+                    for (AnDataTable worker:workList) if (worker.getName().equals(id))found=true;
+                    if (!found){//没有找到就要添加一个工人和此工地
+                        AnDataTable dt=new AnDataTable(id);
+                        AnColumn column=new AnColumn(false,false,siteName,new ArrayList());
+                        dt.addColumn(column);
+                        workList.add(dt);
+                        continue;
+                    }
+                    //判断工人的工地是否存在
+                    AnDataTable child=getWorker(id);//获取子管理器的工地
+                    if (child.findColumn(siteName)==null){
+                        //这里在子管理器中没找到这个工地
+                        child.addColumn(new AnColumn(false,false,siteName,new ArrayList()));
+                    }
+                }
             }
 
-            ArrayList<Integer> delete=new ArrayList<>();//要删除的集合
-            //找到已经失效的日期信息
-            for (AnDataTable bean: workList){
-
-               boolean found=false;
-               for (AnBean b:beans){
-                   String id=b.find(PropertyFactory.LABEL_ID_CARD).getValueString();
-                    if (bean.getName().equals(id))
-                        found=true;
-               }
-               //未找到ID的，就删除
-               if (!found){
-                    delete.add(workList.indexOf(bean));
-               }
+            //删除子管理器中多余的数据
+            ArrayList<AnDataTable> deleteTable=new ArrayList<>();//要删除的工人
+            ArrayList<AnDataTable> foundTable=new ArrayList<>();//要删除工地的工人表
+            ArrayList<AnColumn> deleteColumn=new ArrayList<>();//要删除的工地
+            for (AnDataTable dt : workList){
+                //获取此子管理器中的所有工地
+                for (AnColumn column : dt.getValues()){
+                    //判断工人是否在
+                    String id=dt.getName();
+                    //工人没有在任何一个工地中工作
+                    if (manager.getWorkerAt(id).size()==0) {
+                        deleteTable.add(dt);
+                        continue;
+                    }
+                    //工人没有在这个工地中工作
+                    if (!manager.getWorkerAt(id).contains(column.getName())){
+                        deleteColumn.add(column);
+                        foundTable.add(dt);
+                        continue;
+                    }
+                }
+            }
+            //删除工人
+            for (AnDataTable dataTable:deleteTable){
+                workList.remove(dataTable);
             }
             //删除
-            for (Integer i :delete){
-                workList.remove(i);
+            for (int i=0;i<foundTable.size();i++){
+                foundTable.get(i).removeColumn(deleteColumn.get(i));
             }
+
             //更新到文件
             //saveToFile();
         }

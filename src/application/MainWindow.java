@@ -93,10 +93,10 @@ public class MainWindow extends JFrame {
 
 	private void init(){
 		setTitle("管理中心");
-		this.setSize(1000, 700);
-		this.setLocationRelativeTo(null);
-		this.setResizable(false);
-		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setSize(1000, 700);
+		setResizable(false);
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		// 实例容器
 		panel = new JPanel();
 		getContentPane().add(panel, BorderLayout.CENTER);

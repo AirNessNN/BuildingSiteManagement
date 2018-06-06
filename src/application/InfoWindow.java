@@ -121,10 +121,7 @@ public class InfoWindow extends Window implements ComponentLoader {
         AnComboBoxEditor sexEdit= new AnComboBoxEditor();
         sexEdit.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_SEX)));
         infoTable.addComponentCell(sexEdit,4,1);
-
-        AnComboBoxEditor workerTypeEditor=new AnComboBoxEditor();
-        workerTypeEditor.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_WORKER_TYPE)));
-        infoTable.addComponentCell(workerTypeEditor,9,1);
+        infoTable.setCellColumnEdited(0,false);
 
         AnComboBoxEditor nationEditor=new AnComboBoxEditor();
         nationEditor.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_NATION)));
@@ -188,6 +185,10 @@ public class InfoWindow extends Window implements ComponentLoader {
                 }
                 dispose();
             }
+        });
+
+        cobSite.addActionListener((e)->{
+            initializeWorker(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString(),cobSite.getSelectedItem().toString());
         });
 
         btnSite.addActionListener((e)->{
@@ -283,6 +284,7 @@ public class InfoWindow extends Window implements ComponentLoader {
             cells.add(item.getTag());
             checkInRows.add(cells);
         }
+        checkInTable.clearCheckPoint();
         checkInTable.getTableModel().setDataVector(checkInRows,AnUtils.convertToVector(CHECK_IN_HEADER));
         checkInTable.setCheckPoint();
 
@@ -300,16 +302,26 @@ public class InfoWindow extends Window implements ComponentLoader {
             cells.add(item.getTag());
             salaryRows.add(cells);
         }
+        salaryTable.clearCheckPoint();
         salaryTable.getTableModel().setDataVector(salaryRows,AnUtils.convertToVector(SALARY_HEADER));
         salaryTable.setCheckPoint();
 
         //加载工地选择器
-        cobSite.setModel(new DefaultComboBoxModel(AnUtils.toArray((ArrayList) worker.find(PropertyFactory.LABEL_SITE).getValue())));
+        cobSite.setModel(
+                new DefaultComboBoxModel(
+                AnUtils.toArray(
+                        DBManager.getManager().
+                                getWorkerAt(
+                                        worker.find(PropertyFactory.LABEL_ID_CARD).getValueString())
+                ))
+        );
+        cobSite.setSelectedItem(site);
     }
 
     private void save(){
 	    try {
-            saveInfo();
+            if (!saveInfo())
+                return;
             saveChildingManagerData(checkInTable,DBManager.getManager().getCheckInManager());
             saveChildingManagerData(salaryTable,DBManager.getManager().getSalaryManager());
             btnSave.setEnabled(false);
@@ -330,12 +342,24 @@ public class InfoWindow extends Window implements ComponentLoader {
      * 储存表格中的内容
      * @return
      */
-    private void saveInfo(){
+    private boolean saveInfo(){
         //检查身份证是否更改
         boolean isIDChanged=false;
         String oldID=null;
         String newID=null;
         TableProperty bean=infoTable.getChangedCells();
+
+        //判断身份证是否正确
+        for (int i=0;i<bean.getSize();i++){
+            int row=bean.getPoint(i).x;
+            String pn= (String) infoTable.getCell(row,0);
+            if (pn.equals(PropertyFactory.LABEL_ID_CARD))
+                if (!AnUtils.isIDCard(bean.getNewValue(i).toString())){
+                    Application.informationWindow("身份证信息填写不正确！");
+                    return false;
+                }
+        }
+
         for (int i = 0; i<bean.getSize(); i++){
             Point pointInfo= bean.getPoint(i);
             String pn= (String) infoTable.getCell(pointInfo.x,0);//获取单元格属性名PropertyName
@@ -362,7 +386,7 @@ public class InfoWindow extends Window implements ComponentLoader {
             ArrayList<String> siteList=DBManager.getManager().getWorkerAt(oldID);
             for (int i=0;i<siteList.size();i++){
                 AnDataTable tmpSite=DBManager.getManager().getBuildingSite(siteList.get(i));
-                AnColumn array=tmpSite.find(PropertyFactory.LABEL_ID_CARD);
+                AnColumn array=tmpSite.findColumn(PropertyFactory.LABEL_ID_CARD);
                 boolean flag=array.changeValue(oldID,newID);//设置工地列表中存放的工人身份信息
                 //找到工地的话，一定会存在工资和出勤，所以也要更新工资和出勤信息
                 if (flag){
@@ -374,6 +398,7 @@ public class InfoWindow extends Window implements ComponentLoader {
             }
         }
         Application.debug(this,worker.toString());
+        return true;
     }
 
     /**

@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Random;
 import javax.swing.*;
 
+import application.AnUtils;
 import application.Application;
 import application.EntryWindow;
 import resource.Resource;
@@ -318,18 +319,32 @@ public class DBManager {
 			Info inf2=w.find("身份证");
 			inf2.setValue(Test.IDRandom());
 			w.find(PropertyFactory.LABEL_PHONE).setValue("13123376032");
-			w.find(PropertyFactory.LABEL_SEX).setValue(workerProperty.find(PropertyFactory.LABEL_SEX).getValues().get(r.nextInt(workerProperty.find(PropertyFactory.LABEL_SEX).getSize())));//性别
+			w.find(PropertyFactory.LABEL_SEX).setValue(workerProperty.findColumn(PropertyFactory.LABEL_SEX).getValues().get(r.nextInt(workerProperty.findColumn(PropertyFactory.LABEL_SEX).size())));//性别
 			w.find(PropertyFactory.LABEL_BANK_ADDRESS).setValue("乱写的地址");
 			//工地
 			addWorker(w);
-			int ind=r.nextInt(workerProperty.find(PropertyFactory.LABEL_WORKER_TYPE).getSize());
-			System.out.println(addWorkerToSite(
+			int ind=r.nextInt(workerProperty.findColumn(PropertyFactory.LABEL_WORKER_TYPE).size());
+			addWorkerToSite(
 					w.find(PropertyFactory.LABEL_ID_CARD).getValueString(),
 					buildingSiteLIst.get(r.nextInt(buildingSiteLIst.size())).getName(),
 					(double) r.nextInt(10000),
-					(String) workerProperty.find(PropertyFactory.LABEL_WORKER_TYPE).get(ind)
-			));
+					(String) workerProperty.findColumn(PropertyFactory.LABEL_WORKER_TYPE).get(ind),
+					new Date()
+			);
 		}
+		//添加一个工人
+		AnBean wk=PropertyFactory.createWorker();
+		setBeanInfo(wk,PropertyFactory.LABEL_BANK_ID,Test.IDRandom());
+		setBeanInfo(wk,PropertyFactory.LABEL_ID_CARD,Test.IDRandom());
+		setBeanInfo(wk,PropertyFactory.LABEL_ADDRESS,"厦门市集美区孙坂南路1199号");
+		setBeanInfo(wk,PropertyFactory.LABEL_PHONE,"1131123376032");
+		setBeanInfo(wk,PropertyFactory.LABEL_NAME,"胡浩伟");
+		setBeanInfo(wk,PropertyFactory.LABEL_NATION,"汉族");
+		setBeanInfo(wk,PropertyFactory.LABEL_TAG,"这是个测试用例");
+		addWorker(wk);
+		//添加到工地
+		addWorkerToSite(wk.find(PropertyFactory.LABEL_ID_CARD).getValueString(),"测试工地1",5000d,"包工",AnUtils.getDate(2016,11,20));
+		addWorkerToSite(wk.find(PropertyFactory.LABEL_ID_CARD).getValueString(),"测试工地2",4000d,"包工",AnUtils.getDate(2016,10,20));
 	}
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -356,7 +371,7 @@ public class DBManager {
 	}
 
 	public void createWorkerProperty(boolean b,String name) throws Exception {
-		AnColumn<String> anColumn =new AnColumn<>(b,name);
+		AnColumn anColumn =new AnColumn(b,name);
 		addWorkerProperty(anColumn);
 	}
 
@@ -366,7 +381,7 @@ public class DBManager {
 	 */
 	public void removeWorkerProperty(AnColumn info){
 		if(workerProperty !=null){
-			workerProperty.removeInfoArray(info);
+			workerProperty.removeColumn(info);
 		}
 	}
 
@@ -377,7 +392,7 @@ public class DBManager {
 	 */
 	public AnColumn getWorkerProperty(int index){
 		if(workerProperty !=null){
-			return workerProperty.findAt(index);
+			return workerProperty.columnAt(index);
 		}
 		return null;
 	}
@@ -389,7 +404,7 @@ public class DBManager {
 	 */
 	public AnColumn getWorkerProperty(String name){
 		if(workerProperty !=null){
-			return workerProperty.find(name);
+			return workerProperty.findColumn(name);
 		}
 		return null;
 	}
@@ -401,8 +416,8 @@ public class DBManager {
 	 */
 	public String[] getWorkerPropertyArray(String name){
 		AnColumn array=getWorkerProperty(name);
-		String[] strs=new String[array.getSize()];
-		for (int i=0;i<array.getSize();i++){
+		String[] strs=new String[array.size()];
+		for (int i = 0; i<array.size(); i++){
 			strs[i]= (String) array.get(i);
 		}
 		return strs;
@@ -496,6 +511,7 @@ public class DBManager {
 		if (bean==null)
 			return false;
 		String id=bean.find(PropertyFactory.LABEL_ID_CARD).getValueString();
+		//排重
 		for (AnBean w:loadingWorkerList()){
 			if (w.find(PropertyFactory.LABEL_ID_CARD).equalsValue(id))
 				return false;
@@ -643,7 +659,7 @@ public class DBManager {
 		buildingSiteLIst.add(buildingSite);
 		//下面的步骤是用户创建工地之后，一定要将工地添加到属性中去
 		if (workerPropertyLoaded){
-			workerProperty.find(PropertyFactory.LABEL_SITE).addValue(buildingSite.getName());
+			workerProperty.findColumn(PropertyFactory.LABEL_SITE).addValue(buildingSite.getName());
 		}
 	}
 
@@ -682,9 +698,9 @@ public class DBManager {
 		String[] tmpWorker;
 
 		AnDataTable site=getBuildingSite(siteName);
-		AnColumn array=site.find(PropertyFactory.LABEL_ID_CARD);
-		if (array!=null){
-			int size=array.getSize();
+		AnColumn column=site.findColumn(PropertyFactory.LABEL_ID_CARD);
+		if (column!=null){
+			int size=column.size();
 
 			if (size==0)
 				return null;
@@ -693,7 +709,7 @@ public class DBManager {
 
 			int index=0;
 
-			for (Object o:array.getValues()){
+			for (Object o:column.getValues()){
 				tmpWorker[index++]=(String) o;
 			}
 			return tmpWorker;
@@ -707,15 +723,12 @@ public class DBManager {
 	 * @return
 	 */
 	public ArrayList<String> getWorkerAt(String id){
-		if (!buildingSiteLoaded&&!workerListLoaded)
+		if (!buildingSiteLoaded)
 			return null;
 		ArrayList<String> tmpList=new ArrayList<>();
 		for (AnDataTable site:buildingSiteLIst){
-			for (Object workerId:site.find(PropertyFactory.LABEL_ID_CARD).getValues()){
-				String tmpID= (String) workerId;
-				if (tmpID.equals(id)){
-					tmpList.add(site.getName());
-				}
+			if (site.findColumn(PropertyFactory.LABEL_ID_CARD).contains(id)){
+				tmpList.add(site.getName());
 			}
 		}
 		return  tmpList;
@@ -728,7 +741,7 @@ public class DBManager {
 
 		//更新属性中的数据
 		if (workerPropertyLoaded){
-			workerProperty.find(PropertyFactory.LABEL_SITE).getValues().remove(site.getName());
+			workerProperty.findColumn(PropertyFactory.LABEL_SITE).getValues().remove(site.getName());
 		}
 		//更新所有工人中的数据
 		if (workerListLoaded){
@@ -747,17 +760,22 @@ public class DBManager {
 	 * @param workType 工种
 	 * @return 添加成功返回true
 	 */
-	public boolean addWorkerToSite(String id,String site,Double dealSalary,String workType){
-		if (!workerListLoaded&&!buildingSiteLoaded)
+	public boolean addWorkerToSite(String id,String site,Double dealSalary,String workType,Date entry){
+		if (!buildingSiteLoaded)
 			return false;
 
 		AnDataTable dt=getBuildingSite(site);
 		if (dt==null)
 			return false;
-		if (!dt.addRow(id,dealSalary,workType))
+		Object[] obj=new Object[]{id,dealSalary,workType,entry,null};
+		if (!dt.addRow(obj))
 			return false;
 
-		updateChildrenManager();
+		try {
+			updateChildrenManager();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return true;
 	}
 
@@ -823,7 +841,7 @@ public class DBManager {
 	/**
 	 * 更新所有子管理器，调用子管理器自身的更新方法
 	 */
-	public void updateChildrenManager(){
+	public void updateChildrenManager() throws Exception {
 		if (salaryManagerLoaded)
 			salaryManager.updateWorkerList();
 		if (checkInManagerLoaded)
@@ -1065,9 +1083,13 @@ public class DBManager {
 
 		//给工人自带的属性中加入该工地
 		bean.find(PropertyFactory.LABEL_SITE).addListValue(site.getName());
-		site.find(PropertyFactory.LABEL_SITE).addValue(bean.find(PropertyFactory.LABEL_ID_CARD).getValueString());
+		site.findColumn(PropertyFactory.LABEL_SITE).addValue(bean.find(PropertyFactory.LABEL_ID_CARD).getValueString());
 
-		manager.updateChildrenManager();//将数据更新到管理器
+		try {
+			manager.updateChildrenManager();//将数据更新到管理器
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return true;
 	}
 
@@ -1081,6 +1103,7 @@ public class DBManager {
 	 * @param workType 工种
 	 * @return 添加成功返回true
 	 */
+	@Deprecated
 	public boolean addWorkerToBuildingSite(String id ,String siteName,double dealSalary,String workType){
 		AnBean worker=getWorker(id);
 		if (worker==null)
@@ -1095,14 +1118,19 @@ public class DBManager {
 			return false;
 
 		//在工地中添加
-		boolean bs=site.addRow(id,dealSalary,workType);
+		Object[] obj=new Object[]{id,dealSalary,workType};
+		boolean bs=site.addRow(obj);
 		if (!bs){//如果添加失败就移除工人自身属性
 			worker.find(PropertyFactory.LABEL_SITE).removeListValue(siteName);
 			return false;
 		}
 
 		//在所有管理器中添加信息
-		updateChildrenManager();
+		try {
+			updateChildrenManager();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return true;
 	}
 
@@ -1123,8 +1151,13 @@ public class DBManager {
 
 		worker.find(PropertyFactory.LABEL_SITE).removeListValue(siteName);
 		site.setKey(PropertyFactory.LABEL_ID_CARD);
-		site.removeRow(id);
-		manager.updateChildrenManager();
+		site.removeKeyRow(id);
+
+		try {
+			manager.updateChildrenManager();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return true;
 	}
 
@@ -1159,6 +1192,7 @@ public class DBManager {
 	 * @param dealSalarys 工资集合
 	 * @param types 工种集合
 	 */
+	@Deprecated
 	public void updateWorkerBuildingSite(String id,Object[] sites,Double[] dealSalarys,String[] types){
 		AnBean worker=getWorker(id);
 		if (worker==null)
@@ -1194,7 +1228,7 @@ public class DBManager {
 				add.add((String) o);
 		}
 		for(int i=0;i<sites.length;i++){
-			addWorkerToSite(id, (String) sites[i],dealSalarys[i],types[i]);
+			//addWorkerToSite(id, (String) sites[i],dealSalarys[i],types[i]);
 		}
 	}
 

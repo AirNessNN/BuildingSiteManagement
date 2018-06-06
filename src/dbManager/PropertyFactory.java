@@ -143,27 +143,27 @@ public class PropertyFactory {
             try {
                 switch (info.getType()){
                     case Info.TYPE_ARRAY_LIST:{
-                        AnColumn<ArrayList> tmp=new AnColumn<>(true,info.getName());
+                        AnColumn tmp=new AnColumn(true,info.getName());
                         tmpBean.addColumn(tmp);
                         break;
                     }
                     case Info.TYPE_DATE:{
-                        AnColumn<Date> tmp=new AnColumn<>(true,info.getName());
+                        AnColumn tmp=new AnColumn(true,info.getName());
                         tmpBean.addColumn(tmp);
                         break;
                     }
                     case Info.TYPE_DOUBLE:{
-                        AnColumn<Double> tmp=new AnColumn<>(true,info.getName());
+                        AnColumn tmp=new AnColumn(true,info.getName());
                         tmpBean.addColumn(tmp);
                         break;
                     }
                     case Info.TYPE_INTEGER:{
-                        AnColumn<Integer> tmp=new AnColumn<>(true,info.getName());
+                        AnColumn tmp=new AnColumn(true,info.getName());
                         tmpBean.addColumn(tmp);
                         break;
                     }
                     default:
-                        AnColumn<String> tmp=new AnColumn<>(true,info.getName());
+                        AnColumn tmp=new AnColumn(true,info.getName());
                         tmpBean.addColumn(tmp);
                         if (info.getName().equals(PropertyFactory.LABEL_SEX)){
                             tmp.addValue("男");
@@ -194,7 +194,7 @@ public class PropertyFactory {
         }
         if(userData!=null){
             for(Info info:userData){
-                AnColumn<String> tmp=new AnColumn<>(true,info.getName());
+                AnColumn tmp=new AnColumn(true,info.getName());
                 try {
                     tmpBean.addColumn(tmp);
                 } catch (Exception e) {
@@ -210,32 +210,15 @@ public class PropertyFactory {
      * @return
      */
     public static AnDataTable createBuildingSite(){
-        AnColumn<String> id=new AnColumn<>(false);//ID：不可重复
-        id.setName(PropertyFactory.LABEL_ID_CARD);
+        AnColumn id=new AnColumn(false,true,LABEL_ID_CARD);//ID：不可重复
 
-        AnColumn<String> workType=new AnColumn<>(true);//月工资：可重复
-        workType.setName(PropertyFactory.LABEL_WORKER_TYPE);
+        AnColumn workType=new AnColumn(true,true,LABEL_WORKER_STATE);//工作状态：可重复
 
-        AnColumn<Double> dealSalary=new AnColumn<>(true);//工种：可重复
-        dealSalary.setName(PropertyFactory.LABEL_DEAL_SALARY);
+        AnColumn dealSalary=new AnColumn(true,true,LABEL_DEAL_SALARY);//工种：可重复
 
-        AnColumn<Date> entry=new AnColumn<>(true);//入职日期：可重复
-        entry.setName(PropertyFactory.LABEL_ENTRY_TIME);
+        AnColumn entry=new AnColumn(true,true,LABEL_ENTRY_TIME);//入职日期：可重复
 
-        AnColumn<Date> leave=new AnColumn<>(true);
-        leave.setName(LABEL_LEAVE_TIME);
-
-        AnColumn<String> state=new AnColumn<>(true);
-        state.setName(LABEL_WORKER_STATE);
-
-        AnColumn<String> projectName=new AnColumn<>(false);
-        projectName.setName(LABEL_PROJECT_NAME);
-
-        AnColumn<String> build=new AnColumn<>(false);
-        build.setName(LAB_UNIT_OF_BUILD);
-
-        AnColumn<String> doit=new AnColumn<>(false);
-        doit.setName(LAB_UNIT_OF_DO);
+        AnColumn leave=new AnColumn(true,true,LABEL_LEAVE_TIME);//离职
 
 
         AnDataTable bean=new AnDataTable();
@@ -243,6 +226,8 @@ public class PropertyFactory {
             bean.addColumn(id);
             bean.addColumn(dealSalary);
             bean.addColumn(workType);
+            bean.addColumn(entry);
+            bean.addColumn(leave);
         } catch (Exception e) {
             e.printStackTrace();
         }
