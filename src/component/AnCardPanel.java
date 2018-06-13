@@ -147,10 +147,10 @@ public class AnCardPanel extends JPanel{
 
         //Debug
 
-
         if(sourcePanel.getComponentCount()>0) {
             sourcePanel.remove(0);
         }
+        //panel.setSize(sourcePanel.getSize());
         sourcePanel.add(panel);
         sourcePanel.repaint();
     }

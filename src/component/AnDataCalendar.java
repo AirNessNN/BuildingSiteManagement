@@ -17,8 +17,11 @@ import javax.swing.SwingConstants;
 import java.awt.Color;
 import java.awt.Font;
 
-@SuppressWarnings("serial")
-public class AnDataValuePanel extends JPanel {
+/**
+ * <h2>带数据标记的日历</h2>
+ * <li>每一个日期都可以存放一个值，这个日期控件可以根据值的颜色显示不同的颜色</li>
+ */
+public class AnDataCalendar extends JPanel {
 
 	boolean isEnabled=true;
 
@@ -432,7 +435,7 @@ public class AnDataValuePanel extends JPanel {
 		repaint();
 	}
 
-	public AnDataValuePanel() {
+	public AnDataCalendar() {
 		initComponent();
 		initEvent();
 		setDateComponentLocation();
@@ -538,7 +541,7 @@ public class AnDataValuePanel extends JPanel {
 	}
 
 	public void setEnabled(boolean enabled){
-
+		isEnabled=enabled;
 		if (enabled){
 			for (AnTextButton textButton:dates){
 				textButton.setActionListener(actionListener);
@@ -578,10 +581,13 @@ public class AnDataValuePanel extends JPanel {
 				if (valueCallback!=null){
 					try {
 						Date date=AnUtils.getDate(stringDate,"yyy-MM-dd");
-						setValueFromDate(date,valueCallback.setObject(getValueFromDate(date)));
-						setDateComponentLocation();
+						//判断返回的值是不是无效
+						Object value=valueCallback.setObject(getValueFromDate(date));
+						 if (value!=null){
+							 setValueFromDate(date,value);
+							 setDateComponentLocation();
+						 }
 					} catch (ParseException e1) {
-						System.out.println(e1.getErrorOffset());
 					}
 				}
 				if (listener!=null){

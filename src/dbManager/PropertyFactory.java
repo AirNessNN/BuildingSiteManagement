@@ -1,5 +1,7 @@
 package dbManager;
 
+import application.Application;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -52,8 +54,6 @@ public class PropertyFactory {
             new Info<Date>(Info.TYPE_DATE,LABEL_BIRTH),//生日
             new Info<String>(Info.TYPE_STRING,LABEL_SEX),//性别
             new Info<String>(Info.TYPE_STRING,LABEL_NATION),//民族
-            new Info<Date>(Info.TYPE_DATE,LABEL_ENTRY_TIME),//入职
-            new Info<Date>(Info.TYPE_DATE,LABEL_LEAVE_TIME),//离职
             new Info<String>(Info.TYPE_STRING,LABEL_BANK_ID),//银行卡号
             new Info<String>(Info.TYPE_STRING, LABEL_BANK_ADDRESS),//开户地址
             new Info<String>(Info.TYPE_STRING,LABEL_TAG)//备注
@@ -177,6 +177,8 @@ public class PropertyFactory {
                         if (info.getName().equals(PropertyFactory.LABEL_WORKER_TYPE)){
                             tmp.addValue("包工");
                             tmp.addValue("点工");
+                            tmp.addValue("点工加包工");
+                            tmp.addValue("包月");
                             tmp.addValue("其他");
                         }
                         if (info.getName().equals(PropertyFactory.LABEL_NATION)){
@@ -212,9 +214,9 @@ public class PropertyFactory {
     public static AnDataTable createBuildingSite(){
         AnColumn id=new AnColumn(false,true,LABEL_ID_CARD);//ID：不可重复
 
-        AnColumn workType=new AnColumn(true,true,LABEL_WORKER_STATE);//工作状态：可重复
-
         AnColumn dealSalary=new AnColumn(true,true,LABEL_DEAL_SALARY);//工种：可重复
+
+        AnColumn workType=new AnColumn(true,true,LABEL_WORKER_TYPE);//工作状态：可重复
 
         AnColumn entry=new AnColumn(true,true,LABEL_ENTRY_TIME);//入职日期：可重复
 
@@ -261,6 +263,29 @@ public class PropertyFactory {
     public static void removeUserDate(Info info){
         if (userData!=null){
             userData.remove(info);
+        }
+    }
+
+    public static void removeUserDate(final String name){
+        Application.startService(()->{
+            Info delete=null;
+            for (Info info :userData){
+                if (info.getName().equals(name))delete=info;
+            }
+            if (delete!=null)userData.remove(delete);
+        });
+    }
+
+    public static Info[] getUserDatas(){
+        return (Info[]) userData.toArray();
+    }
+
+    public static void setUserDatas(AnDataTable table){
+        if (table!=null){
+            userData.clear();
+            for (AnColumn column:table.getValues()){
+                userData.add(new Info(column.getName(),""));
+            }
         }
     }
 

@@ -68,6 +68,7 @@ public class AnTable extends JTable{
 	private void init(){
 
 		getTableHeader().setFont(new Font("等线",1,14));
+		setFont(new Font("等线",0,14));
 		this.setRowHeight(30);
 		this.setFont(Resource.FONT_TABLE_ITEM);
 		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

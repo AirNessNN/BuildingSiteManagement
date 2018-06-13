@@ -1,5 +1,7 @@
-package application;
+package component;
 
+import application.AnUtils;
+import application.Application;
 import component.Chooser;
 import component.DialogResult;
 import dbManager.DBManager;
@@ -13,7 +15,7 @@ import java.util.ArrayList;
 /**
  * An数据选择器
  */
-class AnDataChooser extends JDialog implements BuildingSiteOperator {
+public class AnDataChooser extends JDialog implements BuildingSiteOperator {
     public static final int MESSAGE_ADD_TITLE=1;
     public static final int MESSAGE_ADD_MESSAGE=0;
     public static final int MESSAGE_ADD_INNERTEXT=2;
@@ -32,7 +34,6 @@ class AnDataChooser extends JDialog implements BuildingSiteOperator {
 	private JButton btnDel;
 
 	private Chooser chooser;//选择器自定义模型
-    private int dataSize=1;
 
     private void initComponent(String title,String toolTip){
         setTitle(title);
@@ -47,6 +48,7 @@ class AnDataChooser extends JDialog implements BuildingSiteOperator {
         lblctrl.setFont(new Font("幼圆", Font.PLAIN, 19));
         lblctrl.setBounds(10, 10, 404, 26);
         getContentPane().add(lblctrl);
+        getContentPane().setBackground(Color.white);
 
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setBounds(10, 46, 356, 404);
@@ -87,11 +89,11 @@ class AnDataChooser extends JDialog implements BuildingSiteOperator {
 
     private void initEvent(){
         btnOK.addActionListener((e)->{
-            if (dialogResult==DialogResult.RESULT_OK)
-                selectedValue=list.getSelectedValues();
-            dispose();
+            dialogResult=DialogResult.RESULT_OK;
+            selectedValue=model.toArray();
             if (chooser!=null)
-                chooser.done((String[]) selectedValue);
+                chooser.done(AnUtils.toStringArray(selectedValue));
+            dispose();
         });
 
         btnCancel.addActionListener((e)->{
@@ -120,40 +122,31 @@ class AnDataChooser extends JDialog implements BuildingSiteOperator {
                 return;
             String string=JOptionPane.showInputDialog(this,chooser.getNewText()[MESSAGE_NEW_MESSAGE],chooser.getNewText()[MESSAGE_NEW_INNERTEXT]);
             if (string!=null&&!string.equals("")&&!string.equals(chooser.getNewText()[MESSAGE_NEW_INNERTEXT])){
-                if (chooser.newEvent(string))
+
+                if (chooser.newEvent(AnUtils.toStringArray(model.toArray()),string))
                     add(string);
             }else Application.informationWindow("请输入正确的值");
         });
     }
 
-    private void initData(String id){
-        ArrayList<String> arrayList;
-        assert DBManager.getManager() != null;
-        arrayList= (ArrayList<String>) DBManager.getManager().getWorker(id).find(PropertyFactory.LABEL_SITE).getValue();
-        if (arrayList!=null)
-            setSource(arrayList.toArray());
-    }
-
     /**
-     * 构造一个自定义标题，自定义内容提示文本，输入ID，自定义所有事件，并且输入固定集合的选择器
+     * 构造一个自定义标题，自定义内容提示文本，自定义所有事件，并且输入固定集合的选择器
      * @param title 标题
      * @param toolTip 提示文本
-     * @param id 身份证
      * @param chooser 选择器
-     * @param dataSize 数据集合数量
      */
-    AnDataChooser(String title,String toolTip,String id,Chooser chooser,int dataSize){
+    public AnDataChooser(String title, String toolTip, Chooser chooser,boolean addButtonEnable,Object[] source){
         initComponent(title,toolTip);
         initEvent();
-        initData(id);
+        setSource(source);
+        setAddButtonEnable(addButtonEnable);
         this.chooser=chooser;
         setModal(true);
         setVisible(true);
-        this.dataSize=dataSize;
     }
 
 
-    private void setSource(Object[] objects){
+    public void setSource(Object[] objects){
         if (model==null)
             model=new DefaultListModel();
         model.clear();
@@ -179,6 +172,10 @@ class AnDataChooser extends JDialog implements BuildingSiteOperator {
         if (!contains(value))
             model.addElement(value);
         list.revalidate();
+    }
+
+    public void setAddButtonEnable(boolean enable){
+        btnAdd.setEnabled(enable);
     }
 
     Object[] getSelectedValues(){

@@ -38,17 +38,18 @@ public class AnPopDialog extends JFrame{
                 dialog.setOpacity(0);
                 dialog.setVisible(true);
                 dialog.setFocusable(false);
+                dialog.setLocation(x,y-150);
                 if (component!=null) component.requestFocus();
                 for (float i=0;i<=1;i+=0.1f){
                     dialog.setOpacity(i);
-                    dialog.setLocation(x,y-(int)(i*10*15));
-                    Thread.sleep(16);
+                    //dialog.setLocation(x,y-(int)(i*10*15));
+                    Thread.sleep(25);
                 }
                 Thread.sleep(showTimeEnum);
                 for (float i=1;i>0;i-=0.1f){
                     dialog.setOpacity(i);
-                    dialog.setLocation(x,y-(int)(i*10*15));
-                    Thread.sleep(16);
+                    //dialog.setLocation(x,y-(int)(i*10*15));
+                    Thread.sleep(25);
                 }
                 dialog.dispose();
             } catch (InterruptedException e) {
@@ -69,7 +70,7 @@ public class AnPopDialog extends JFrame{
         labText.setForeground(Color.white);
         setAlwaysOnTop(true);
         setType(Type.UTILITY);
-        getContentPane().setBackground(Color.GRAY);
+        getContentPane().setBackground(new Color(0, 146, 128));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
 

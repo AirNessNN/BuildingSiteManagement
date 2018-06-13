@@ -1,10 +1,21 @@
 package application;
 
-public class AnInfoListDataModel {
+import java.util.Date;
+
+public class AnListRenderModel {
 	
 	private String title,info;
 	private boolean isSelected;
-	
+	private Date date;
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
 	public String getTitle() {
 		return title;
 	}
@@ -29,7 +40,7 @@ public class AnInfoListDataModel {
 		this.isSelected = isSelected;
 	}
 
-	public AnInfoListDataModel(String title, String info) {
+	public AnListRenderModel(String title, String info) {
 		// TODO Auto-generated constructor stub
 		this.title=title;
 		this.info=info;

@@ -69,7 +69,9 @@ public class AnCardPanelItem {
     public void setPanel(JPanel panel){
         if(panel==null)
             return;
-        if(this.panel.getSize().width!=0&&this.panel.getSize().height!=0){
+
+        this.panel=panel;
+        /*if(this.panel.getSize().width!=0&&this.panel.getSize().height!=0){
             panel.setSize(this.panel.getSize());
             this.panel=panel;
             this.panel.setLocation(0,0);
@@ -77,7 +79,8 @@ public class AnCardPanelItem {
         }
         this.panel=panel;
         this.panel.setLocation(0,0);
-        this.panel.setSize(0,0);
+        this.panel.setSize(0,0);*/
+        panel.repaint();
     }
 
 

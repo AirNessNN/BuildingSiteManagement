@@ -3,6 +3,7 @@ package dbManager;
 import application.AnUtils;
 import application.Application;
 import application.Loadable;
+import component.AnColor;
 import component.IDateValueItem;
 
 import java.io.IOException;
@@ -50,11 +51,10 @@ public class ChildrenManager implements Loadable {
      * @param id 工人身份证
      * @param site 要操作的工地
      * @param date 操作的日期
-     * @param mod 操作模式
      * @param value 此次操作的值
-     * @return 操作成功返回true，操作失败返回false
+     * @return 操作成功返回true，操作失败或者无操作返回false
      */
-    public boolean updateData(String id, String site, Date date, int mod, Object value,String tag) throws Exception{
+    public boolean updateData(String id, String site, Date date, Object value,String tag){
 
         AnDataTable worker;
         AnColumn siteData = null;
@@ -68,53 +68,58 @@ public class ChildrenManager implements Loadable {
         if (siteData==null)
             return false;
 
-        //开始操作
-        switch (mod){
-            case ChildrenManager.MOD_ADD:
-                ArrayList<IDateValueItem> tmp1 = siteData.getValues();
-                for (IDateValueItem item:tmp1){
-                    if (AnUtils.isDateYMDEquality(item.getDate(),date))
-                        throw new Exception("在数据中存在相同的日期！");
-                }
-                return siteData.addValue(new DateValueInfo(date,value,tag));
-            case ChildrenManager.MOD_ALTER: {
-                ArrayList<IDateValueItem> tmp = siteData.getValues();//获取该员工在该工地的所有考勤记录
-                for (IDateValueItem info : tmp) {
-                    //日期相等的情况下
-                    if (AnUtils.isDateYMDEquality(date,info.getDate())) {
-                        info.setValue(value);
-                        info.setTag(tag);
-                        return true;
-                    }
-                }
+        ArrayList<IDateValueItem> tmp1 = siteData.getValues();
+        for (IDateValueItem item:tmp1)
+            if (AnUtils.isDateYMDEquality(item.getDate(), date)) {
+                item.setValue(value);
+                item.setTag(tag);
                 return true;
             }
-            case ChildrenManager.MOD_DEL: {
-                ArrayList<IDateValueItem> tmpValue = siteData.getValues();
-                IDateValueItem delete = null;
-                for (IDateValueItem info : tmpValue) {
+        return siteData.addValue(new DateValueInfo(date,value,tag));
+    }
 
-                    if (AnUtils.isDateYMDEquality(date,info.getDate())) {
-                        delete=info;
-                    }
-                }
-                if (delete!=null){
-                    tmpValue.remove(delete);
-                    return true;
-                }
-                return false;
+    /**
+     * 删除一条数据
+     * @param id 身份信息
+     * @param siteName 工地名称
+     * @param date 日期
+     * @return 成功返回true
+     */
+    public boolean deleteData(String id,String siteName,Date date){
+        AnDataTable worker;
+        AnColumn siteData = null;
+        for (AnDataTable bean: workList){
+            if (bean.getName().equals(id)) {
+                worker = bean;
+                siteData=worker.findColumn(siteName);
+                break;
             }
+        }
+        if (siteData==null)
+            return false;
+
+        ArrayList<IDateValueItem> tmpValue = siteData.getValues();
+        IDateValueItem delete = null;
+        for (IDateValueItem info : tmpValue) {
+
+            if (AnUtils.isDateYMDEquality(date,info.getDate())) {
+                delete=info;
+            }
+        }
+        if (delete!=null){
+            tmpValue.remove(delete);
+            return true;
         }
         return false;
     }
 
     /**
      * 更新条目的日期信息
-     * @param id
-     * @param site
-     * @param od
-     * @param nd
-     * @return
+     * @param id id
+     * @param site 工地
+     * @param od 旧日期
+     * @param nd 新日期
+     * @return 成功返回true
      */
     public boolean updateDate(String id,String site,Date od,Date nd){
         AnDataTable worker;
@@ -290,6 +295,18 @@ public class ChildrenManager implements Loadable {
         return  null;
     }
 
+
+    public Object getValueAt(String id,String siteName,Date date){
+        AnDataTable worker=getWorker(id);
+        AnColumn site=worker.findColumn(siteName);
+        for (int i=0;i<site.size();i++){
+            IDateValueItem item= (IDateValueItem) site.get(i);
+            if (AnUtils.isDateYMDEquality(item.getDate(),date)){
+                return item.getValue();
+            }
+        }
+        return null;
+    }
     /**
      * 更新指定工人指定工地的数据
      * @param id

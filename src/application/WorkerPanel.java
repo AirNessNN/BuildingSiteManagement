@@ -9,48 +9,54 @@ import java.awt.Font;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Vector;
+import java.util.Date;
+import java.util.Objects;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
-
 import SwingTool.MyButton;
+import javax.swing.border.TitledBorder;
+import javax.swing.border.LineBorder;
+import java.awt.SystemColor;
 
 
-public class WorkerPanel extends ImagePanel implements Loadable, TableModelListener{
-	
-	//工人属性二维数组
-    private final String[] tableHeader={"数据类型","项目值"};
+public class WorkerPanel extends JPanel implements Loadable{
 
 	private volatile boolean isSearching=false;//搜索线程运行标记
     private volatile int textChanged=0;//文字是否发生改变  -1是删除   0是未改变   1增加
     private Runnable searchTask=null;//动态搜索Runnable
     private Runnable searchStateChangeTask=null;//动态搜索监听线程
 
-    private AnTable table;//表单
-
-    //列表控制===============
-    private int selectedIndex=-1;//选中的列表项
-
-    private Vector<Vector<String>> data=null;//表单中的数据
-    //控件
-    private MyButton btnSave;
     private AnTextField searchBox;
-    private AnList<AnInfoListDataModel> list=null;
+    private AnList<AnListRenderModel> list=null;
     private MyButton btnEntry;
-    private MyButton btnLeave;
     private MyButton btnPrint;
     private MyButton btnRefresh;
-    private MyButton button;
+    private MyButton btnPropertyAlert;
 
-    private AnComboBoxEditor cobSex =null;
-    private AnComboBoxEditor cobNation =null;
-    private AnComboBoxEditor cobWorkerState =null;
-    private AnComboBoxEditor cobWorkerType =null;
-    private AnComboBoxEditor cobSiteFrom=null;
-    private JComboBox<String> cobBuildingSite;//所属工地筛选器
+    private JComboBox<String> cobSite;//所属工地筛选器
+    private AnImageLabel anImageLabel;
+    private AnLabel labWorkingWorker;
+    private AnLabel labGotLivingCostCount;
+    private AnLabel labGotLivingCostToday;
+    private AnLabel labSumLeave;
+    private AnLabel labLeaveToday;
+    private AnLabel labFullCheckToday;
+    private AnLabel labBirthdayToday;
+    private JCheckBox cbShowLeave;
+    private AnLabel labCheckToday;
+    private AnLabel imgBirthday;
+    private AnLabel labAge;
+    private AnLabel labBorn;
+    private AnLabel labAddress;
+    private AnLabel labPhone;
+    private AnLabel labBankID;
+    private AnLabel labBankAddress;
+    private AnLabel labNation;
+    private AnLabel labWorkingSiteCount;
 
-    private AnDateComboBoxEditor dataCob=null;
+    private int birthdayCount=0;//生日人数
 
 
 
@@ -63,102 +69,409 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
      */
     private void initView(){
         this.setSize(934,671);
-        setIcon(AnUtils.getImageIcon(Resource.getResource("workpanel.png")));
+        SpringLayout springLayout = new SpringLayout();
+        setLayout(springLayout);
 
         JScrollPane scrollPane = new JScrollPane();
+        springLayout.putConstraint(SpringLayout.NORTH, scrollPane, 147, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.WEST, scrollPane, 10, SpringLayout.WEST, this);
+        springLayout.putConstraint(SpringLayout.SOUTH, scrollPane, -10, SpringLayout.SOUTH, this);
         scrollPane.setViewportBorder(new EmptyBorder(0, 0, 0, 0));
-        scrollPane.setBounds(10, 147, 357, 514);
         add(scrollPane);
         
         list=new AnList<>(new AnInfoCellRenderer(),355,60);
         scrollPane.setViewportView(list);
 
         AnLabel lblTitle = new AnLabel("工人管理");
-        lblTitle.setBounds(10, 10, 175, 52);
+        springLayout.putConstraint(SpringLayout.NORTH, lblTitle, 10, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.WEST, lblTitle, 10, SpringLayout.WEST, this);
+        springLayout.putConstraint(SpringLayout.SOUTH, lblTitle, 62, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.EAST, lblTitle, 185, SpringLayout.WEST, this);
         lblTitle.setFont(new Font("方正兰亭超细黑简体", Font.PLAIN, 40));
         lblTitle.setForeground(Color.WHITE);
         add(lblTitle);
         
         searchBox = new AnTextField();
+        searchBox.setForeground(SystemColor.textInactiveText);
+        searchBox.setFont(new Font("微软雅黑", Font.PLAIN, 15));
+        springLayout.putConstraint(SpringLayout.NORTH, searchBox, 83, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.WEST, searchBox, 10, SpringLayout.WEST, this);
+        springLayout.putConstraint(SpringLayout.SOUTH, searchBox, 106, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.EAST, searchBox, 275, SpringLayout.WEST, this);
         searchBox.setText("输入名字或身份证信息查找");
-        searchBox.setBounds(10, 83, 357, 23);
         add(searchBox);
 
         //身份证的字符限制
         searchBox.setColumns(18);
 
-        btnPrint = new MyButton("\u6253\u5370\u8868");
-        btnPrint.setToolTipText("\u5C06\u6240\u6709\u5DE5\u4EBA\u4FE1\u606F\u6253\u5370\u5230\u8868\u4E2D");
-        btnPrint.setBounds(647, 84, 76, 23);
+        btnPrint = new MyButton("打印信息");
+        springLayout.putConstraint(SpringLayout.NORTH, btnPrint, 1, SpringLayout.NORTH, searchBox);
+        springLayout.putConstraint(SpringLayout.SOUTH, btnPrint, 107, SpringLayout.NORTH, this);
+        btnPrint.setToolTipText("将列表中的所有工人的个人信息，打印成列表");
         add(btnPrint);
 
 
-        btnEntry = new MyButton("\u5165\u804C\u767B\u8BB0");
-        btnEntry.setToolTipText("\u589E\u52A0\u65B0\u5458\u5DE5\u5230\u6570\u636E\u5E93\u4E2D");
-        btnEntry.setBounds(377, 84, 80, 23);
+        btnEntry = new MyButton("添加工人");
+        springLayout.putConstraint(SpringLayout.NORTH, btnEntry, 1, SpringLayout.NORTH, searchBox);
+        springLayout.putConstraint(SpringLayout.SOUTH, btnEntry, 107, SpringLayout.NORTH, this);
+        btnEntry.setToolTipText("创建一个新的工人，并且可以快捷设置他的工地");
         add(btnEntry);
-
-        btnLeave = new MyButton("\u79BB\u804C\u767B\u8BB0");
-        btnLeave.setToolTipText("\u9009\u5B9A\u7684\u5DE5\u4EBA\u5C06\u4F1A\u79BB\u804C");
-        btnLeave.setBounds(467, 84, 80, 23);
-        add(btnLeave);
         
-        btnRefresh = new MyButton("\u5237\u65B0");
-        btnRefresh.setBounds(733, 84, 63, 23);
+        btnRefresh = new MyButton("刷新");
+        springLayout.putConstraint(SpringLayout.WEST, btnPrint, -90, SpringLayout.WEST, btnRefresh);
+        springLayout.putConstraint(SpringLayout.WEST, btnRefresh, -70, SpringLayout.EAST, this);
+        springLayout.putConstraint(SpringLayout.EAST, btnPrint, -6, SpringLayout.WEST, btnRefresh);
+        springLayout.putConstraint(SpringLayout.NORTH, btnRefresh, 1, SpringLayout.NORTH, searchBox);
+        springLayout.putConstraint(SpringLayout.SOUTH, btnRefresh, 107, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.EAST, btnRefresh, -10, SpringLayout.EAST, this);
         add(btnRefresh);
-        
-        JScrollPane scrollPane_1 = new JScrollPane();
-        scrollPane_1.setBounds(377, 114, 547, 547);
-        add(scrollPane_1);
 
-        //表单
-        table=new AnTable();
-        table.setRowHeight(30);
-        table.setFont(Resource.FONT_TABLE_ITEM);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        scrollPane_1.setViewportView(table);
-
-        //定义表单模型
-        table.setCellColumnEdited(0,false);
-        //table.setCellEdited(0,0,false);
+        btnPropertyAlert = new MyButton("属性修改");
+        springLayout.putConstraint(SpringLayout.WEST, btnEntry, -90, SpringLayout.WEST, btnPropertyAlert);
+        springLayout.putConstraint(SpringLayout.EAST, btnEntry, -6, SpringLayout.WEST, btnPropertyAlert);
+        springLayout.putConstraint(SpringLayout.WEST, btnPropertyAlert, -90, SpringLayout.WEST, btnPrint);
+        springLayout.putConstraint(SpringLayout.NORTH, btnPropertyAlert, 1, SpringLayout.NORTH, searchBox);
+        springLayout.putConstraint(SpringLayout.SOUTH, btnPropertyAlert, 107, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.EAST, btnPropertyAlert, -6, SpringLayout.WEST, btnPrint);
+        btnPropertyAlert.setToolTipText("增删改属性");
+        add(btnPropertyAlert);
         
-        btnSave = new MyButton("\u5237\u65B0");
-        btnSave.setEnabled(false);
-        btnSave.setText("\u4FDD\u5B58");
-        btnSave.setBounds(861, 84, 63, 23);
-        add(btnSave);
-
-        button = new MyButton("\u5C5E\u6027\u4FEE\u6539");
-        button.setToolTipText("\u6DFB\u52A0\u6216\u5220\u9664\u5DE5\u4EBA\u7684\u5C5E\u6027");
-        button.setBounds(557, 84, 80, 23);
-        add(button);
-        
-        cobBuildingSite = new JComboBox<>();
-        cobBuildingSite.setBounds(83, 116, 284, 21);
-        add(cobBuildingSite);
-        cobBuildingSite.addItem("全部");
-        //cobBuildingSite.addItem("所有");//Debug
+        cobSite = new JComboBox<>();
+        cobSite.setFont(new Font("等线", Font.PLAIN, 15));
+        springLayout.putConstraint(SpringLayout.NORTH, cobSite, 116, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.WEST, cobSite, 83, SpringLayout.WEST, this);
+        springLayout.putConstraint(SpringLayout.EAST, cobSite, 367, SpringLayout.WEST, this);
+        add(cobSite);
+        cobSite.addItem("全部");
+        //cobSite.addItem("所有");//Debug
         
         JLabel label = new JLabel("\u6240\u5C5E\u5DE5\u5730");
-        label.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-        label.setBounds(10, 120, 63, 15);
+        label.setForeground(SystemColor.textInactiveText);
+        springLayout.putConstraint(SpringLayout.NORTH, label, 120, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.WEST, label, 10, SpringLayout.WEST, this);
+        springLayout.putConstraint(SpringLayout.SOUTH, label, 135, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.EAST, label, 73, SpringLayout.WEST, this);
+        label.setFont(new Font("微软雅黑", Font.PLAIN, 15));
         add(label);
-
-        table.setColumn(tableHeader);
-        table.getColumnModel().getColumn(0).setPreferredWidth(261);
-        table.getColumnModel().getColumn(1).setPreferredWidth(318);
-        table.getTableHeader().setReorderingAllowed(false);
-        table.getTableHeader().setFont(new Font(Resource.FONT_WEI_RUAN_YA_HEI,Font.PLAIN,17));
-        table.getTableHeader().setResizingAllowed(false);
-
-        cobSex=new AnComboBoxEditor();
-        cobSex.setEditable(false);
-        cobNation=new AnComboBoxEditor();
-        cobWorkerState=new AnComboBoxEditor();
-        cobWorkerType=new AnComboBoxEditor();
-        cobSiteFrom=new AnComboBoxEditor();
-        cobSiteFrom.setEditable(false);
-        dataCob=new AnDateComboBoxEditor();
+        
+        AnImageLabel lblNewLabel = new AnImageLabel(Resource.getResource("workpanel_banner.png"));
+        springLayout.putConstraint(SpringLayout.NORTH, lblNewLabel, 0, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.WEST, lblNewLabel, -934, SpringLayout.EAST, this);
+        springLayout.putConstraint(SpringLayout.SOUTH, lblNewLabel, 76, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.EAST, lblNewLabel, 0, SpringLayout.EAST, this);
+        add(lblNewLabel);
+        
+        anImageLabel = new AnImageLabel(new Color(24, 96, 48));
+        springLayout.putConstraint(SpringLayout.NORTH, anImageLabel, 0, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.WEST, anImageLabel, 0, SpringLayout.WEST, this);
+        springLayout.putConstraint(SpringLayout.SOUTH, anImageLabel, 76, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.EAST, anImageLabel, 0, SpringLayout.EAST, this);
+        add(anImageLabel);
+        
+        cbShowLeave = new JCheckBox("显示离职");
+        cbShowLeave.setForeground(SystemColor.textInactiveText);
+        cbShowLeave.setBackground(Color.WHITE);
+        cbShowLeave.setFont(new Font("等线", Font.PLAIN, 15));
+        springLayout.putConstraint(SpringLayout.WEST, cbShowLeave, 6, SpringLayout.EAST, searchBox);
+        springLayout.putConstraint(SpringLayout.SOUTH, cbShowLeave, 0, SpringLayout.SOUTH, searchBox);
+        springLayout.putConstraint(SpringLayout.EAST, cbShowLeave, 0, SpringLayout.EAST, cobSite);
+        add(cbShowLeave);
+        
+        JPanel panel = new JPanel();
+        springLayout.putConstraint(SpringLayout.NORTH, panel, 0, SpringLayout.NORTH, cobSite);
+        springLayout.putConstraint(SpringLayout.WEST, panel, 10, SpringLayout.EAST, cobSite);
+        springLayout.putConstraint(SpringLayout.SOUTH, panel, 200, SpringLayout.NORTH, cobSite);
+        springLayout.putConstraint(SpringLayout.EAST, panel, -10, SpringLayout.EAST, this);
+        panel.setBorder(
+                new TitledBorder(
+                        new LineBorder(
+                                new Color(192, 192, 192), 1, true),
+                        "HUB信息中心",
+                        TitledBorder.LEADING, TitledBorder.TOP, 
+                        new Font(Resource.FONT_WEI_RUAN_YA_HEI,Font.PLAIN,15),
+                        new Color(114, 114, 114)
+                )
+        );
+        panel.setBackground(Color.WHITE);
+        add(panel);
+        panel.setLayout(null);
+        
+        JLabel label_1 = new JLabel("在职工人数量：");
+        label_1.setForeground(SystemColor.textInactiveText);
+        label_1.setFont(new Font("等线", Font.PLAIN, 16));
+        label_1.setBounds(10, 27, 117, 15);
+        panel.add(label_1);
+        
+        labWorkingWorker = new AnLabel("未知");
+        labWorkingWorker.setForeground(SystemColor.textHighlight);
+        labWorkingWorker.setFont(new Font("等线", Font.PLAIN, 16));
+        labWorkingWorker.setBounds(137, 27, 90, 15);
+        panel.add(labWorkingWorker);
+        
+        JLabel label_3 = new AnLabel("今日出勤人数：");
+        label_3.setForeground(SystemColor.textInactiveText);
+        label_3.setFont(new Font("等线", Font.PLAIN, 16));
+        label_3.setBounds(10, 76, 117, 15);
+        panel.add(label_3);
+        
+        labCheckToday = new AnLabel("未知");
+        labCheckToday.setForeground(SystemColor.textHighlight);
+        labCheckToday.setFont(new Font("等线", Font.PLAIN, 16));
+        labCheckToday.setBounds(137, 76, 90, 15);
+        panel.add(labCheckToday);
+        
+        JLabel label_5 = new JLabel("今日领取生活费人数：");
+        label_5.setForeground(SystemColor.textInactiveText);
+        label_5.setFont(new Font("等线", Font.PLAIN, 16));
+        label_5.setBounds(253, 27, 165, 15);
+        panel.add(label_5);
+        
+        labGotLivingCostCount = new AnLabel("未知");
+        labGotLivingCostCount.setForeground(SystemColor.textHighlight);
+        labGotLivingCostCount.setFont(new Font("等线", Font.PLAIN, 16));
+        labGotLivingCostCount.setBounds(428, 27, 109, 15);
+        panel.add(labGotLivingCostCount);
+        
+        JLabel label_7 = new JLabel("今日领取生活费总额：");
+        label_7.setForeground(SystemColor.textInactiveText);
+        label_7.setFont(new Font("等线", Font.PLAIN, 16));
+        label_7.setBounds(253, 52, 165, 15);
+        panel.add(label_7);
+        
+        labGotLivingCostToday = new AnLabel("未知");
+        labGotLivingCostToday.setForeground(SystemColor.textHighlight);
+        labGotLivingCostToday.setFont(new Font("等线", Font.PLAIN, 16));
+        labGotLivingCostToday.setBounds(428, 52, 109, 15);
+        panel.add(labGotLivingCostToday);
+        
+        JLabel label_9 = new JLabel("离职工人数量：");
+        label_9.setForeground(SystemColor.textInactiveText);
+        label_9.setFont(new Font("等线", Font.PLAIN, 16));
+        label_9.setBounds(10, 52, 117, 15);
+        panel.add(label_9);
+        
+        labSumLeave = new AnLabel("未知");
+        labSumLeave.setForeground(SystemColor.textHighlight);
+        labSumLeave.setFont(new Font("等线", Font.PLAIN, 16));
+        labSumLeave.setBounds(137, 52, 90, 15);
+        panel.add(labSumLeave);
+        
+        JLabel label_11 = new JLabel("今日离职数量：");
+        label_11.setForeground(SystemColor.textInactiveText);
+        label_11.setFont(new Font("等线", Font.PLAIN, 16));
+        label_11.setBounds(10, 125, 117, 15);
+        panel.add(label_11);
+        
+        labLeaveToday = new AnLabel("未知");
+        labLeaveToday.setForeground(SystemColor.textHighlight);
+        labLeaveToday.setFont(new Font("等线", Font.PLAIN, 16));
+        labLeaveToday.setBounds(137, 125, 90, 15);
+        panel.add(labLeaveToday);
+        
+        JLabel label_13 = new JLabel("今日全勤人数：");
+        label_13.setForeground(SystemColor.textInactiveText);
+        label_13.setFont(new Font("等线", Font.PLAIN, 16));
+        label_13.setBounds(10, 100, 117, 15);
+        panel.add(label_13);
+        
+        labFullCheckToday = new AnLabel("未知");
+        labFullCheckToday.setForeground(SystemColor.textHighlight);
+        labFullCheckToday.setFont(new Font("等线", Font.PLAIN, 16));
+        labFullCheckToday.setBounds(137, 101, 90, 15);
+        panel.add(labFullCheckToday);
+        
+        JLabel label_2 = new JLabel("今日生日人数：");
+        label_2.setForeground(SystemColor.textInactiveText);
+        label_2.setFont(new Font("等线", Font.PLAIN, 16));
+        label_2.setBounds(10, 151, 117, 15);
+        panel.add(label_2);
+        
+        labBirthdayToday = new AnLabel("未知");
+        labBirthdayToday.setForeground(SystemColor.textHighlight);
+        labBirthdayToday.setFont(new Font("等线", Font.PLAIN, 16));
+        labBirthdayToday.setBounds(137, 151, 90, 15);
+        panel.add(labBirthdayToday);
+        
+        imgBirthday = new AnLabel("生日提醒");
+        imgBirthday.setFont(new Font("等线", Font.PLAIN, 15));
+        springLayout.putConstraint(SpringLayout.NORTH, imgBirthday, -60, SpringLayout.SOUTH, this);
+        springLayout.putConstraint(SpringLayout.WEST, imgBirthday, -70, SpringLayout.EAST, this);
+        springLayout.putConstraint(SpringLayout.SOUTH, imgBirthday, -10, SpringLayout.SOUTH, this);
+        springLayout.putConstraint(SpringLayout.EAST, imgBirthday, -10, SpringLayout.EAST, btnRefresh);
+        add(imgBirthday);
+        
+        JPanel panel_1 = new JPanel();
+        springLayout.putConstraint(SpringLayout.NORTH, panel_1, 10, SpringLayout.SOUTH, panel);
+        springLayout.putConstraint(SpringLayout.WEST, panel_1, 0, SpringLayout.WEST, panel);
+        springLayout.putConstraint(SpringLayout.SOUTH, panel_1, -10, SpringLayout.NORTH, imgBirthday);
+        springLayout.putConstraint(SpringLayout.EAST, panel_1, 0, SpringLayout.EAST, panel);
+        panel_1.setBorder(
+                new TitledBorder(
+                        new LineBorder(
+                                new Color(192, 192, 192), 1, true),
+                        "工人简略信息",
+                        TitledBorder.LEADING,
+                        TitledBorder.TOP,
+                        new Font(Resource.FONT_WEI_RUAN_YA_HEI,Font.PLAIN,15),
+                        new Color(114, 114, 114)
+                )
+        );
+        panel_1.setBackground(Color.WHITE);
+        add(panel_1);
+        SpringLayout sl_panel_1 = new SpringLayout();
+        panel_1.setLayout(sl_panel_1);
+        
+        JLabel label_4 = new JLabel("年龄：");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, label_4, 5, SpringLayout.NORTH, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.WEST, label_4, 10, SpringLayout.WEST, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, label_4, 20, SpringLayout.NORTH, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.EAST, label_4, 127, SpringLayout.WEST, panel_1);
+        label_4.setForeground(SystemColor.textInactiveText);
+        label_4.setHorizontalAlignment(SwingConstants.RIGHT);
+        label_4.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(label_4);
+        
+        JLabel label_6 = new JLabel("出生日期：");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, label_6, 10, SpringLayout.SOUTH, label_4);
+        sl_panel_1.putConstraint(SpringLayout.WEST, label_6, 10, SpringLayout.WEST, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, label_6, 25, SpringLayout.SOUTH, label_4);
+        sl_panel_1.putConstraint(SpringLayout.EAST, label_6, 127, SpringLayout.WEST, panel_1);
+        label_6.setForeground(SystemColor.textInactiveText);
+        label_6.setHorizontalAlignment(SwingConstants.RIGHT);
+        label_6.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(label_6);
+        
+        JLabel label_8 = new JLabel("家庭住址：");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, label_8, 10, SpringLayout.SOUTH, label_6);
+        sl_panel_1.putConstraint(SpringLayout.WEST, label_8, 10, SpringLayout.WEST, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, label_8, 25, SpringLayout.SOUTH, label_6);
+        sl_panel_1.putConstraint(SpringLayout.EAST, label_8, 124, SpringLayout.WEST, panel_1);
+        label_8.setForeground(SystemColor.textInactiveText);
+        label_8.setHorizontalAlignment(SwingConstants.RIGHT);
+        label_8.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(label_8);
+        
+        JLabel label_10 = new JLabel("联系方式：");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, label_10, 10, SpringLayout.SOUTH, label_8);
+        sl_panel_1.putConstraint(SpringLayout.WEST, label_10, 0, SpringLayout.WEST, label_4);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, label_10, 25, SpringLayout.SOUTH, label_8);
+        sl_panel_1.putConstraint(SpringLayout.EAST, label_10, 127, SpringLayout.WEST, panel_1);
+        label_10.setForeground(SystemColor.textInactiveText);
+        label_10.setHorizontalAlignment(SwingConstants.RIGHT);
+        label_10.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(label_10);
+        
+        JLabel label_12 = new JLabel("银行账户：");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, label_12, 10, SpringLayout.SOUTH, label_10);
+        sl_panel_1.putConstraint(SpringLayout.WEST, label_12, 0, SpringLayout.WEST, label_4);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, label_12, 25, SpringLayout.SOUTH, label_10);
+        sl_panel_1.putConstraint(SpringLayout.EAST, label_12, 127, SpringLayout.WEST, panel_1);
+        label_12.setForeground(SystemColor.textInactiveText);
+        label_12.setHorizontalAlignment(SwingConstants.RIGHT);
+        label_12.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(label_12);
+        
+        labAge = new AnLabel("未知");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, labAge, 5, SpringLayout.NORTH, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.WEST, labAge, 137, SpringLayout.WEST, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, labAge, 20, SpringLayout.NORTH, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.EAST, labAge, -10, SpringLayout.EAST, panel_1);
+        labAge.setForeground(SystemColor.textHighlight);
+        labAge.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(labAge);
+        
+        labBorn = new AnLabel("未知");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, labBorn, 0, SpringLayout.NORTH, label_6);
+        sl_panel_1.putConstraint(SpringLayout.WEST, labBorn, 137, SpringLayout.WEST, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, labBorn, 0, SpringLayout.SOUTH, label_6);
+        sl_panel_1.putConstraint(SpringLayout.EAST, labBorn, -10, SpringLayout.EAST, panel_1);
+        labBorn.setForeground(SystemColor.textHighlight);
+        labBorn.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(labBorn);
+        
+        labAddress = new AnLabel("未知");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, labAddress, 0, SpringLayout.NORTH, label_8);
+        sl_panel_1.putConstraint(SpringLayout.WEST, labAddress, 0, SpringLayout.WEST, labAge);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, labAddress, 0, SpringLayout.SOUTH, label_8);
+        sl_panel_1.putConstraint(SpringLayout.EAST, labAddress, -10, SpringLayout.EAST, panel_1);
+        labAddress.setForeground(SystemColor.textHighlight);
+        labAddress.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(labAddress);
+        
+        labPhone = new AnLabel("未知");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, labPhone, 0, SpringLayout.NORTH, label_10);
+        sl_panel_1.putConstraint(SpringLayout.WEST, labPhone, 137, SpringLayout.WEST, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, labPhone, 0, SpringLayout.SOUTH, label_10);
+        sl_panel_1.putConstraint(SpringLayout.EAST, labPhone, -10, SpringLayout.EAST, panel_1);
+        labPhone.setForeground(SystemColor.textHighlight);
+        labPhone.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(labPhone);
+        
+        labBankID = new AnLabel("未知");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, labBankID, 0, SpringLayout.NORTH, label_12);
+        sl_panel_1.putConstraint(SpringLayout.WEST, labBankID, 137, SpringLayout.WEST, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, labBankID, 0, SpringLayout.SOUTH, label_12);
+        sl_panel_1.putConstraint(SpringLayout.EAST, labBankID, -10, SpringLayout.EAST, panel_1);
+        labBankID.setForeground(SystemColor.textHighlight);
+        labBankID.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(labBankID);
+        
+        JLabel label_15 = new JLabel("开户地址：");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, label_15, 10, SpringLayout.SOUTH, label_12);
+        sl_panel_1.putConstraint(SpringLayout.WEST, label_15, 0, SpringLayout.WEST, label_4);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, label_15, 25, SpringLayout.SOUTH, label_12);
+        sl_panel_1.putConstraint(SpringLayout.EAST, label_15, 124, SpringLayout.WEST, panel_1);
+        label_15.setHorizontalAlignment(SwingConstants.RIGHT);
+        label_15.setForeground(SystemColor.textInactiveText);
+        label_15.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(label_15);
+        
+        labBankAddress = new AnLabel("未知");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, labBankAddress, 0, SpringLayout.NORTH, label_15);
+        sl_panel_1.putConstraint(SpringLayout.WEST, labBankAddress, 137, SpringLayout.WEST, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, labBankAddress, 0, SpringLayout.SOUTH, label_15);
+        sl_panel_1.putConstraint(SpringLayout.EAST, labBankAddress, -10, SpringLayout.EAST, panel_1);
+        labBankAddress.setForeground(SystemColor.textHighlight);
+        labBankAddress.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(labBankAddress);
+        
+        JLabel label_16 = new JLabel("民族：");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, label_16, 10, SpringLayout.SOUTH, label_15);
+        sl_panel_1.putConstraint(SpringLayout.WEST, label_16, 0, SpringLayout.WEST, label_4);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, label_16, 25, SpringLayout.SOUTH, label_15);
+        sl_panel_1.putConstraint(SpringLayout.EAST, label_16, 127, SpringLayout.WEST, panel_1);
+        label_16.setHorizontalAlignment(SwingConstants.RIGHT);
+        label_16.setForeground(SystemColor.textInactiveText);
+        label_16.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(label_16);
+        
+        labNation = new AnLabel("未知");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, labNation, 0, SpringLayout.NORTH, label_16);
+        sl_panel_1.putConstraint(SpringLayout.WEST, labNation, 137, SpringLayout.WEST, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, labNation, 0, SpringLayout.SOUTH, label_16);
+        sl_panel_1.putConstraint(SpringLayout.EAST, labNation, -10, SpringLayout.EAST, panel_1);
+        labNation.setForeground(SystemColor.textHighlight);
+        labNation.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(labNation);
+        
+        JLabel label_14 = new JLabel("工作工地数量：");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, label_14, -30, SpringLayout.SOUTH, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.WEST, label_14, 10, SpringLayout.WEST, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, label_14, -10, SpringLayout.SOUTH, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.EAST, label_14, 127, SpringLayout.WEST, panel_1);
+        label_14.setHorizontalAlignment(SwingConstants.RIGHT);
+        label_14.setForeground(SystemColor.textInactiveText);
+        label_14.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(label_14);
+        
+        labWorkingSiteCount = new AnLabel("未知");
+        sl_panel_1.putConstraint(SpringLayout.NORTH, labWorkingSiteCount, 0, SpringLayout.NORTH, label_14);
+        sl_panel_1.putConstraint(SpringLayout.WEST, labWorkingSiteCount, 137, SpringLayout.WEST, panel_1);
+        sl_panel_1.putConstraint(SpringLayout.SOUTH, labWorkingSiteCount, 0, SpringLayout.SOUTH, label_14);
+        sl_panel_1.putConstraint(SpringLayout.EAST, labWorkingSiteCount, 227, SpringLayout.WEST, panel_1);
+        labWorkingSiteCount.setForeground(SystemColor.textHighlight);
+        labWorkingSiteCount.setFont(new Font("等线", Font.PLAIN, 16));
+        panel_1.add(labWorkingSiteCount);
     }
 
     private void initEvent(){
@@ -179,19 +492,14 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
 
         //入职登记
         btnEntry.addActionListener((e)->{
+            assert DBManager.getManager() != null;
             DBManager.getManager().createWorker();
-        });
-
-        //保存表单
-        btnSave.addActionListener((e)->{
-            saveToMemory();
+            refresh();
         });
 
         //刷新列表
         btnRefresh.addActionListener((e)->{
-            loadingProperty();
-            loadingList();
-            list.revalidate();
+            refresh();
             list.requestFocus();
         });
 
@@ -213,9 +521,6 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
             public void changedUpdate(DocumentEvent e) {
             }
         });
-
-        //表格数据监听
-        table.getTableModel().addTableModelListener(this);
 
         //搜索线程方法
         searchTask= () -> {
@@ -241,7 +546,7 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
                     String strName=(String) name.getValue();
                     String strNum=(String)number.getValue();
                     if(strName.contains(value)||strNum.contains(value)){
-                        AnInfoListDataModel listDataModel=new AnInfoListDataModel(strName,strNum);
+                        AnListRenderModel listDataModel=new AnListRenderModel(strName,strNum);
                         list.addElement(listDataModel);
                     }
                 }
@@ -249,7 +554,6 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
                     list.notify();
                 }
             }
-
             isSearching=false;
         };
 
@@ -277,36 +581,20 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
 
         //List点击
         list.addListSelectionListener(e -> {
-
-            AnInfoListDataModel tmpModel=list.getElementAt(list.getSelectedIndex());
-            //保存按钮开启，意味着有数据改动（数据改动由方法控制，是否开启保存按钮由监听事件控制）
-            if(btnSave.isEnabled()){
-                int opa=JOptionPane.showConfirmDialog(WorkerPanel.this,"有改动的数据，是否保存？","保存提示",JOptionPane.YES_NO_OPTION);
-                if(opa==JOptionPane.YES_OPTION){
-                    saveToMemory();
-                    fillTableData(tmpModel);
-                }else{
-                    //舍弃填充
-                    btnSave.setEnabled(false);
-                    fillTableData(tmpModel);
-                }
-                list.requestFocus();
-            }
-            //在存在焦点的情况下才会填充数据，为了防止在loading list的时候触发
-            if(list.hasFocus()){
-                fillTableData(tmpModel);
-            }
+            AnListRenderModel tmpModel=list.getElementAt(list.getSelectedIndex());
+            showWorkerInfo(tmpModel);
         });
 
+        //双击打开工人窗口
         list.addMouseListener(new MouseInputAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount()==2){
-                    AnInfoListDataModel model=list.getElementAt(list.getSelectedIndex());
-                    String siteName=cobBuildingSite.getSelectedItem().toString();
+                    AnListRenderModel model=list.getElementAt(list.getSelectedIndex());
+                    String siteName=Objects.requireNonNull(cobSite.getSelectedItem()).toString();
 
-                    WindowBuilder.showWorkWindow(model.getInfo(),siteName,(values)->{
-
+                    WindowBuilder.showWorkWindow(model.getInfo(),siteName,(values)-> {
+                        refresh();
                         return true;
                     });
                 }
@@ -314,15 +602,22 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         });
 
         //工地筛选事件
-        cobBuildingSite.addItemListener(e -> {
+        cobSite.addItemListener(e -> {
             searchBox.setText("输入名字或身份证信息查找");
             loadingList();
         });
 
+        cbShowLeave.addActionListener((e)-> loadingList());
 
+        btnPropertyAlert.addActionListener(e->{
+            WindowBuilder.showPropertyWindow();
+        });
     }
 
-    public void initData(){
+    /**
+     * 初始化
+     */
+    private void initData(){
         loading(null);
     }
 
@@ -334,7 +629,8 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
      *
      *
      */
-    public WorkerPanel(){
+    WorkerPanel(){
+    	setBackground(Color.WHITE);
         initView();
         initEvent();
         initData();
@@ -343,9 +639,9 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
 
     /**
      * 搜索工人
-     * @param state
+     * @param state 状态
      */
-    public void search(int state){
+    private void search(int state){
         if(list==null)
             return;
 
@@ -361,68 +657,26 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
         }
     }
 
-
-    /**
-     * 填充工人数据到列表
-     * @param listDataModel
-     */
-    public void fillTableData(AnInfoListDataModel listDataModel){
-        if(list.getItemSize()<=0)
-            return;
-        if(listDataModel==null)
-            return;
-       if(table==null)
-           return;
-
-        //从原表中搜索到Bean
-        AnBean bean=null;
-        for(AnBean anBean :DBManager.getManager().loadingWorkerList()){
-            if(anBean.find(PropertyFactory.LABEL_NAME).getValue().equals(listDataModel.getTitle())&&
-                    anBean.find(PropertyFactory.LABEL_ID_CARD).getValue().equals(listDataModel.getInfo())){
-                bean= anBean;
-                selectedIndex=DBManager.getManager().loadingWorkerList().indexOf(anBean);
-                break;
-            }
-        }
-
-       //定义数据
-       data=new Vector<>();
-       //获取列表中的数据
-        assert bean != null;
-        for(Info info : bean.getArray()){
-            if(!info.isShow()){
-                continue;
-            }
-            Vector<String> tmpD=new Vector<>();
-            tmpD.add(info.getName());
-            tmpD.add(info.getValueString());
-            data.add(tmpD);
-        }
-        Vector<String> name=new Vector<>();
-        name.add(tableHeader[0]);
-        name.add(tableHeader[1]);
-
-        //填充表单并设置相关属性
-        table.getTableModel().setDataVector(data,name);
-    }
-
-
     /**
      * 读取DBManager中的已经装载好的
      */
-    public void loadingList(){
+    private void loadingList(){
         if(list!=null)
             list.clear();
         //读取工人列表
         ArrayList<AnBean> beans;
-       if (cobBuildingSite==null){
-            beans=DBManager.getManager().loadingWorkerList();
-       }else if(cobBuildingSite.getSelectedItem()==null){
-            beans=DBManager.getManager().loadingWorkerList();
-       }else if(cobBuildingSite.getSelectedItem().equals("全部")){
+       if (cobSite ==null){
+           assert DBManager.getManager() != null;
+           beans=DBManager.getManager().loadingWorkerList();
+       }else if(cobSite.getSelectedItem()==null){
+           assert DBManager.getManager() != null;
+           beans=DBManager.getManager().loadingWorkerList();
+       }else if(cobSite.getSelectedItem().equals("全部")){
+           assert DBManager.getManager() != null;
            beans=DBManager.getManager().loadingWorkerList();
        }else{
-           String value =(String)cobBuildingSite.getSelectedItem();
+           String value =(String) cobSite.getSelectedItem();
+           assert DBManager.getManager() != null;
            AnDataTable dataTable=DBManager.getManager().getBuildingSite(value);
            beans=new ArrayList<>();
            for (Object id:dataTable.findColumn(PropertyFactory.LABEL_ID_CARD).toArray()){
@@ -436,164 +690,120 @@ public class WorkerPanel extends ImagePanel implements Loadable, TableModelListe
             //获取值
             String strName=(String) name.getValue();
             String strNum=(String)number.getValue();
+            //判断离职
+           if (!cbShowLeave.isSelected())
+               if (cobSite.getSelectedItem() == null || cobSite.getSelectedItem().equals("全部")) {
+                   if (DBManager.getManager().isWorkerLeaveAllSite(strNum)) continue;
+               } else if (DBManager.getManager().isWorkerLeave(strNum, cobSite.getSelectedItem().toString())) continue;
             //转换成列表模型
-            AnInfoListDataModel model=new AnInfoListDataModel(strName,strNum);
+            AnListRenderModel model=new AnListRenderModel(strName,strNum);
             //添加到列表
             list.addElement(model);
         }
         repaint();
     }
 
+    /**
+     * 刷新所有数据
+     */
+    private void refresh(){
+        assert DBManager.getManager() != null;
+        DBManager.getManager().updateSalaryManagerData();
+        DBManager.getManager().updateWorkerBaseData();
+        loading(null);
+        list.revalidate();
+    }
+
+
+    /**
+     * 显示工人信息
+     * @param model 模型
+     */
+    private void showWorkerInfo(AnListRenderModel model){
+        if (model==null)
+            return;
+        assert DBManager.getManager() != null;
+        AnBean worker=DBManager.getManager().getWorker(model.getInfo());
+        if (worker==null)
+            return;
+        labAge.setText(String.valueOf(AnUtils.convertAge(model.getInfo())));
+        labBorn.setText(new SimpleDateFormat(Resource.DATE_FORMATE).format(AnUtils.convertBornDate(model.getInfo())));
+        labAddress.setText(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ADDRESS));
+        labPhone.setText(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_PHONE));
+        labBankID.setText(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_BANK_ID));
+        labBankAddress.setText(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_BANK_ADDRESS));
+        labNation.setText(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_NATION));
+        labWorkingSiteCount.setText(String.valueOf(DBManager.getManager().getWorkerAt(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD)).size()));
+    }
+
+    /**
+     * 显示生日信息
+     */
+    private void showBirthday(){
+        StringBuilder sb=new StringBuilder();
+        Date td=new Date();
+        boolean hasBirthday=false;
+        birthdayCount=0;
+
+        for (AnBean worker:DBManager.getManager().loadingWorkerList()){
+            String id=DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD);
+            if (DBManager.getManager().isWorkerLeaveAllSite(id))
+                continue;
+            if (AnUtils.isDateMDEquality(td, AnUtils.convertBornDate(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD)))){
+                sb.append(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_NAME)+"今天生日！\n");
+                hasBirthday=true;
+                birthdayCount++;
+            }
+        }
+        if (hasBirthday){
+            //设置图标为生日图标
+            imgBirthday.setToolTipText(sb.toString());
+            imgBirthday.setText("有人生日");
+        }else{
+            imgBirthday.setToolTipText(null);
+            imgBirthday.setText("无人生日");
+        }
+
+    }
+
 
     /**
      * 装载工人属性，提供给表格中的单元格编辑器使用
      */
-    public void loadingProperty(){
+    private void loadingProperty(){
         //读取工人属性
         assert DBManager.getManager() != null;
         AnDataTable property=DBManager.getManager().loadingWorkerProperty();//在这里装载属性
         if (property==null)
             return;
 
-        cobBuildingSite.removeAllItems();
-        cobBuildingSite.addItem("全部");
+        cobSite.removeAllItems();
+        cobSite.addItem("全部");
         AnColumn anColumn =property.findColumn(PropertyFactory.LABEL_SITE);
         for (Object value: anColumn.getValues()){
-            cobBuildingSite.addItem((String) value);
-            cobSiteFrom.addItem((String) value);
+            cobSite.addItem((String) value);
         }
-        cobBuildingSite.setSelectedIndex(0);
-        table.addComponentCell(cobSiteFrom,23,1);
+        cobSite.setSelectedIndex(0);
 
-        cobSex.removeAllItems();
-        AnColumn sex=property.findColumn(PropertyFactory.LABEL_SEX);
-        cobSex.addItem((String) sex.getValues().get(0));
-        cobSex.addItem((String) sex.getValues().get(1));
-        table.addComponentCell(cobSex,8,1);
+        //装载HUB信息
 
-        cobNation.removeAllItems();
-        cobNation.removeAllItems();
-        AnColumn nation=property.findColumn(PropertyFactory.LABEL_NATION);
-        for (Object value:nation.getValues()){
-            cobNation.addItem((String) value);
-        }
-        table.addComponentCell(cobNation,9,1);
-
-        cobWorkerState.removeAllItems();
-        AnColumn workerState=property.findColumn(PropertyFactory.LABEL_WORKER_STATE);
-        for (Object value:workerState.getValues())
-            cobWorkerState.addItem((String) value);
-        table.addComponentCell(cobWorkerState,15,1);
-
-        cobWorkerType.removeAllItems();
-        AnColumn workerType=property.findColumn(PropertyFactory.LABEL_WORKER_TYPE);
-        for (Object value:workerType.getValues())
-            cobWorkerType.addItem((String) value);
-        table.addComponentCell(cobWorkerType,14,1);
-
-        table.addComponentCell(dataCob,7,1);
-        table.addComponentCell(new AnDateComboBoxEditor(),10,1);
-        table.addComponentCell(new AnDateComboBoxEditor(),11,1);
+        labWorkingWorker.setText(String.valueOf(DBManager.getManager().getSumWorkerCount()));
+        labFullCheckToday.setText(String.valueOf(DBManager.getManager().getCheckInCount(new Date(),1)));
+        labCheckToday.setText(String.valueOf(DBManager.getManager().getCheckInCount(new Date(),0.1)));
+        labSumLeave.setText(String.valueOf(DBManager.getManager().getLeaveCount()));
+        labGotLivingCostCount.setText(String.valueOf(DBManager.getManager().getSumGotSalaryTodayCount()));
+        labGotLivingCostToday.setText(String.valueOf(DBManager.getManager().getSumSalaryToday()));
+        labBirthdayToday.setText(String.valueOf(birthdayCount));
+        labLeaveToday.setText(String.valueOf(DBManager.getManager().getLeaveToday()));
+        labSumLeave.setText(String.valueOf(DBManager.getManager().getLeaveCount()));
     }
-
-
-    /**
-     * 将文件储存到文件中，调用DB的update的方法/
-     */
-    public void saveToFile(){
-        assert DBManager.getManager() != null;
-        DBManager.getManager().updateUserData();
-    }
-
-    /**
-     * 将表单数据储存到DB中
-     */
-    public void saveToMemory(){
-
-        for(int i=0;i<data.size();i++){
-            String tmp= data.get(i).get(1);
-            AnBean tmpBean=DBManager.getManager().getWorker(selectedIndex);
-            Info tmpInfo=tmpBean.find(data.get(i).get(0));
-            //在数据非空且有意义的情况下，写入到DB中
-            if(tmp!=null&&!tmp.equals("")){
-                tmpInfo.setValue(tmp);
-            }
-        }
-        btnSave.setEnabled(false);
-        loadingList();
-    }
-
-    public void deleteAt(int index){
-
-    }
-
-    /**
-     * 全盘对比DB中的数据，是否相同
-     * @return 发现改动返回True
-     */
-    public boolean isTableChange(){
-
-        for(int i=0;i<data.size();i++){
-            AnBean ab=DBManager.getManager().getWorker(selectedIndex);
-            Info info;
-            if (ab!=null) {
-                info = ab.find(data.get(i).get(0));
-                if (info != null) {
-                    String origin = String.valueOf(DBManager.getManager().getWorker(selectedIndex).find(data.get(i).get(0)).getValue());
-                    if (origin==null||origin.equals("null"))//从String转换过来，可能被转换为“null”
-                        origin="";
-                    String tmp = data.get(i).get(1);
-                    if (tmp == null && origin == null) {
-                        continue;
-                    }
-                    assert tmp != null;
-                    if (!tmp.equals(origin)) {
-                        if (tmp.equals("") && origin == null) {
-                            continue;
-                        }
-                        return true;
-                    }
-                }else
-                    return false;
-            }else
-                return false;
-        }
-        return false;
-    }
-
-
-
 
     @Override
     public void loading(Object data) {
-        Application.startService(() -> {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        });
-        loadingList();
+        assert DBManager.getManager() != null;
+        DBManager.getManager().updateWorkerBaseData();
         loadingProperty();
-    }
-
-
-    //表格数据监听
-    @Override
-    public void tableChanged(TableModelEvent e) {
-        if(e.getFirstRow()==-1)
-            return;
-        if (selectedIndex==-1)
-            return;
-        //判断是否有数据更改
-        if(isTableChange()) {
-            AnUtils.log(this,"表单数据更改");
-            btnSave.setEnabled(true);
-        }
-        else{
-            AnUtils.log(this,"表单数据未更改");
-            btnSave.setEnabled(false);
-        }
+        loadingList();
+        showBirthday();
     }
 }

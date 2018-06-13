@@ -1,6 +1,9 @@
 package component;
 
+import application.AnUtils;
+
 import javax.swing.*;
+import javax.swing.event.ChangeListener;
 import java.awt.Font;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -12,9 +15,19 @@ public class AnDateComboPanel extends JPanel{
 	private JSpinner year;
 	private JSpinner month;
 	private JSpinner day;
+	private Date minDate;//最小约束
+	private Date maxDate;//最大约束
+
+    private Date oldDate;//旧数据;
+
+    private SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd");//格式化器
+
+    private ChangeListener changeListener=(e)->{
+    };
 
     public AnDateComboPanel(){
         setSize(297,60);
+
         SpringLayout springLayout = new SpringLayout();
         setLayout(springLayout);
         
@@ -24,8 +37,9 @@ public class AnDateComboPanel extends JPanel{
         springLayout.putConstraint(SpringLayout.SOUTH, year, -15, SpringLayout.SOUTH, this);
         springLayout.putConstraint(SpringLayout.EAST, year, -211, SpringLayout.EAST, this);
         year.setFont(new Font("微软雅黑", Font.PLAIN, 12));
-        year.setModel(new SpinnerNumberModel(2018, 2015, 2050, 1));
+        year.setModel(new SpinnerNumberModel(2018, 1900, 3000, 1));
         add(year);
+        year.addChangeListener(changeListener);
         
         JLabel label = new JLabel("年");
         springLayout.putConstraint(SpringLayout.NORTH, label, 23, SpringLayout.NORTH, this);
@@ -42,6 +56,7 @@ public class AnDateComboPanel extends JPanel{
         springLayout.putConstraint(SpringLayout.SOUTH, month, -15, SpringLayout.SOUTH, this);
         springLayout.putConstraint(SpringLayout.EAST, month, -120, SpringLayout.EAST, this);
         add(month);
+        month.addChangeListener(changeListener);
 
         
         JLabel label_1 = new JLabel("月");
@@ -59,7 +74,9 @@ public class AnDateComboPanel extends JPanel{
         springLayout.putConstraint(SpringLayout.SOUTH, day, -15, SpringLayout.SOUTH, this);
         springLayout.putConstraint(SpringLayout.EAST, day, -30, SpringLayout.EAST, this);
         add(day);
+        day.addChangeListener(changeListener);
         day.addChangeListener(e -> {
+
             int value= (int) year.getValue();
             if ((value%4==0 && value%100!=0)||value%400==0){
                 if ((int)month.getValue()==2){
@@ -127,6 +144,13 @@ public class AnDateComboPanel extends JPanel{
         //设置日期
         Date date=new Date();
         setDate(date);
+        oldDate=date;
+    }
+
+    public AnDateComboPanel(Date date){
+        this();
+        setDate(date);
+        oldDate=date;
     }
 
     public void setDate(Date date){
@@ -138,12 +162,34 @@ public class AnDateComboPanel extends JPanel{
     }
 
     /**
+     * 设置区间
+     */
+    public void setSection(Date min,Date max){
+        minDate=min;
+        maxDate=max;
+    }
+
+    /**
      * 重置时间选择器
      */
     public void Rest(){
         setDate(new Date());
     }
 
+    @Deprecated
+    public void setMaxDate(Date maxDate) {
+        this.maxDate = maxDate;
+        Calendar calendar=Calendar.getInstance();
+        calendar.setTime(maxDate);
+
+        SpinnerNumberModel model= (SpinnerNumberModel) year.getModel();
+        model.setMaximum(calendar.get(Calendar.YEAR));
+    }
+
+    @Deprecated
+    public void setMinDate(Date minDate) {
+        this.minDate = minDate;
+    }
 
     @Override
     public String toString() {

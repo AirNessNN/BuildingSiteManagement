@@ -14,12 +14,10 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.text.DateFormat;
-import java.util.Date;
 
-import application.AnInfoListDataModel;
-import resource.Resource;
+import application.AnListRenderModel;
 
-public class AnInfoCellRenderer extends JLabel implements ListCellRenderer<AnInfoListDataModel>{
+public class AnInfoCellRenderer extends JLabel implements ListCellRenderer<AnListRenderModel>{
 
 	/**
 	 * 
@@ -92,14 +90,16 @@ public class AnInfoCellRenderer extends JLabel implements ListCellRenderer<AnInf
 	
 
 	@Override
-	public Component getListCellRendererComponent(JList<? extends AnInfoListDataModel> list, AnInfoListDataModel value,
-			int index, boolean isSelected, boolean cellHasFocus) {
+	public Component getListCellRendererComponent(JList<? extends AnListRenderModel> list, AnListRenderModel value,
+												  int index, boolean isSelected, boolean cellHasFocus) {
 		// TODO Auto-generated method stub
 		//this.setText(value.getTitle());
 		setSelected(isSelected);
-		int w=list.getFixedCellWidth();
+		int w=list.getWidth();
 		int h=list.getFixedCellHeight();
-		int timeW=(int)(w-80);
+		int timeW= w-50;
+
+		AnList tmpList= (AnList) list;
 		
 		//创建图片
 		BufferedImage image=new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
@@ -108,25 +108,34 @@ public class AnInfoCellRenderer extends JLabel implements ListCellRenderer<AnInf
 		
 		//绘制背景
 		if(isSelected) {
-			g2d.setColor(Resource.COLOR_LIGHT_BLUE);
+			g2d.setColor(tmpList.getSelectedColor());
 		}else {
 			g2d.setColor(Color.WHITE);
 		}
 		g2d.fillRect(0, 0, w, h);
 		
 		//绘制元素
-		g2d.setColor(Color.black);
-		g2d.setFont(titleFont);
-		g2d.drawString(value.getTitle(), 10, 28);
+		if (value.getTitle()!=null){
+			if (isSelected)
+				g2d.setColor(Color.white);
+			else
+				g2d.setColor(tmpList.getSelectedColor());
+			g2d.setFont(titleFont);
+			g2d.drawString(value.getTitle(), 10, 28);
+		}
 		
 		
-		g2d.setColor(Color.darkGray);
-		g2d.setFont(InfoFont);
-		g2d.drawString(value.getInfo(), 10, 47);
+		if (value.getInfo()!=null){
+			g2d.setColor(Color.darkGray);
+			g2d.setFont(InfoFont);
+			g2d.drawString(value.getInfo(), 10, 47);
+		}
 
-		g2d.setColor(Color.DARK_GRAY);
-		g2d.setFont(InfoFont);
-		g2d.drawString(DateFormat.getDateInstance(DateFormat.DEFAULT).format(new Date()),timeW,30);
+		if (value.getDate()!=null){
+			g2d.setColor(Color.DARK_GRAY);
+			g2d.setFont(InfoFont);
+			g2d.drawString(DateFormat.getDateInstance(DateFormat.DEFAULT).format(value.getDate()),timeW,30);
+		}
 		
 		ImageIcon icon=new ImageIcon(image);
 		setIcon(icon);

@@ -1,11 +1,13 @@
 package application;
 
+import component.AnDataChooser;
 import component.Chooser;
 import dbManager.DBManager;
+import dbManager.PropertyFactory;
 import dbManager.User;
-import dbManager.dbInterface.BuildingSiteOperator;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * 窗口工厂
@@ -14,8 +16,8 @@ public class WindowBuilder {
 
     private static MainWindow mainWindow=null;
     private static EntryWindow entryWindow=null;
-    private static WorkerWindow workerWindow=null;
-    private static  AnDataChooser buildingSiteChooser =null;
+    private static WorkerInfoWindow workerWindow=null;
+    private static AnDataChooser buildingSiteChooser =null;
     private static InfoWindow infoWindow=null;
 
 
@@ -33,7 +35,7 @@ public class WindowBuilder {
             }
 
             @Override
-            public boolean newEvent(String newValue) {
+            public boolean newEvent(String[] values,String newValue) {
                 try {
                     DBManager.getManager().createBuildingSite(newValue);
                     return true;
@@ -58,11 +60,30 @@ public class WindowBuilder {
                 return new String[]{"添加一个新工地。","输入工地名称"};
             }
         };
+        ArrayList<String> arrayList;
+        assert DBManager.getManager() != null;
+        arrayList= DBManager.getManager().getWorkerAt(id);
+        buildingSiteChooser =new AnDataChooser("工地选择器","从右边的按钮进行操作",chooser,true,arrayList.toArray());
 
-        buildingSiteChooser =new AnDataChooser("工地选择器","从右边的按钮进行操作",id,chooser,1);
-        buildingSiteChooser.setChooser(chooser);
-        String[] sites= (String[]) buildingSiteChooser.getValues();
+        Object[] tmp=buildingSiteChooser.getValues();
+        String[] sites= new String[tmp.length];
+        for (int i=0;i<tmp.length;i++){
+            sites[i]= (String) tmp[i];
+        }
 
+        HorizonDataFiller filler=new HorizonDataFiller();
+        filler.setKeys("工地", sites);
+        filler.addTextBox(PropertyFactory.LABEL_DEAL_SALARY);
+        filler.addComoBox(
+                PropertyFactory.LABEL_WORKER_TYPE,
+                AnUtils.toStringArray(DBManager.getManager().getWorkerProperty(PropertyFactory.LABEL_WORKER_TYPE).toArray())
+        );
+        filler.addCalendar(PropertyFactory.LABEL_ENTRY_TIME,"点击选择日期");
+        filler.setCallback((values -> {
+            if (callback!=null)callback.callback(sites,values.get(0),values.get(1),values.get(2));
+            return true;
+        }));
+        filler.setVisible(true);
     }
 
     public static Component getBuildingSiteChooser(){
@@ -82,8 +103,9 @@ public class WindowBuilder {
 
 
     public static void showInfoWindow(String id, String site, CloseCallback callBack){
-        if (infoWindow!=null&&infoWindow.isVisible()){
-            infoWindow.requestFocus();
+        if (infoWindow!=null){
+            infoWindow.dispose();
+            System.gc();
         }
         infoWindow=new InfoWindow();
         infoWindow.initializeWorker(id,site);
@@ -96,10 +118,21 @@ public class WindowBuilder {
         if (workerWindow!=null)
             if (workerWindow.isVisible())
                 workerWindow.dispose();
-        workerWindow=new WorkerWindow();
+        long time=System.currentTimeMillis();
+        workerWindow=new WorkerInfoWindow();
         workerWindow.initializeData(id,site);
         workerWindow.setCallback(callBack);
         workerWindow.setVisible(true);
+        System.out.println(System.currentTimeMillis()-time);
+    }
+
+
+    static PropertyWindow propertyWindow=null;
+    public static void showPropertyWindow(){
+        if (propertyWindow==null||!propertyWindow.isVisible())
+            propertyWindow=new PropertyWindow();
+        propertyWindow.setVisible(true);
+        propertyWindow.requestFocus();
     }
 
 

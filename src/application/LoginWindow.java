@@ -132,31 +132,37 @@ public class LoginWindow extends JFrame{
 		
 		//注册
 		btnRegister=new AnTextButton("注册");
-		btnRegister.setLocation(10, 234);
+		btnRegister.setSize(30, 30);
+		btnRegister.setLocation(35, 226);
 		panel.add(btnRegister);
 		btnRegister.setActionListener(e -> {
             // TODO Auto-generated method stub
-            NewUserWindow newUserWindow=NewUserWindow.getWindow();
-            newUserWindow.setVisible(true);
-            newUserWindow.setCallback(user -> {
-				// TODO Auto-generated method stub
-				if(user!=null) {
-					JOptionPane.showMessageDialog(null, "注册完成，您现在可以用注册的账户登录。","注册提示",JOptionPane.INFORMATION_MESSAGE);
-					Application.addUser(user);
-					Application.updateUserData();//更新数据
-				}
-			});
+            if (e.getAction()==AnActionEvent.CILCKED){
+				NewUserWindow newUserWindow=NewUserWindow.getWindow();
+				newUserWindow.setVisible(true);
+				newUserWindow.setCallback(user -> {
+					// TODO Auto-generated method stub
+					if(user!=null) {
+						JOptionPane.showMessageDialog(null, "注册完成，您现在可以用注册的账户登录。","注册提示",JOptionPane.INFORMATION_MESSAGE);
+						Application.addUser(user);
+						Application.updateUserData();//更新数据
+					}
+				});
+			}
         });
 		//忘记密码
 		btnFindPassword=new AnTextButton("忘记密码");
-		btnFindPassword.setLocation(70, 234);
+		btnFindPassword.setSize(100, 30);
+		btnFindPassword.setLocation(88, 226);
 		panel.add(btnFindPassword);
 		btnFindPassword.setActionListener(e -> {
             // TODO Auto-generated method stub
+			if (e.getAction()==AnActionEvent.CILCKED){
 
+			}
         });
 		
-		AnImageLabel imageLabel=new AnImageLabel("login_bg.png");
+		AnImageLabel imageLabel=new AnImageLabel(Resource.getResource("login_bg.png"));
 		imageLabel.setSize(494, 262);
 		imageLabel.setLocation(0, 289/2);
 		panel.add(imageLabel);

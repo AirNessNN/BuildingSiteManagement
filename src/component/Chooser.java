@@ -6,7 +6,7 @@ package component;
 public interface Chooser {
     String[] addEvent();
 
-    boolean newEvent(String newValue);
+    boolean newEvent(String[] values,String newValue);
 
     void done(String[] values);
 

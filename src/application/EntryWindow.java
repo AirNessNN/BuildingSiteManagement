@@ -110,9 +110,6 @@ public class EntryWindow extends JDialog {
             this.dispose();
         });
 
-        AnDateComboBoxEditor dateComboPanel=new AnDateComboBoxEditor();
-        table.addComponentCell(dateComboPanel,6,1);
-
         AnComboBoxEditor sexEdit= new AnComboBoxEditor();
         sexEdit.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_SEX)));
         table.addComponentCell(sexEdit,4,1);
@@ -157,8 +154,6 @@ public class EntryWindow extends JDialog {
             if (info.getName().equals(PropertyFactory.LABEL_DUTY_ARR))
                 continue;
             if (info.getName().equals(PropertyFactory.LABEL_COST_OF_LIVING))
-                continue;
-            if (info.getName().equals(PropertyFactory.LABEL_SITE))
                 continue;
 
             Vector cells=new Vector();

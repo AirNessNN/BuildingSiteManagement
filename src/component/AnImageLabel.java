@@ -1,8 +1,10 @@
 package component;
 
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.Objects;
 
 import javax.imageio.ImageIO;
@@ -24,6 +26,8 @@ public class AnImageLabel extends JLabel{
 	
 	private BufferedImage image;
 
+	private Color color=null;
+
 
 	private void init(){
 		//setSize(100,100);
@@ -36,12 +40,20 @@ public class AnImageLabel extends JLabel{
 		setSize(100,100);
 		image=new BufferedImage(100,100,BufferedImage.TYPE_INT_RGB);
 	}
+
+	public AnImageLabel(Color color){
+		setSize(100,100);
+		image=new BufferedImage(100,100,BufferedImage.TYPE_INT_RGB);
+		Graphics graphics=image.createGraphics();
+		graphics.setColor(color);
+		graphics.fillRect(0,0,getWidth(),getHeight());
+	}
 	
-	public AnImageLabel(String src) {
+	public AnImageLabel(InputStream inputStream) {
 		init();
 		// TODO Auto-generated constructor stub
 		try {
-			image=ImageIO.read(Objects.requireNonNull(Resource.getResource(src)));
+			image=ImageIO.read(inputStream);
 			this.setSize(image.getWidth(), image.getHeight());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -70,6 +82,11 @@ public class AnImageLabel extends JLabel{
 		// TODO Auto-generated method stub
 		if(image==null)
 			return;
+		if (color!=null){
+			Graphics graphics=image.getGraphics();
+			graphics.setColor(color);
+			graphics.fillRect(0,0,getWidth(),getHeight());
+		}
 		g.drawImage(image, 0, 0, this.getWidth(),this.getHeight(),null);
 	}
 

@@ -1,6 +1,9 @@
 package dbManager;
 
+import java.awt.*;
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
@@ -9,6 +12,9 @@ import javax.swing.*;
 import application.AnUtils;
 import application.Application;
 import application.EntryWindow;
+import application.WindowBuilder;
+import component.AnPopDialog;
+import component.IDateValueItem;
 import resource.Resource;
 import test.Test;
 
@@ -53,6 +59,7 @@ public class DBManager {
 
 	//用户信息
 	private ArrayList<User> userList;
+
 
 
 
@@ -327,7 +334,7 @@ public class DBManager {
 			addWorkerToSite(
 					w.find(PropertyFactory.LABEL_ID_CARD).getValueString(),
 					buildingSiteLIst.get(r.nextInt(buildingSiteLIst.size())).getName(),
-					(double) r.nextInt(10000),
+					(double) r.nextInt(300),
 					(String) workerProperty.findColumn(PropertyFactory.LABEL_WORKER_TYPE).get(ind),
 					new Date()
 			);
@@ -343,8 +350,8 @@ public class DBManager {
 		setBeanInfo(wk,PropertyFactory.LABEL_TAG,"这是个测试用例");
 		addWorker(wk);
 		//添加到工地
-		addWorkerToSite(wk.find(PropertyFactory.LABEL_ID_CARD).getValueString(),"测试工地1",5000d,"包工",AnUtils.getDate(2016,11,20));
-		addWorkerToSite(wk.find(PropertyFactory.LABEL_ID_CARD).getValueString(),"测试工地2",4000d,"包工",AnUtils.getDate(2016,10,20));
+		addWorkerToSite(wk.find(PropertyFactory.LABEL_ID_CARD).getValueString(),"测试工地1",200d,"包工",AnUtils.getDate(2016,11,20));
+		addWorkerToSite(wk.find(PropertyFactory.LABEL_ID_CARD).getValueString(),"测试工地2",150d,"包工",AnUtils.getDate(2016,10,20));
 	}
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -382,7 +389,38 @@ public class DBManager {
 	public void removeWorkerProperty(AnColumn info){
 		if(workerProperty !=null){
 			workerProperty.removeColumn(info);
+			PropertyFactory.removeUserDate(info.getName());
 		}
+	}
+
+	public void removeWorkerProperty(String name){
+		if (workerProperty!=null){
+			workerProperty.removeColumn(getWorkerProperty(name));
+			PropertyFactory.removeUserDate(name);
+		}
+	}
+
+	public boolean updateWorkerProperty(String oldName,String rv){
+
+		String oldV=oldName;
+		//找到旧数据
+		if (rv==null||rv.equals(""))
+			return false;
+		if (manager.getWorkerProperty(rv)!=null||PropertyFactory.createWorker().find(rv)!=null){
+			Application.errorWindow("此新的属性名与系统属性冲突，无法添加！");
+			return false;
+		}
+		//替换数据
+		for (AnBean bean:manager.loadingWorkerList()){
+			Info info=bean.find(oldV);
+			if (info==null)
+				continue;
+			info.setName(rv);
+		}
+		manager.getWorkerProperty(oldV).setName(rv);
+		PropertyFactory.removeUserDate(oldV);
+		PropertyFactory.addUserData(new Info(rv,""));
+		return true;
 	}
 
 	/**
@@ -426,11 +464,12 @@ public class DBManager {
 
 	/**
 	 * 装载工人属性，全盘替换
-	 * @param bean
+	 * @param table 属性表
 	 */
-	public void setWorkerProperty(AnDataTable bean){
-		if(bean!=null){
-			workerProperty =bean;
+	public void setWorkerProperty(AnDataTable table){
+		if(table!=null){
+			workerProperty =table;
+			PropertyFactory.setUserDatas(workerProperty);
 		}
 	}
 
@@ -446,6 +485,10 @@ public class DBManager {
 		if(!workerPropertyLoaded){
 			try {
 				workerProperty =(AnDataTable) readObject(user.getWorkerPropertyPath());
+				//把读取到的数据放到工厂用于生产
+				for (AnColumn column:workerProperty.getValues()){
+					PropertyFactory.addUserData(new Info(column.getName(),""));
+				}
 			} catch (IOException | ClassNotFoundException exception) {
 				workerProperty= PropertyFactory.createWorkerProperty();
 			} finally {
@@ -791,17 +834,147 @@ public class DBManager {
 		return sites;
 	}
 
-	@Deprecated
-	public void updateBuildingSiteInfo(){
-		if (!workerListLoaded&&!buildingSiteLoaded)
-			return;
-		//循环工人列表
+	/**
+	 * 获取工人在此工地的工作状态
+	 * @param id 身份证
+	 * @param siteName 工地名
+	 * @return true已经离职或找不到该工人，false工人在职
+	 */
+	public boolean isWorkerLeave(String id,String siteName){
+		if (id==null||id.equals(""))
+			return true;
+		if (siteName==null||siteName.equals(""))
+			return true;
+
+		AnDataTable site=getBuildingSite(siteName);
+		if (site==null)
+			return true;
+		site.selectRow(PropertyFactory.LABEL_ID_CARD,id);
+		Date date= (Date) site.getSelectedRowAt(PropertyFactory.LABEL_LEAVE_TIME);
+		return date != null;
+	}
+
+	/**
+	 * 获取工人是否在所有工地离职
+	 * @param id 身份证
+	 * @return true已经离职所有工地，false还有工地没有离职
+	 */
+	public boolean isWorkerLeaveAllSite(String id){
+		ArrayList<String> siteNames= getWorkerAt(id);
+		if (siteNames.size()>0){
+			for (String siteName:siteNames){
+				if (!isWorkerLeave(id,siteName))
+					return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * 获取工人离职的工地名称
+	 * @param id 身份证
+	 * @return 返回找的到记录的离职的工地的数组
+	 */
+	public String[] getWorkerLeave(String id){
+		ArrayList<String> leaving=new ArrayList<>();
+		ArrayList<String> siteNames= getWorkerAt(id);
+		if (siteNames.size()>0){
+			for (String siteName:siteNames){
+				if (isWorkerLeave(id,siteName))
+					leaving.add(siteName);
+			}
+		}
+		return AnUtils.toStringArray(leaving.toArray());
+	}
+
+	/**
+	 * 获取在职员工的人数
+	 * @return 人数
+	 */
+	public int getWorkingWorkerCount(){
+		int count=workerList.size();
 		for (AnBean worker:workerList){
+			String id=getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD);
+			if (isWorkerLeaveAllSite(id))
+				count--;
+		}
+		return count;
+	}
 
-			Info<ArrayList> site= (Info<ArrayList>) worker.find(PropertyFactory.LABEL_SITE).getValue();
 
+
+	private int leaveCount=0;
+	private int leaveToday=0;
+	private int birthdayTodayCount=0;
+	private int workingCount=0;
+	private int sumWorkerCount=0;
+
+	/**
+	 * 更新离职总人数，在职总人数，今日生日人数，总人数，今日离职人数
+	 * 注意：今日离职的人数是根据工地计算，也就是说一个工人在两个工地同时离职，算两个今日离职。
+	 * 离职总数判断，只要工人还在一个工地做事，那就不算离职，所以今日离职和离职总数计算会有出入
+	 * 生日人数是只有在职员工才会计算，离职员工不会统计是生日人数
+	 */
+	public void updateWorkerBaseData(){
+		sumWorkerCount=loadingWorkerList().size();//总工人数量
+		leaveCount=0;
+		leaveToday=0;
+		birthdayTodayCount=0;
+		workingCount=0;
+		Date date=new Date();
+
+		for (AnBean bean:loadingWorkerList()){
+			String id=getBeanInfoStringValue(bean,PropertyFactory.LABEL_ID_CARD);
+			boolean workingFlag = false,leaveFlag=true,birthdayFlag=false,leaveTodayFlag=false;
+			ArrayList<String> siteList=getWorkerAt(id);
+
+			for (String aSiteList : siteList) {
+				AnDataTable site = getBuildingSite(aSiteList);
+				site.selectRow(PropertyFactory.LABEL_ID_CARD, id);
+				Date leave= (Date) site.getSelectedRowAt(PropertyFactory.LABEL_LEAVE_TIME);
+				if ( leave!= null) {
+					if (AnUtils.isDateYMDEquality(leave,date)){
+						leaveToday++;
+					}
+
+				} else {
+					workingFlag = true;
+					leaveFlag=false;
+					if (AnUtils.isDateMDEquality(date, AnUtils.convertBornDate(id))) {//生日
+						birthdayFlag = true;
+					}
+				}
+			}
+			if (workingFlag)
+				workingCount++;
+			if (birthdayFlag)
+				birthdayTodayCount++;
+			if (leaveFlag)
+				leaveCount++;
 		}
 	}
+
+	public int getLeaveCount() {
+		return leaveCount;
+	}
+
+	public int getBirthdayTodayCount() {
+		return birthdayTodayCount;
+	}
+
+	public int getLeaveToday() {
+		return leaveToday;
+	}
+
+	public int getSumWorkerCount() {
+		return sumWorkerCount;
+	}
+
+	public int getWorkingCount() {
+		return workingCount;
+	}
+
+
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -817,6 +990,32 @@ public class DBManager {
 			return checkInManager;
 		return null;
 	}
+
+	/**
+	 * 获取该天工人在任意工地工作超过指定出勤指数的工人数量
+	 * @param date 日期
+	 * @return 返回数量
+	 */
+	public int getCheckInCount(Date date,double value){
+		int count =0;
+		for (AnBean worker:workerList){
+			String id=getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD);
+			ArrayList<String> siteNames=getWorkerAt(id);//获取工地
+			for (String siteName:siteNames){
+				Double d= (Double) checkInManager.getValueAt(id,siteName,date);
+				if (d!=null&&d>=value){
+					count++;
+					break;
+				}
+			}
+		}
+		return count;
+	}
+
+	@Deprecated
+	public void updateCheckInManagerData(){
+
+	}
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -827,6 +1026,10 @@ public class DBManager {
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	//SalaryManager
+
+	private double sumSalary=0f;//发放生活费数额
+	private int sumGotSalaryTodayCount=0;//今日获取生活费的人数
+	private double sumSalaryToday=0;//今日发放数额
 
 	/**
 	 * 返回工资子管理器
@@ -847,6 +1050,59 @@ public class DBManager {
 		if (checkInManagerLoaded)
 			checkInManager.updateWorkerList();
 	}
+
+	/**
+	 * 更新工资数据
+	 */
+	public void updateSalaryManagerData(){
+		Date  date=new Date();
+		sumGotSalaryTodayCount=0;
+		sumSalary=0;
+		sumSalaryToday=0;
+		for (AnDataTable id:salaryManager.getDataBase()){
+			for (AnColumn site:id.getValues()){
+				for (Object o:site.toArray()){
+					IDateValueItem item= (IDateValueItem) o;
+					Double d;
+					if (item==null)
+						continue;
+					d= (Double) item.getValue();
+					//今日
+					if (AnUtils.isDateYMDEquality(date,item.getDate())){
+						sumSalaryToday+=d;
+						sumGotSalaryTodayCount++;
+					}
+					//总数
+					sumSalary+=d;
+				}
+			}
+		}
+	}
+
+	/**
+	 * 获取领取生活费的总数
+	 * @return 总数
+	 */
+	public double getSumSalary() {
+		return sumSalary;
+	}
+
+	/**
+	 * 获取今日领取生活费的总数
+	 * @return zongshu
+	 */
+	public double getSumSalaryToday() {
+		return sumSalaryToday;
+	}
+
+	/**
+	 * 获取今日领取生活费的人数
+	 * @return 人数
+	 */
+	public int getSumGotSalaryTodayCount() {
+		return sumGotSalaryTodayCount;
+	}
+
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -1175,10 +1431,49 @@ public class DBManager {
 
 		AnBean worker=EntryWindow.showWindow();
 		boolean createFlag=addWorker(worker);//创建完成之后就添加
-		if (worker!=null&&createFlag){
+		if (worker==null)
+			return false;
+		worker.find(PropertyFactory.LABEL_NUMBER).setValue(workerList.size());
+		if (createFlag){
 			//工人选择工地
+			int res=JOptionPane.showConfirmDialog(null,"是否要添加这个工人的工地信息","提示",JOptionPane.YES_NO_OPTION);
+			if (res==JOptionPane.OK_OPTION){
+				//确认要添加
+				WindowBuilder.showBuildingSiteSelectingWindow(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString(),(e)->{
+					String[] sites= (String[]) e[0];
+					String[] dealSal= (String[]) e[1];
+					String[] wt= (String[]) e[2];
+					String[] et= (String[]) e[3];
+
+					//转换单位
+					Double[] doubles=new Double[dealSal.length];
+					Date[] dates=new Date[et.length];
+					SimpleDateFormat dateFormat=new SimpleDateFormat(Resource.DATE_FORMATE);
+					for (int i=0;i<dealSal.length;i++){
+						try {
+							doubles[i]=Double.valueOf(dealSal[i]);
+							dates[i]=dateFormat.parse(et[i]);
+						} catch (Exception e1) {
+							Application.errorWindow("有数据在转换的时候出错，无法继续添加工地信息："+e1.getMessage());
+							return true;
+						}
+					}
+
+					for (int i=0;i<sites.length;i++){
+						addWorkerToSite(
+								worker.find(PropertyFactory.LABEL_ID_CARD).getValueString(),
+								sites[i],
+								doubles[i],
+								wt[i],
+								dates[i]
+						);
+					}
+					AnPopDialog.show(null,"工人的工地设置完成，一共设置"+sites.length+"个。",AnPopDialog.SHORT_TIME);
+					return true;
+				});
+			}
 		}
-		return false;
+		return createFlag;
 	}
 
 

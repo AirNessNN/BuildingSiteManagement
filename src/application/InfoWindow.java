@@ -10,6 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Vector;
 import javax.swing.*;
 import javax.swing.event.TableModelListener;
@@ -19,28 +20,29 @@ import javax.swing.event.TableModelListener;
  */
 public class InfoWindow extends Window implements ComponentLoader {
 
-    static final String[] INFO_HEADER =new String[]{"属性名","属性值"};
-    static final String[] CHECK_IN_HEADER =new String[]{"日期","出勤记录","备注"};
-    static final String[] SALARY_HEADER=new String[]{"日期","领取数额","备注"};
+    private static final String[] INFO_HEADER =new String[]{"属性名","属性值"};
+    private static final String[] CHECK_IN_HEADER =new String[]{"日期","出勤记录","备注"};
+    private static final String[] SALARY_HEADER=new String[]{"日期","领取数额","备注"};
+    //工人
     private AnBean worker;
+    //数据表格
     private AnTable infoTable;
     private AnTable checkInTable;
     private AnTable salaryTable;
-
-    private String site="";
+    private AnTable siteTable;
+    //工地名称
+    private String siteName ="";
     private MyButton btnSite;
     private MyButton btnSave;
 
-    //每个表格的监听器
-    private TableModelListener infoListener=null,salaryListener=null,checkInListener=null;
-    private boolean infoF,salaryF,checkInF;//表格监听器改动flag
+    private boolean infoF,salaryF,checkInF,siteF;//表格监听器改动flag
     private JComboBox cobSite;//选择的工地，出勤数据和工资领取情况都是要选择工地才能显示
 
 
-	public InfoWindow() {
+
+	InfoWindow() {
         initializeComponent();
         initializeEvent();
-        initializeData();
 	}
 
     @Override
@@ -70,6 +72,7 @@ public class InfoWindow extends Window implements ComponentLoader {
         panel_3.add(cobSite);
         
         btnSite = new MyButton("修改工地");
+        btnSite.setEnabled(false);
         sl_panel_3.putConstraint(SpringLayout.NORTH, cobSite, 0, SpringLayout.NORTH, btnSite);
         sl_panel_3.putConstraint(SpringLayout.EAST, cobSite, -40, SpringLayout.WEST, btnSite);
         sl_panel_3.putConstraint(SpringLayout.NORTH, btnSite, 7, SpringLayout.NORTH, panel_3);
@@ -115,10 +118,8 @@ public class InfoWindow extends Window implements ComponentLoader {
         scrollPane.setViewportView(infoTable);
         infoTable.setColumn(INFO_HEADER);
 
-        AnDateComboBoxEditor dateComboPanel=new AnDateComboBoxEditor();
-        infoTable.addComponentCell(dateComboPanel,6,1);
-
         AnComboBoxEditor sexEdit= new AnComboBoxEditor();
+        assert DBManager.getManager() != null;
         sexEdit.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_SEX)));
         infoTable.addComponentCell(sexEdit,4,1);
         infoTable.setCellColumnEdited(0,false);
@@ -148,28 +149,54 @@ public class InfoWindow extends Window implements ComponentLoader {
         salaryTable = new AnTable();
         scrollPane_2.setViewportView(salaryTable);
         salaryTable.setColumn(SALARY_HEADER);
+        
+        JPanel panel_4 = new JPanel();
+        tabbedPane.addTab("所在工地信息", null, panel_4, null);
+        panel_4.setLayout(new BorderLayout(0, 0));
+        
+        JScrollPane scrollPane_3 = new JScrollPane();
+        panel_4.add(scrollPane_3);
+        
+        siteTable = new AnTable();
+        scrollPane_3.setViewportView(siteTable);
+        siteTable.setCellColumnEdited(0,false);
+        siteTable.setColumn(INFO_HEADER);
+        AnDateComboBoxEditor dateComboBoxEditor=new AnDateComboBoxEditor();
+        siteTable.addComponentCell(dateComboBoxEditor,2,1);
+
+        AnComboBoxEditor typeEditor=new AnComboBoxEditor();
+        typeEditor.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_WORKER_TYPE)));
+        siteTable.addComponentCell(typeEditor,1,1);
     }
 
     @Override
     public void initializeEvent() {
-        infoListener= e -> {
-            infoF=infoTable.getChangedCells().getSize()>0;
-            btnSave.setEnabled((infoF||salaryF||checkInF));
+        //每个表格的监听器
+        TableModelListener infoListener = e -> {
+            infoF = infoTable.getChangedCells().getSize() > 0;
+            btnSave.setEnabled((infoF || salaryF || checkInF || siteF));
         };
         infoTable.getTableModel().addTableModelListener(infoListener);
 
-        salaryListener= e -> {
-            salaryF=salaryTable.getChangedCells().getSize()>0;
-            btnSave.setEnabled((infoF||salaryF||checkInF));
+        TableModelListener salaryListener = e -> {
+            salaryF = salaryTable.getChangedCells().getSize() > 0;
+            btnSave.setEnabled((infoF || salaryF || checkInF || siteF));
         };
         salaryTable.getTableModel().addTableModelListener(salaryListener);
 
-        checkInListener= e -> {
-            checkInF=checkInTable.getChangedCells().getSize()>0;
-            btnSave.setEnabled((infoF||salaryF||checkInF));
+        TableModelListener checkInListener = e -> {
+            checkInF = checkInTable.getChangedCells().getSize() > 0;
+            btnSave.setEnabled((infoF || salaryF || checkInF || siteF));
         };
         checkInTable.getTableModel().addTableModelListener(checkInListener);
 
+        TableModelListener siteListener = e -> {
+            siteF = siteTable.getChangedCells().getSize() > 0;
+            btnSave.setEnabled((infoF || salaryF || checkInF || siteF));
+        };
+        siteTable.getTableModel().addTableModelListener(siteListener);
+
+        //关闭的保存提示功能
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -180,46 +207,40 @@ public class InfoWindow extends Window implements ComponentLoader {
                             "有数据更改，是否保存",
                             "保存提示",JOptionPane.YES_NO_OPTION);
                     if (opa==JOptionPane.YES_OPTION){
-                        saveInfo();
+                        save();
                     }
                 }
                 dispose();
             }
         });
 
-        cobSite.addActionListener((e)->{
-            initializeWorker(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString(),cobSite.getSelectedItem().toString());
-        });
+        cobSite.addActionListener((e)-> initializeWorker(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString(),Objects.requireNonNull(cobSite.getSelectedItem()).toString()));
 
+        //修改工地
         btnSite.addActionListener((e)->{
-            String id=worker.find(PropertyFactory.LABEL_ID_CARD).getValueString();
-            //Object[] sites=WindowBuilder.showBuildingSiteSelectingWindow(id);
-            //DBManager.getManager().updateWorkerBuildingSite(id,sites);
+
         });
 
-        btnSave.addActionListener((e)->{
-            save();
-        });
+        btnSave.addActionListener((e)-> save());
     }
 
-    @Override
-    public void initializeData() {
-    }
 
+    @Deprecated
     public void initializeWorker(AnBean worker,String site){
 	    if (worker==null)
 	        return;
 	    this.worker=worker;
-	    this.site=site;
+	    this.siteName =site;
 	    initializeWorker();
     }
 
-    public void initializeWorker(String id,String site){
+    void initializeWorker(String id, String site){
         if (id==null)
             return;
 
+        assert DBManager.getManager() != null;
         worker=DBManager.getManager().getWorker(id);
-        this.site=site;
+        this.siteName =site;
         if (worker==null)
             return;
         initializeWorker();
@@ -266,14 +287,15 @@ public class InfoWindow extends Window implements ComponentLoader {
         infoTable.getTableModel().setDataVector(infoRows,AnUtils.convertToVector(INFO_HEADER));
         infoTable.setCheckPoint();
 
+        //以下的所有数据加载都需要SiteName，所以SiteName要判空
         //加载出勤
-        if (site==null)
+        if (siteName ==null)
             return;
         assert DBManager.getManager() != null;
         ArrayList<IDateValueItem> tmpCheckIn=DBManager.getManager().getCheckInManager()
                 .getWorkerDateValueList(
                         DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD),
-                        site
+                        siteName
                 );
         Vector<Vector> checkInRows=new Vector<>();
 
@@ -292,7 +314,7 @@ public class InfoWindow extends Window implements ComponentLoader {
         ArrayList<IDateValueItem> tmpSalary=DBManager.getManager().getSalaryManager()
                 .getWorkerDateValueList(
                         DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD),
-                        site
+                        siteName
                 );
         Vector<Vector> salaryRows=new Vector<>();
         for (IDateValueItem item:tmpSalary){
@@ -315,15 +337,63 @@ public class InfoWindow extends Window implements ComponentLoader {
                                         worker.find(PropertyFactory.LABEL_ID_CARD).getValueString())
                 ))
         );
-        cobSite.setSelectedItem(site);
+        cobSite.setSelectedItem(siteName);
+
+        //加载工地信息
+        Vector<Vector> vectors=new Vector<>();
+        AnDataTable site=DBManager.getManager().getBuildingSite(siteName);
+
+        if (site==null)
+            return;
+        site.setSelectedRow(PropertyFactory.LABEL_ID_CARD,worker.find(PropertyFactory.LABEL_ID_CARD).getValueString());
+
+        Vector rowDealSalary=new Vector<>();
+        rowDealSalary.add(PropertyFactory.LABEL_DEAL_SALARY);
+        rowDealSalary.add(site.getSelectedRowAt(PropertyFactory.LABEL_DEAL_SALARY));
+
+        Vector rowType=new Vector();
+        rowType.add(PropertyFactory.LABEL_WORKER_TYPE);
+        rowType.add(site.getSelectedRowAt(PropertyFactory.LABEL_WORKER_TYPE));
+
+        Vector rowEntry=new Vector();
+        rowEntry.add(PropertyFactory.LABEL_ENTRY_TIME);
+        rowEntry.add(new SimpleDateFormat(Resource.DATE_FORMATE).format(site.getSelectedRowAt(PropertyFactory.LABEL_ENTRY_TIME)));
+
+        vectors.add(rowDealSalary);
+        vectors.add(rowType);
+        vectors.add(rowEntry);
+        siteTable.clearCheckPoint();
+        siteTable.getTableModel().setDataVector(vectors,AnUtils.convertToVector(INFO_HEADER));
+        siteTable.setCheckPoint();
+
     }
 
+    /**
+     * 保存数据
+     */
     private void save(){
 	    try {
             if (!saveInfo())
                 return;
+
+            if (cobSite.getSelectedItem()==null){//没选择工地
+                callback(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString(),null);//工地传空值回去
+                btnSave.setEnabled(false);
+                infoTable.setCheckPoint();
+                salaryF=false;
+                checkInF=false;
+                infoF=false;
+                AnPopDialog.show(this,"保存成功！",AnPopDialog.SHORT_TIME);
+                return;
+            }
+
+            //保存工地的信息
+
+            //保存子管理器的数据
+            assert DBManager.getManager() != null;
             saveChildingManagerData(checkInTable,DBManager.getManager().getCheckInManager());
             saveChildingManagerData(salaryTable,DBManager.getManager().getSalaryManager());
+            saveSiteInfo();//保存工地信息
             btnSave.setEnabled(false);
             infoTable.setCheckPoint();
             salaryTable.setCheckPoint();
@@ -333,14 +403,16 @@ public class InfoWindow extends Window implements ComponentLoader {
             infoF=false;
             //回调
             callback(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString(),cobSite.getSelectedItem().toString());
+            AnPopDialog.show(this,"保存成功！",AnPopDialog.SHORT_TIME);
         }catch (Exception e){
-            Application.errorWindow(e.getMessage());
+            Application.errorWindow(e.toString());
+            e.printStackTrace();
         }
     }
 
     /**
      * 储存表格中的内容
-     * @return
+     * @return 成功返回true
      */
     private boolean saveInfo(){
         //检查身份证是否更改
@@ -383,13 +455,14 @@ public class InfoWindow extends Window implements ComponentLoader {
             //更新ID
             worker.find(PropertyFactory.LABEL_ID_CARD).setValue(newID);//设置工人列表的身份证属性
 
+            assert DBManager.getManager() != null;
             ArrayList<String> siteList=DBManager.getManager().getWorkerAt(oldID);
-            for (int i=0;i<siteList.size();i++){
-                AnDataTable tmpSite=DBManager.getManager().getBuildingSite(siteList.get(i));
-                AnColumn array=tmpSite.findColumn(PropertyFactory.LABEL_ID_CARD);
-                boolean flag=array.changeValue(oldID,newID);//设置工地列表中存放的工人身份信息
+            for (String aSiteList : siteList) {
+                AnDataTable tmpSite = DBManager.getManager().getBuildingSite(aSiteList);
+                AnColumn array = tmpSite.findColumn(PropertyFactory.LABEL_ID_CARD);
+                boolean flag = array.changeValue(oldID, newID);//设置工地列表中存放的工人身份信息
                 //找到工地的话，一定会存在工资和出勤，所以也要更新工资和出勤信息
-                if (flag){
+                if (flag) {
                     //工资
                     DBManager.getManager().getSalaryManager().getWorker(oldID).setName(newID);
                     //出勤
@@ -410,6 +483,8 @@ public class InfoWindow extends Window implements ComponentLoader {
         SimpleDateFormat format=new SimpleDateFormat(Resource.DATE_FORMATE);
 
         String id=worker.find(PropertyFactory.LABEL_ID_CARD).getValueString();
+        if (cobSite.getSelectedItem()==null)
+            return;
         String site=cobSite.getSelectedItem().toString();
 
         for (int i=0;i<ctb.getSize();i++){
@@ -452,20 +527,16 @@ public class InfoWindow extends Window implements ComponentLoader {
                     //开始填充数据
                     //首先删除旧数据
                     try {
-                        manager.updateData(
+                        manager.deleteData(
                                 id
                                 ,site
                                 ,od
-                                ,ChildrenManager.MOD_DEL
-                                ,ov
-                                ,ot
                         );
                         //新增一条数据
                         manager.updateData(
                                 id
                                 ,site
                                 ,nd
-                                ,ChildrenManager.MOD_ADD
                                 ,nv
                                 ,nt
                         );
@@ -486,7 +557,7 @@ public class InfoWindow extends Window implements ComponentLoader {
 
                     manager.updateDate(id,site,od,nd);
                     try {
-                        manager.updateData(id,site,nd,ChildrenManager.MOD_ALTER,nv,nt);
+                        manager.updateData(id,site,nd,nv,nt);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -496,9 +567,9 @@ public class InfoWindow extends Window implements ComponentLoader {
                     nv=Double.valueOf((String) ctb.getNewValue(i));
                     nt= (String) table.getCell(row,2);
 
-                    try {
-                        manager.updateData(id,site,nd,ChildrenManager.MOD_ALTER,nv,nt);
-                    } catch (Exception e) {
+                        try {
+                            manager.updateData(id,site,nd,nv,nt);
+                        } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -508,7 +579,7 @@ public class InfoWindow extends Window implements ComponentLoader {
                     nv= Double.valueOf((String) table.getCell(row,1));
 
                     try {
-                        manager.updateData(id,site,nd,ChildrenManager.MOD_ALTER,nv,nt);
+                        manager.updateData(id,site,nd,nv,nt);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -516,5 +587,34 @@ public class InfoWindow extends Window implements ComponentLoader {
                 skips.add(row);
             }
         }
+    }
+
+    private void saveSiteInfo() throws ParseException {
+        //获取更改条目的属性名
+        TableProperty tableProperty=siteTable.getChangedCells();
+        String[] pns=new String[tableProperty.getSize()];
+        for (int i=0;i<tableProperty.getSize();i++){
+            pns[i]= (String) siteTable.getCell(tableProperty.getPoint(i).x,0);
+        }
+        assert DBManager.getManager() != null;
+        AnDataTable site=DBManager.getManager().getBuildingSite(siteName);
+        if (siteTable==null)
+            return;
+
+        site.setSelectedRow(PropertyFactory.LABEL_ID_CARD,worker.find(PropertyFactory.LABEL_ID_CARD).getValueString());
+
+        //填充
+        for (int i=0;i<tableProperty.getSize();i++){
+            if (pns[i].equals(PropertyFactory.LABEL_DEAL_SALARY))
+                site.setSelectedRow(pns[i],Double.valueOf((String) tableProperty.getNewValue(i)));
+            if (pns[i].equals(PropertyFactory.LABEL_ENTRY_TIME)){
+                SimpleDateFormat format=new SimpleDateFormat(Resource.DATE_FORMATE);
+                site.setSelectedRow(pns[i],format.parse((String) tableProperty.getNewValue(i)));
+            }
+        }
+    }
+
+    @Override @Deprecated
+    public void initializeData() {
     }
 }

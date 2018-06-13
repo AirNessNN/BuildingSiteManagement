@@ -318,6 +318,8 @@ public class AnUtils {
 	 * @return
 	 */
 	public static boolean isDateYMDEquality(Date d1,Date d2){
+		if (d1==null||d2==null)
+			return false;
     	int d1y,d2y,d1m,d2m,d1d,d2d;
     	Calendar c=Calendar.getInstance();
     	c.setTime(d1);
@@ -330,6 +332,29 @@ public class AnUtils {
     	d2m=c.get(Calendar.MONTH);
     	d2d=c.get(Calendar.DATE);
     	return d1y==d2y&&d1m==d2m&&d1d==d2d;
+	}
+
+	/**
+	 * 判断两个时间类是否月份日期相同
+	 * @param d1
+	 * @param d2
+	 * @return
+	 */
+	public static boolean isDateMDEquality(Date d1,Date d2){
+		if (d1==null||d2==null)
+			return false;
+		int d1m,d2m,d1d,d2d;
+		Calendar c=Calendar.getInstance();
+		c.setTime(d1);
+
+		d1m=c.get(Calendar.MONTH);
+		d1d=c.get(Calendar.DATE);
+
+		c.setTime(d2);
+
+		d2m=c.get(Calendar.MONTH);
+		d2d=c.get(Calendar.DATE);
+		return d1m==d2m&&d1d==d2d;
 	}
 
 	/**
@@ -439,6 +464,24 @@ public class AnUtils {
 		return false;
 	}
 
+	public static String getID(String id){
+		int[] y=new int[]{7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2};//系数
+		char[] result=new char[]{'1','0','x','9','8','7','6','5','4','3','2'};//计算对应的结果
+		int sum=0;
+
+		char[] tmpC=id.toCharArray();
+		for (int i=0;i<tmpC.length;i++) {
+			sum+= ((int) tmpC[i]-48) *y[i];
+		}
+
+		int mod=sum%11;//模出来的结果
+
+		StringBuilder stringBuilder=new StringBuilder();
+		stringBuilder.append(tmpC);
+		stringBuilder.append(result[mod]);
+		return stringBuilder.toString();
+	}
+
 	@Deprecated
 	public static Component getParentFrame(Component component){
 	    for (Component c=component;c.getParent()!=null;c=c.getParent()){
@@ -468,4 +511,62 @@ public class AnUtils {
 	}
 
 
+	/**
+	 * 将Object数组转换为String数组，前提是Objec数组可转换成String数组
+	 * @param objects
+	 * @return
+	 */
+	public static String[] toStringArray(Object[] objects){
+		if (objects.length>0&&objects[0] instanceof String){
+			String[] strings=new String[objects.length];
+			for (int i=0;i<strings.length;i++){
+				strings[i]= (String) objects[i];
+			}
+			return strings;
+		}
+		return null;
+	}
+
+	/**
+	 * 比较D1和D2的日期
+	 * @param d1 日期1
+	 * @param d2 日期2
+	 * @return 1表示日期1更大，2表示日期2更大，0表示等于
+	 */
+	public static int dateCompareInt(Date d1,Date d2){
+		if (d1==null)
+			return 2;
+		if (d2==null)
+			return 1;
+
+		Calendar cd1=Calendar.getInstance();
+		cd1.setTime(d1);
+
+		Calendar cd2=Calendar.getInstance();
+		cd2.setTime(d2);
+
+		/*
+
+		如果d1年份比d2大或者小，后面直接不用比较，只有等于的需要比较月份和日期，月份相等同理年份
+		 */
+		if (cd1.get(Calendar.YEAR)==cd2.get(Calendar.YEAR)){
+			if (cd1.get(Calendar.MONTH)==cd2.get(Calendar.MONTH)){
+				if (cd1.get(Calendar.DATE)==cd2.get(Calendar.DATE))
+					return 0;
+				else return cd1.get(Calendar.DATE)==cd2.get(Calendar.DATE)? 1:2;
+			}else
+				return cd1.get(Calendar.MONTH)>cd2.get(Calendar.MONTH)? 1:2;
+		}else
+			return cd1.get(Calendar.YEAR)>cd2.get(Calendar.YEAR)? 1:2;
+	}
+
+	/**
+	 * 比较D1在D2的后面
+	 * @param d1 日期1
+	 * @param d2 日期2
+	 * @return true D1在D2的后面
+	 */
+	public static boolean dateAfter(Date d1,Date d2){
+		return dateCompareInt(d1,d2)==1;
+	}
 }

@@ -25,6 +25,7 @@ public class AnTextButton extends JLabel implements MouseListener ,IBackgroundSe
 	
 	public AnTextButton() {
 		// TODO Auto-generated constructor stub
+		setSize(60,25);
 		setFont(new Font(Resource.FONT_WEI_RUAN_YA_HEI, Font.PLAIN, 14));
 		setForeground(Resource.COLOR_LIGHT_BLUE);
 		addMouseListener(this);
@@ -32,6 +33,7 @@ public class AnTextButton extends JLabel implements MouseListener ,IBackgroundSe
 
 	public AnTextButton(String text) {
 		// TODO Auto-generated constructor stub
+		setSize(60,25);
 		setFont(new Font(Resource.FONT_WEI_RUAN_YA_HEI, Font.PLAIN, 14));
 		setForeground(Resource.COLOR_LIGHT_BLUE);
 		addMouseListener(this);

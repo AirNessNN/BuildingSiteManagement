@@ -13,6 +13,8 @@ public class AnList<E> extends JList {
 
     private Dimension itemSize=new Dimension(350,60);
 
+    private Color selectedColor=new Color(0, 146, 128);
+
 
 
     private void init(ListCellRenderer cellRenderer){
@@ -119,4 +121,12 @@ public class AnList<E> extends JList {
         void onDoubleClick(int index,Object sender);
     }
 
+
+    public Color getSelectedColor() {
+        return selectedColor;
+    }
+
+    public void setSelectedColor(Color selectedColor) {
+        this.selectedColor = selectedColor;
+    }
 }

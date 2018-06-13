@@ -1,5 +1,8 @@
 package application;
 
+import SwingTool.MyButton;
+import component.AnDateChooser;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -104,6 +107,7 @@ public class HorizonDataFiller extends JDialog{
     private void initializeData(String[] siteName){
         this.keys =siteName;
         components=new ArrayList<>();
+        labels=new ArrayList<>();
     }
 
     /**
@@ -135,6 +139,8 @@ public class HorizonDataFiller extends JDialog{
                 String[] tmp=values.get(i);
                 if (components.get(i) instanceof JTextField)
                     tmp[index]= ((JTextField) components.get(i)).getText();
+                else if(components.get(i) instanceof MyButton)
+                    tmp[index]=((MyButton)components.get(i)).getText();
                 else
                     tmp[index]=Objects.requireNonNull(((JComboBox) components.get(i)).getSelectedItem()).toString();
             }
@@ -188,6 +194,7 @@ public class HorizonDataFiller extends JDialog{
         label.setHorizontalAlignment(SwingConstants.RIGHT);
         getContentPane().add(label);
         label.setToolTipText(toolTip);
+        labels.add(label);
 
         lineHeight +=margin;
         btnNext.setLocation(221,lineHeight+30);
@@ -229,6 +236,7 @@ public class HorizonDataFiller extends JDialog{
         label.setHorizontalAlignment(SwingConstants.RIGHT);
         getContentPane().add(label);
         label.setToolTipText(toolTip);
+        labels.add(label);
 
         lineHeight +=margin;
         btnNext.setLocation(221,lineHeight+30);
@@ -241,6 +249,43 @@ public class HorizonDataFiller extends JDialog{
         if (keys!=null)
             this.values.add(new String[keys.length]);
 
+    }
+
+    public void addCalendar(String toolTip, String initializeText){
+
+        MyButton button=new MyButton(initializeText);
+        button.setFont(new Font("等线", Font.PLAIN, 15));
+        button.addKeyListener(listener);
+        button.setSize(comSize);
+        button.setLocation(comX, lineHeight);
+        getContentPane().add(button);
+        components.add(button);
+        button.addActionListener((e)->{
+            AnDateChooser chooser1=new AnDateChooser();
+            button.setText(chooser1.getDateFormate());
+        });
+
+
+        JLabel label=new JLabel(toolTip+"：");
+        label.setFont(new Font("等线", Font.PLAIN, 15));
+        label.setSize(labSize);
+        label.setLocation(labX, lineHeight);
+        label.setHorizontalAlignment(SwingConstants.RIGHT);
+        getContentPane().add(label);
+        label.setToolTipText(toolTip);
+        labels.add(label);
+
+
+        lineHeight +=margin;
+        btnNext.setLocation(221,lineHeight+30);
+        btnCancel.setLocation(118,lineHeight+30);
+        setSize(getWidth(),lineHeight+100);
+        setLocationRelativeTo(null);
+
+        index++;
+
+        if (keys!=null)
+            this.values.add(new String[keys.length]);
     }
 
     /**

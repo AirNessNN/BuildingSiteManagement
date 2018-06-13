@@ -1,23 +1,96 @@
 package test;
 
+import SwingTool.MyButton;
+import animation.AnimationManager;
+import animation.Iterator;
 import application.AnUtils;
+import application.PropertyWindow;
+import application.Window;
+import component.AnAnimButton;
+import component.AnDateChooser;
+import component.AnimButton;
 import dbManager.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.*;
 
 public class Test extends JFrame{
 
+	Iterator iterator=AnimationManager.getManager().createAnimationIterator(200,100,1);
+	Iterator iterator2=AnimationManager.getManager().createAnimationIterator(100,200,1);
 
 	private Test() {
+		getContentPane().setBackground(Color.WHITE);
 		getContentPane().setFont(new Font("微软雅黑 Light", Font.PLAIN, 14));
 		
 		setSize(1049, 800);
-		getContentPane().setLayout(null);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		
+		getContentPane().setLayout(null);
 
+		JButton button=new JButton("开始迭代器");
+		button.setBounds(6, 5, 88, 30);
+		getContentPane().add(button);
+		button.addActionListener((e)->{
+			iterator.start();
+		});
+
+		JButton button1=new JButton("停止迭代器");
+		button1.setBounds(106, 5, 88, 30);
+		getContentPane().add(button1);
+		button1.addActionListener(e -> {
+			iterator.stop();
+		});
+		
+		JButton button_1 = new JButton("测试");
+		button_1.setBounds(100, 360, 90, 30);
+		getContentPane().add(button_1);
+		
+		JButton btnNewButton = new JButton("New button");
+		btnNewButton.setBounds(100, 411, 90, 30);
+		getContentPane().add(btnNewButton);
+		
+		JButton button_2 = new JButton("开始迭代器2");
+		button_2.setBounds(6, 47, 88, 30);
+		getContentPane().add(button_2);
+		button_2.addActionListener(e -> {
+			iterator2.start();
+		});
+		
+		JButton button_3 = new JButton("停止迭代器2");
+		button_3.setBounds(106, 47, 88, 30);
+		getContentPane().add(button_3);
+		button_3.addActionListener(e -> {
+			iterator2.reverse();
+		});
+
+
+		iterator.setCallback((value -> {
+			button_1.setLocation(value,360);
+		}));
+
+		iterator2.setCallback(value -> {
+			btnNewButton.setLocation(value,411);
+		});
+
+		AnAnimButton anAnimButton=new AnAnimButton("asdasd");
+		anAnimButton.setBounds(100,200,401,73);
+		anAnimButton.setTextBounds(20,10);
+		anAnimButton.setFont(new Font("微软雅黑",Font.PLAIN,20));
+		getContentPane().add(anAnimButton);
+		anAnimButton.repaint();
+
+		AnimButton animButton=new AnimButton();
+		animButton.setText("asdasdas");
+		animButton.setBounds(300,300,60,30);
+		getContentPane().add(animButton);
+
+
+
+		
+		setVisible(true);
 	}
 
 	
@@ -44,7 +117,7 @@ public class Test extends JFrame{
 			e.printStackTrace();
 		}
 
-		//WorkerWindow wd=new WorkerWindow();
+		//WorkerInfoWindow wd=new WorkerInfoWindow();
 
 		//wd.setVisible(true);
 		//AnPopDialog.show(null,"阿萨德和考拉上的痕迹卡的阿手机客户端按实际的",AnPopDialog.SHORT_TIME)
@@ -72,8 +145,7 @@ public class Test extends JFrame{
 		dataTable.setName("测试工地");
 		System.out.println(dataTable);*/
 
-		System.out.println(DBManager.getManager().getSalaryManager().getDataBase().get(0));
-
+		new Test();
 
 	}
 

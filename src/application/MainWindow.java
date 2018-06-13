@@ -5,8 +5,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import component.AnCardPanel;
-import component.AnCardPanelItem;
+import component.*;
 import dbManager.DBManager;
 import dbManager.User;
 import resource.Resource;
@@ -17,109 +16,44 @@ import resource.Resource;
  * @author Dell
  *
  */
-public class MainWindow extends JFrame {
+public class MainWindow extends Window implements ComponentLoader {
 
 	private User user=null;
-	
-	private JPanel panel = null;
-	private AnCardPanel cardPanel=null;
-	private AnCardPanelItem workerItem=null;
-	private AnCardPanelItem buildSiteItem =null;
-	private AnCardPanelItem settingItem=null;
-	private AnCardPanelItem resourceItem=null;
-	private AnCardPanelItem workItem=null;
-	private JPanel sourcePanel=null;
+
 
 	private static MainWindow mainWindow;
+
+	private AnImageButton btnWorker;
+	private AnImageButton btnSite;
+	private AnImageButton btnAcess;
+	private AnImageButton btnSetting;
+
+	private WorkerWindow workerWindow=null;
+	private SiteWindow siteWindow=null;
 
 
 	
 
 	private MainWindow() {
-		init();
+		setResizable(false);
+		setBackground(Color.WHITE);
+		getContentPane().setBackground(SystemColor.window);
+		initializeComponent();
+		initializeEvent();
+		initializeData();
 	}
 
 	private MainWindow(User user){
-
-		init();
-		initView();
+		initializeComponent();
+		initializeEvent();
+		initializeData();
 		this.user=user;
 	}
-
-	private void initView() {
-		cardPanel=new AnCardPanel();
-		panel.add(cardPanel);
-
-		cardPanel.setSize(60,771);
-		setLocation(0,0);
-		cardPanel.setItemSize(60,60);
-		cardPanel.setSourcePanel(sourcePanel);
-		//点击动态加载panel
-		cardPanel.setOnSelectedListener(item -> {
-
-        });
-
-		//工人管理
-		workerItem=new AnCardPanelItem();
-		workerItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("worker_normal.png")));
-		workerItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("worker_enter.png")));
-		workerItem.setSelectedImage(AnUtils.getImageIcon(Resource.getResource("worker_selected.png")));
-		cardPanel.addButton(workerItem);
-		workerItem.TAG="工人管理";
-
-		WorkerPanel workPanel=new WorkerPanel();
-		//sourcePanel.add(workPanel);
-		workerItem.setPanel(workPanel);
-
-
-
-		//工地管理
-		buildSiteItem =new AnCardPanelItem();
-		buildSiteItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("resource_normal.png")));
-		buildSiteItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("resource_enter.png")));
-		buildSiteItem.setSelectedImage(AnUtils.getImageIcon(Resource.getResource("resource_selected.png")));
-		cardPanel.addButton(buildSiteItem);
-
-		
-		//设置
-		settingItem=new AnCardPanelItem();
-		settingItem.setNormalImage(AnUtils.getImageIcon(Resource.getResource("setting_normal.png")));
-		settingItem.setEnterImage(AnUtils.getImageIcon(Resource.getResource("setting_enter.png")));
-		settingItem.setSelectedImage(AnUtils.getImageIcon(Resource.getResource("setting_selected.png")));
-		cardPanel.addButton(settingItem);
-	}
-
-
-
-	private void init(){
-		setTitle("管理中心");
-		setSize(1000, 700);
-		setResizable(false);
-		setLocationRelativeTo(null);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		// 实例容器
-		panel = new JPanel();
-		getContentPane().add(panel, BorderLayout.CENTER);
-		panel.setLayout(null);
-
-		sourcePanel=new JPanel(null);
-		sourcePanel.setBounds(60,0,934,771);
-		panel.add(sourcePanel);
-
-		//窗口关闭事件（保存数据）
-		this.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				Application.updateUserData();
-				Application.saveSetting();
-			}
-		});
-	}
-
 
 
 	public static MainWindow getMainWindow(User user){
 		//准备数据
+		assert DBManager.getManager() != null;
 		DBManager.getManager().loadUser(user);
 
 		if(mainWindow==null){
@@ -129,8 +63,108 @@ public class MainWindow extends JFrame {
 		return mainWindow;
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+
+
+	@Override
+	public void initializeComponent() {
+		setTitle("首页");
+		setSize(926, 602);
+		setMinimumSize(getSize());
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		getContentPane().setLayout(null);
+		getContentPane().setBackground(Color.WHITE);
+		
+		btnWorker = new AnImageButton("工人管理");
+		btnWorker.setFont(new Font("等线", Font.PLAIN, 40));
+		btnWorker.setBounds(53, 81, 464, 82);
+		getContentPane().add(btnWorker);
+
+
+		btnSite = new AnImageButton("工地管理");
+		btnSite.setFont(new Font("等线", Font.PLAIN, 40));
+		btnSite.setBounds(53, 173, 464, 82);
+		getContentPane().add(btnSite);
+
+		btnAcess = new AnImageButton("资产管理");
+		btnAcess.setFont(new Font("等线", Font.PLAIN, 40));
+		btnAcess.setBounds(53, 265, 464, 82);
+		getContentPane().add(btnAcess);
+		
+		JLabel label_2 = new JLabel("工地管理系统");
+		label_2.setForeground(SystemColor.textHighlight);
+		label_2.setFont(new Font("等线", Font.PLAIN, 99));
+		label_2.setBounds(340, 413, 704, 206);
+		getContentPane().add(label_2);
+		
+		btnSetting = new AnImageButton("设置");
+		btnSetting.setToolTipText("设置");
+		btnSetting.setFont(new Font("等线", Font.PLAIN, 40));
+		btnSetting.setBounds(53, 357, 464, 82);
+		getContentPane().add(btnSetting);
+		
+	}
+
+	@Override
+	public void initializeEvent() {
+		//窗口关闭事件（保存数据）
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				Application.updateUserData();
+				Application.saveSetting();
+			}
+		});
+
+		btnWorker.setActionListener(event -> {
+			if (event.getAction()==AnActionEvent.CILCKED){
+				if (workerWindow==null)
+					workerWindow=new WorkerWindow();
+				workerWindow.setVisible(true);
+			}
+		});
+
+		btnAcess.setActionListener(event -> {
+			if (event.getAction()==AnActionEvent.CILCKED){
+
+			}
+		});
+
+		btnSetting.setActionListener(event -> {
+			if (event.getAction()==AnActionEvent.CILCKED){
+
+			}
+		});
+
+		btnSite.setActionListener(event -> {
+			if (event.getAction()==AnActionEvent.CILCKED){
+				if (siteWindow==null)
+					siteWindow=new SiteWindow();
+				siteWindow.setVisible(true);
+			}
+		});
+	}
+
+	@Override
+	public void initializeData() {
+		btnWorker.setImage(
+				AnUtils.getImageIcon(Resource.getResource("btn_worker_normal.png")),
+				AnUtils.getImageIcon(Resource.getResource("btn_worker_press.png")),
+				AnUtils.getImageIcon(Resource.getResource("btn_worker_enter.png")));
+		btnSite.setImage(
+				AnUtils.getImageIcon(Resource.getResource("btn_site_normal.png")),
+				AnUtils.getImageIcon(Resource.getResource("btn_site_press.png")),
+				AnUtils.getImageIcon(Resource.getResource("btn_site_enter.png"))
+		);
+		btnSetting.setImage(
+				AnUtils.getImageIcon(Resource.getResource("btn_setting_normal.png")),
+				AnUtils.getImageIcon(Resource.getResource("btn_setting_press.png")),
+				AnUtils.getImageIcon(Resource.getResource("btn_setting_enter.png"))
+		);
+		btnAcess.setImage(
+				AnUtils.getImageIcon(Resource.getResource("btn_access_noraml.png")),
+				AnUtils.getImageIcon(Resource.getResource("btn_access_press.png")),
+				AnUtils.getImageIcon(Resource.getResource("btn_access_enter.png"))
+		);
+	}
 }
