@@ -254,34 +254,34 @@ public class InfoWindow extends Window implements ComponentLoader {
         ArrayList tmpList=worker.getValueList();
         Vector<Vector> infoRows=new Vector<>();
         for (Object o:tmpList){
-            Info info= (Info) o;
+            Node node = (Node) o;
 
-            if (info.getName().equals(PropertyFactory.LABEL_NUMBER))
+            if (node.getName().equals(PropertyFactory.LABEL_NUMBER))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_AGE))
+            if (node.getName().equals(PropertyFactory.LABEL_AGE))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_BIRTH))
+            if (node.getName().equals(PropertyFactory.LABEL_BIRTH))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_SITE))
+            if (node.getName().equals(PropertyFactory.LABEL_SITE))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_LEAVE_TIME))
+            if (node.getName().equals(PropertyFactory.LABEL_LEAVE_TIME))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_WORKER_STATE))
+            if (node.getName().equals(PropertyFactory.LABEL_WORKER_STATE))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_TOTAL_WORKING_DAY))
+            if (node.getName().equals(PropertyFactory.LABEL_TOTAL_WORKING_DAY))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_SURPLUS_SALARY))
+            if (node.getName().equals(PropertyFactory.LABEL_SURPLUS_SALARY))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_DUTY_ARR))
+            if (node.getName().equals(PropertyFactory.LABEL_DUTY_ARR))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_COST_OF_LIVING))
+            if (node.getName().equals(PropertyFactory.LABEL_COST_OF_LIVING))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_SITE))
+            if (node.getName().equals(PropertyFactory.LABEL_SITE))
                 continue;
 
             Vector cells=new Vector();
-            cells.add(info.getName());
-            cells.add(info.getValue());
+            cells.add(node.getName());
+            cells.add(node.getValue());
             infoRows.add(cells);
         }
         infoTable.getTableModel().setDataVector(infoRows,AnUtils.convertToVector(INFO_HEADER));
@@ -443,9 +443,9 @@ public class InfoWindow extends Window implements ComponentLoader {
             }else{
                 //更新其他信息
                 try {
-                    Info info=worker.find(pn);
+                    Node node =worker.find(pn);
                     Object object=bean.getNewValue(i);
-                    info.setValue(object);
+                    node.setValue(object);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

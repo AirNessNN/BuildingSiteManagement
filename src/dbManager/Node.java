@@ -9,12 +9,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.SimpleFormatter;
 
 /**
  * 信息类，存放字符型变量和数字型变量，用于自定义信息
  */
-public class Info<T> implements Serializable ,Cloneable{
+public class Node<T> implements Serializable ,Cloneable{
 
     /**
      * 类型 1 2 3 4
@@ -49,14 +48,14 @@ public class Info<T> implements Serializable ,Cloneable{
     }
 
     //构造
-    public Info(){
+    public Node(){
     }
 
-    public Info(String name){
+    public Node(String name){
         init(name,null);
     }
 
-    public Info(int type,String name){
+    public Node(int type, String name){
         init(name,null);
         try {
             this.type=TYPE_NAME[type];
@@ -65,7 +64,7 @@ public class Info<T> implements Serializable ,Cloneable{
         }
     }
 
-    public Info(String name,T value){
+    public Node(String name, T value){
         init(name,value);
     }
 
@@ -199,8 +198,8 @@ public class Info<T> implements Serializable ,Cloneable{
     public boolean equals(Object obj) {
         if (!obj.getClass().getName().equals(this.getClass().getName()))
             return false;
-        Info<T> info=(Info<T>)obj;
-        return info.name.equals(this.name)&&info.getType()==this.getType()&&equalsValue(info.getValue());
+        Node<T> node =(Node<T>)obj;
+        return node.name.equals(this.name)&& node.getType()==this.getType()&&equalsValue(node.getValue());
     }
 
     /**

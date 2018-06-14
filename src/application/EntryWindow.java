@@ -1,12 +1,11 @@
 package application;
 
 import component.AnComboBoxEditor;
-import component.AnDateComboBoxEditor;
 import component.AnTable;
 import component.DialogResult;
 import dbManager.AnBean;
 import dbManager.DBManager;
-import dbManager.Info;
+import dbManager.Node;
 import dbManager.PropertyFactory;
 import resource.Resource;
 
@@ -76,27 +75,27 @@ public class EntryWindow extends JDialog {
             for (Object o:table.getTableModel().getDataVector()){
                 Vector<String> cells= (Vector<String>) o;
                 String value=cells.get(1);
-                Info info=worker.find(cells.get(0));
-                if (info.getType()==Info.TYPE_STRING)
-                    info.setValue(value);
-                if (info.getType()==Info.TYPE_DOUBLE)
+                Node node =worker.find(cells.get(0));
+                if (node.getType()==Node.TYPE_STRING)
+                    node.setValue(value);
+                if (node.getType()==Node.TYPE_DOUBLE)
                     try{
-                        info.setValue(Double.valueOf(value));
+                        node.setValue(Double.valueOf(value));
                     }catch (Exception ex){
-                        Application.debug(info,ex.toString());
+                        Application.debug(node,ex.toString());
                     }
-                if (info.getType()==Info.TYPE_DATE) {
+                if (node.getType()==Node.TYPE_DATE) {
                     try {
-                        info.setValue(new SimpleDateFormat((Resource.DATE_FORMATE)).parse(value));
+                        node.setValue(new SimpleDateFormat((Resource.DATE_FORMATE)).parse(value));
                     } catch (ParseException e1) {
-                        Application.debug(info,e1.toString());
+                        Application.debug(node,e1.toString());
                     }
                 }
-                if (info.getType()==Info.TYPE_INTEGER)
+                if (node.getType()==Node.TYPE_INTEGER)
                     try{
-                        info.setValue(Integer.valueOf(value));
+                        node.setValue(Integer.valueOf(value));
                     }catch (Exception ex){
-                        Application.debug(info,ex.toString());
+                        Application.debug(node,ex.toString());
                     }
             }
             if (worker.find(PropertyFactory.LABEL_ID_CARD).getValueString().equals("")||worker.find(PropertyFactory.LABEL_NAME).getValueString().equals("")){
@@ -133,31 +132,31 @@ public class EntryWindow extends JDialog {
         ArrayList tmpList=worker.getValueList();
         Vector<Vector> rows=new Vector<>();
         for (Object o:tmpList){
-            Info info= (Info) o;
+            Node node = (Node) o;
 
-            if (info.getName().equals(PropertyFactory.LABEL_NUMBER))
+            if (node.getName().equals(PropertyFactory.LABEL_NUMBER))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_AGE))
+            if (node.getName().equals(PropertyFactory.LABEL_AGE))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_BIRTH))
+            if (node.getName().equals(PropertyFactory.LABEL_BIRTH))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_SITE))
+            if (node.getName().equals(PropertyFactory.LABEL_SITE))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_LEAVE_TIME))
+            if (node.getName().equals(PropertyFactory.LABEL_LEAVE_TIME))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_WORKER_STATE))
+            if (node.getName().equals(PropertyFactory.LABEL_WORKER_STATE))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_TOTAL_WORKING_DAY))
+            if (node.getName().equals(PropertyFactory.LABEL_TOTAL_WORKING_DAY))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_SURPLUS_SALARY))
+            if (node.getName().equals(PropertyFactory.LABEL_SURPLUS_SALARY))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_DUTY_ARR))
+            if (node.getName().equals(PropertyFactory.LABEL_DUTY_ARR))
                 continue;
-            if (info.getName().equals(PropertyFactory.LABEL_COST_OF_LIVING))
+            if (node.getName().equals(PropertyFactory.LABEL_COST_OF_LIVING))
                 continue;
 
             Vector cells=new Vector();
-            cells.add(info.getName());
+            cells.add(node.getName());
             cells.add("");
             rows.add(cells);
         }

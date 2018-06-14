@@ -20,6 +20,8 @@ public class MainWindow extends Window implements ComponentLoader {
 
 	private User user=null;
 
+	private Rectangle rectangle=new Rectangle(295,390,90,60);
+
 
 	private static MainWindow mainWindow;
 
@@ -30,6 +32,7 @@ public class MainWindow extends Window implements ComponentLoader {
 
 	private WorkerWindow workerWindow=null;
 	private SiteWindow siteWindow=null;
+	private JLabel label;
 
 
 	
@@ -91,11 +94,11 @@ public class MainWindow extends Window implements ComponentLoader {
 		btnAcess.setBounds(53, 265, 464, 82);
 		getContentPane().add(btnAcess);
 		
-		JLabel label_2 = new JLabel("工地管理系统");
-		label_2.setForeground(SystemColor.textHighlight);
-		label_2.setFont(new Font("等线", Font.PLAIN, 99));
-		label_2.setBounds(340, 413, 704, 206);
-		getContentPane().add(label_2);
+		label = new JLabel("工地管理系统");
+		label.setForeground(SystemColor.textHighlight);
+		label.setFont(new Font("等线", Font.PLAIN, 99));
+		label.setBounds(340, 413, 704, 206);
+		getContentPane().add(label);
 		
 		btnSetting = new AnImageButton("设置");
 		btnSetting.setToolTipText("设置");
@@ -143,6 +146,25 @@ public class MainWindow extends Window implements ComponentLoader {
 				siteWindow.setVisible(true);
 			}
 		});
+
+
+
+
+		new Thread(()->{
+			while (true){
+
+				Point mouse=MouseInfo.getPointerInfo().getLocation();
+				float pensentX=mouse.x/20;
+				float pensentY=mouse.y/20;
+
+				label.setLocation(rectangle.x+Math.round(pensentX),rectangle.y+Math.round(pensentY));
+				try {
+					Thread.sleep(16);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
 	}
 
 	@Override

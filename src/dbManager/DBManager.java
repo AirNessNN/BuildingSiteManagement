@@ -1,8 +1,6 @@
 package dbManager;
 
-import java.awt.*;
 import java.io.*;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -321,9 +319,9 @@ public class DBManager {
 		for(int i=0;i<10;i++){
 			AnBean w= PropertyFactory.createWorker();
 			w.find(PropertyFactory.LABEL_NUMBER).setValue(i);
-			Info inf1=w.find("名字");
+			Node inf1=w.find("名字");
 			inf1.setValue("名字"+r.nextInt(456123));
-			Info inf2=w.find("身份证");
+			Node inf2=w.find("身份证");
 			inf2.setValue(Test.IDRandom());
 			w.find(PropertyFactory.LABEL_PHONE).setValue("13123376032");
 			w.find(PropertyFactory.LABEL_SEX).setValue(workerProperty.findColumn(PropertyFactory.LABEL_SEX).getValues().get(r.nextInt(workerProperty.findColumn(PropertyFactory.LABEL_SEX).size())));//性别
@@ -373,7 +371,7 @@ public class DBManager {
 	public void addWorkerProperty(AnColumn info) throws Exception {
 		if(workerProperty !=null){
 			workerProperty.addColumn(info);
-			PropertyFactory.addUserData(new Info(info.getName(),""));
+			PropertyFactory.addUserData(new Node(info.getName(),""));
 		}
 	}
 
@@ -412,14 +410,14 @@ public class DBManager {
 		}
 		//替换数据
 		for (AnBean bean:manager.loadingWorkerList()){
-			Info info=bean.find(oldV);
-			if (info==null)
+			Node node =bean.find(oldV);
+			if (node ==null)
 				continue;
-			info.setName(rv);
+			node.setName(rv);
 		}
 		manager.getWorkerProperty(oldV).setName(rv);
 		PropertyFactory.removeUserDate(oldV);
-		PropertyFactory.addUserData(new Info(rv,""));
+		PropertyFactory.addUserData(new Node(rv,""));
 		return true;
 	}
 
@@ -487,7 +485,7 @@ public class DBManager {
 				workerProperty =(AnDataTable) readObject(user.getWorkerPropertyPath());
 				//把读取到的数据放到工厂用于生产
 				for (AnColumn column:workerProperty.getValues()){
-					PropertyFactory.addUserData(new Info(column.getName(),""));
+					PropertyFactory.addUserData(new Node(column.getName(),""));
 				}
 			} catch (IOException | ClassNotFoundException exception) {
 				workerProperty= PropertyFactory.createWorkerProperty();
@@ -608,17 +606,17 @@ public class DBManager {
 
 		if(workerListLoaded){
 			for(AnBean bean:workerList){
-				for (Info info: bean.getArray()){
-					if(info.getName().equals(name)){
-						if (info.getValue() instanceof ArrayList){
-							ArrayList list= (ArrayList) info.getValue();
+				for (Node node : bean.getArray()){
+					if(node.getName().equals(name)){
+						if (node.getValue() instanceof ArrayList){
+							ArrayList list= (ArrayList) node.getValue();
 							for (Object object:list){
 								if (object.toString().equals(value.toString())){
 									tmpList.add(bean);
 								}
 							}
 						}else {
-							if (info.equalsValue(value)){
+							if (node.equalsValue(value)){
 								tmpList.add(bean);
 							}
 						}
@@ -710,12 +708,13 @@ public class DBManager {
 	 * 向DB中添加一个空的工地
 	 * @param name 工地名称
 	 */
-	public void createBuildingSite(String name) throws Exception {
+	public AnDataTable createBuildingSite(String name) throws Exception {
 		if (!buildingSiteLoaded)
-			return;
+			return null;
 		AnDataTable site=PropertyFactory.createBuildingSite();
 		site.setName(name);
 		createBuildingSite(site);
+		return site;
 	}
 
 	/**
@@ -1268,12 +1267,12 @@ public class DBManager {
 	 * @return 返回该包装
 	 */
 	public static void addBeanArrayInfo(AnBean bean, String propertyName, Object value){
-		Info info=bean.find(propertyName);
-		if (info==null)
+		Node node =bean.find(propertyName);
+		if (node ==null)
 			return;
-		if (!(info.getValue()instanceof ArrayList))
+		if (!(node.getValue()instanceof ArrayList))
 			return;
-		ArrayList<String> tmpList= (ArrayList<String>) info.getValue();
+		ArrayList<String> tmpList= (ArrayList<String>) node.getValue();
 		if (tmpList.contains(value))
 			return;
 		tmpList.add((String) value);
@@ -1286,12 +1285,12 @@ public class DBManager {
 	 * @param value 数值
 	 */
 	public static void removeBeanArrayInfo(AnBean bean,String propertyName,Object value){
-		Info info=bean.find(propertyName);
-		if (info==null)
+		Node node =bean.find(propertyName);
+		if (node ==null)
 			return;
-		if (!(info.getValue()instanceof ArrayList))
+		if (!(node.getValue()instanceof ArrayList))
 			return;
-		ArrayList<String> tmpList= (ArrayList<String>) info.getValue();
+		ArrayList<String> tmpList= (ArrayList<String>) node.getValue();
 		if (tmpList.contains(value))
 			tmpList.remove(value);
 	}
@@ -1304,12 +1303,12 @@ public class DBManager {
 	 * @return 返回该包装
 	 */
 	public static String[] getBeanArrayInfoValues(AnBean bean,String propertyName,Object value){
-		Info info=bean.find(propertyName);
-		if (info==null)
+		Node node =bean.find(propertyName);
+		if (node ==null)
 			return null;
-		if (!(info.getValue()instanceof ArrayList))
+		if (!(node.getValue()instanceof ArrayList))
 			return null;
-		ArrayList<String> tmpList= (ArrayList<String>) info.getValue();
+		ArrayList<String> tmpList= (ArrayList<String>) node.getValue();
 		return (String[]) tmpList.toArray();
 	}
 
@@ -1475,6 +1474,8 @@ public class DBManager {
 		}
 		return createFlag;
 	}
+
+
 
 
 	/**

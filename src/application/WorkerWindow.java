@@ -9,6 +9,7 @@ public class WorkerWindow extends Window{
 
 class SiteWindow extends Window{
     public SiteWindow(){
+        setTitle("工地管理");
         SitePanel sitePanel=new SitePanel();
         getContentPane().add(sitePanel);
         sitePanel.loading(null);

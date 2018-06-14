@@ -44,43 +44,43 @@ public class PropertyFactory {
     /**
      * 工人属性模型
      */
-    private static final Info<?>[] WORKER_MODEL={
-            new Info<Integer>(Info.TYPE_INTEGER,LABEL_NUMBER),//序号
-            new Info<String>(Info.TYPE_STRING,LABEL_NAME),//名字
-            new Info<String>(Info.TYPE_STRING,LABEL_ADDRESS),//地址
-            new Info<String>(Info.TYPE_STRING,LABEL_PHONE),//电话号码
-            new Info<String>(Info.TYPE_STRING,LABEL_ID_CARD),//身份证
-            new Info<Integer>(Info.TYPE_INTEGER,LABEL_AGE),//年龄
-            new Info<Date>(Info.TYPE_DATE,LABEL_BIRTH),//生日
-            new Info<String>(Info.TYPE_STRING,LABEL_SEX),//性别
-            new Info<String>(Info.TYPE_STRING,LABEL_NATION),//民族
-            new Info<String>(Info.TYPE_STRING,LABEL_BANK_ID),//银行卡号
-            new Info<String>(Info.TYPE_STRING, LABEL_BANK_ADDRESS),//开户地址
-            new Info<String>(Info.TYPE_STRING,LABEL_TAG)//备注
+    private static final Node<?>[] WORKER_MODEL={
+            new Node<Integer>(Node.TYPE_INTEGER,LABEL_NUMBER),//序号
+            new Node<String>(Node.TYPE_STRING,LABEL_NAME),//名字
+            new Node<String>(Node.TYPE_STRING,LABEL_ADDRESS),//地址
+            new Node<String>(Node.TYPE_STRING,LABEL_PHONE),//电话号码
+            new Node<String>(Node.TYPE_STRING,LABEL_ID_CARD),//身份证
+            new Node<Integer>(Node.TYPE_INTEGER,LABEL_AGE),//年龄
+            new Node<Date>(Node.TYPE_DATE,LABEL_BIRTH),//生日
+            new Node<String>(Node.TYPE_STRING,LABEL_SEX),//性别
+            new Node<String>(Node.TYPE_STRING,LABEL_NATION),//民族
+            new Node<String>(Node.TYPE_STRING,LABEL_BANK_ID),//银行卡号
+            new Node<String>(Node.TYPE_STRING, LABEL_BANK_ADDRESS),//开户地址
+            new Node<String>(Node.TYPE_STRING,LABEL_TAG)//备注
     };
 
     /**
      * 普通属性模型
      */
-    private static final Info<?>[] PROPERTY_MODEL={
-            new Info<String>(Info.TYPE_STRING,LABEL_SEX),//性别
-            new Info<String>(Info.TYPE_STRING,LABEL_NATION),//民族
-            new Info<>(Info.TYPE_STRING,LABEL_SITE),//工地
-            new Info<>(Info.TYPE_STRING,LABEL_WORKER_TYPE),//工种
-            new Info<>(Info.TYPE_STRING,LABEL_WORKER_STATE)//状态
+    private static final Node<?>[] PROPERTY_MODEL={
+            new Node<String>(Node.TYPE_STRING,LABEL_SEX),//性别
+            new Node<String>(Node.TYPE_STRING,LABEL_NATION),//民族
+            new Node<>(Node.TYPE_STRING,LABEL_SITE),//工地
+            new Node<>(Node.TYPE_STRING,LABEL_WORKER_TYPE),//工种
+            new Node<>(Node.TYPE_STRING,LABEL_WORKER_STATE)//状态
     };
 
     /**
      * 设置属性模板
      */
-    private static final Info<?>[] SETTING_MODEL={
-            new Info<Integer>(Info.TYPE_INTEGER,SETTING_WORKER_INDEX)
+    private static final Node<?>[] SETTING_MODEL={
+            new Node<Integer>(Node.TYPE_INTEGER,SETTING_WORKER_INDEX)
     };
 
     /**
      * 用户定义的数据
      */
-    private static ArrayList<Info> userData=null;
+    private static ArrayList<Node> userData=null;
 
 
     /**
@@ -89,44 +89,44 @@ public class PropertyFactory {
      */
     public static AnBean createWorker(){
         AnBean worker=new AnBean();
-        for(Info info:WORKER_MODEL){
-            switch (info.getType()){
-                case Info.TYPE_ARRAY_LIST:{
-                    Info<ArrayList> tmp=new Info<>(Info.TYPE_ARRAY_LIST,info.getName());
+        for(Node node :WORKER_MODEL){
+            switch (node.getType()){
+                case Node.TYPE_ARRAY_LIST:{
+                    Node<ArrayList> tmp=new Node<>(Node.TYPE_ARRAY_LIST, node.getName());
                     tmp.setValue(new ArrayList());
                     worker.addInfo(tmp);
                     break;
                 }
-                case Info.TYPE_DATE:{
-                    Info<Date> tmp=new Info<>(Info.TYPE_DATE,info.getName());
+                case Node.TYPE_DATE:{
+                    Node<Date> tmp=new Node<>(Node.TYPE_DATE, node.getName());
                     worker.addInfo(tmp);
                     break;
                 }
-                case Info.TYPE_DOUBLE:{
-                    Info<Double> tmp=new Info<>(Info.TYPE_DOUBLE,info.getName());
+                case Node.TYPE_DOUBLE:{
+                    Node<Double> tmp=new Node<>(Node.TYPE_DOUBLE, node.getName());
                     tmp.setValue(0d);
                     worker.addInfo(tmp);
                     break;
                 }
-                case Info.TYPE_INTEGER:{
-                    Info<Integer> tmp=new Info<>(Info.TYPE_INTEGER,info.getName());
+                case Node.TYPE_INTEGER:{
+                    Node<Integer> tmp=new Node<>(Node.TYPE_INTEGER, node.getName());
                     tmp.setValue(0);
                     worker.addInfo(tmp);
                     break;
                 }
-                case Info.TYPE_STRING:{
-                    Info<String> tmp=new Info<>(Info.TYPE_STRING,info.getName());
+                case Node.TYPE_STRING:{
+                    Node<String> tmp=new Node<>(Node.TYPE_STRING, node.getName());
                     tmp.setValue("");
                     worker.addInfo(tmp);
                     break;
                 }
                 default:
-                    worker.addInfo(new Info<String>(Info.TYPE_STRING,info.getName()));
+                    worker.addInfo(new Node<String>(Node.TYPE_STRING, node.getName()));
             }
         }
         if(userData!=null){
-            for(Info info:userData){
-                Info tmp=new Info(info.getName());
+            for(Node node :userData){
+                Node tmp=new Node(node.getName());
                 worker.addInfo(tmp);
             }
         }
@@ -139,49 +139,49 @@ public class PropertyFactory {
      */
     public static AnDataTable createWorkerProperty(){
         AnDataTable tmpBean=new AnDataTable();
-        for (Info info:PROPERTY_MODEL){
+        for (Node node :PROPERTY_MODEL){
             try {
-                switch (info.getType()){
-                    case Info.TYPE_ARRAY_LIST:{
-                        AnColumn tmp=new AnColumn(true,info.getName());
+                switch (node.getType()){
+                    case Node.TYPE_ARRAY_LIST:{
+                        AnColumn tmp=new AnColumn(true, node.getName());
                         tmpBean.addColumn(tmp);
                         break;
                     }
-                    case Info.TYPE_DATE:{
-                        AnColumn tmp=new AnColumn(true,info.getName());
+                    case Node.TYPE_DATE:{
+                        AnColumn tmp=new AnColumn(true, node.getName());
                         tmpBean.addColumn(tmp);
                         break;
                     }
-                    case Info.TYPE_DOUBLE:{
-                        AnColumn tmp=new AnColumn(true,info.getName());
+                    case Node.TYPE_DOUBLE:{
+                        AnColumn tmp=new AnColumn(true, node.getName());
                         tmpBean.addColumn(tmp);
                         break;
                     }
-                    case Info.TYPE_INTEGER:{
-                        AnColumn tmp=new AnColumn(true,info.getName());
+                    case Node.TYPE_INTEGER:{
+                        AnColumn tmp=new AnColumn(true, node.getName());
                         tmpBean.addColumn(tmp);
                         break;
                     }
                     default:
-                        AnColumn tmp=new AnColumn(true,info.getName());
+                        AnColumn tmp=new AnColumn(true, node.getName());
                         tmpBean.addColumn(tmp);
-                        if (info.getName().equals(PropertyFactory.LABEL_SEX)){
+                        if (node.getName().equals(PropertyFactory.LABEL_SEX)){
                             tmp.addValue("男");
                             tmp.addValue("女");
                         }
-                        if (info.getName().equals(PropertyFactory.LABEL_WORKER_STATE)){
+                        if (node.getName().equals(PropertyFactory.LABEL_WORKER_STATE)){
                             tmp.addValue("在职");
                             tmp.addValue("离职");
                             tmp.addValue("其他");
                         }
-                        if (info.getName().equals(PropertyFactory.LABEL_WORKER_TYPE)){
+                        if (node.getName().equals(PropertyFactory.LABEL_WORKER_TYPE)){
                             tmp.addValue("包工");
                             tmp.addValue("点工");
                             tmp.addValue("点工加包工");
                             tmp.addValue("包月");
                             tmp.addValue("其他");
                         }
-                        if (info.getName().equals(PropertyFactory.LABEL_NATION)){
+                        if (node.getName().equals(PropertyFactory.LABEL_NATION)){
                             tmp.addValue("汉族");
                             tmp.addValue("回族");
                             tmp.addValue("维吾尔族");
@@ -195,8 +195,8 @@ public class PropertyFactory {
             }
         }
         if(userData!=null){
-            for(Info info:userData){
-                AnColumn tmp=new AnColumn(true,info.getName());
+            for(Node node :userData){
+                AnColumn tmp=new AnColumn(true, node.getName());
                 try {
                     tmpBean.addColumn(tmp);
                 } catch (Exception e) {
@@ -247,44 +247,44 @@ public class PropertyFactory {
      * 获取自带属性的数组
      * @return
      */
-    public static Info[] getPreinstall(){
+    public static Node[] getPreinstall(){
         return WORKER_MODEL;
     }
 
-    public static void addUserData(Info info){
+    public static void addUserData(Node node){
         if(userData!=null){
-            userData.add(info);
+            userData.add(node);
         }else{
             userData=new ArrayList<>();
-            userData.add(info);
+            userData.add(node);
         }
     }
 
-    public static void removeUserDate(Info info){
+    public static void removeUserDate(Node node){
         if (userData!=null){
-            userData.remove(info);
+            userData.remove(node);
         }
     }
 
     public static void removeUserDate(final String name){
         Application.startService(()->{
-            Info delete=null;
-            for (Info info :userData){
-                if (info.getName().equals(name))delete=info;
+            Node delete=null;
+            for (Node node :userData){
+                if (node.getName().equals(name))delete= node;
             }
             if (delete!=null)userData.remove(delete);
         });
     }
 
-    public static Info[] getUserDatas(){
-        return (Info[]) userData.toArray();
+    public static Node[] getUserDatas(){
+        return (Node[]) userData.toArray();
     }
 
     public static void setUserDatas(AnDataTable table){
         if (table!=null){
             userData.clear();
             for (AnColumn column:table.getValues()){
-                userData.add(new Info(column.getName(),""));
+                userData.add(new Node(column.getName(),""));
             }
         }
     }

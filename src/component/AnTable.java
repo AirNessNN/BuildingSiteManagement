@@ -179,6 +179,7 @@ public class AnTable extends JTable{
 			}
 		}
 		if (!editable){
+			if (editPassList.contains(p))return;
 			editPassList.add(p);
 		}
 	}
@@ -196,7 +197,9 @@ public class AnTable extends JTable{
 	public void setCellRowEdited(int row ,boolean editable){
 		rowFiltrateFlag =false;
 		if (editable) rowEditFiltrate.remove(row);
-		else rowEditFiltrate.add(row);
+		else {
+			if (!rowEditFiltrate.contains(row))rowEditFiltrate.add(row);
+		}
 		if (rowEditFiltrate.size()==0) rowFiltrateFlag=true;
 	}
 
@@ -212,7 +215,9 @@ public class AnTable extends JTable{
 	public void setCellColumnEdited(int column,boolean editable){
 		columnFiltrateFlag =false;//设置筛选已经打开
         if (editable) columnEditFiltrate.remove(column);
-        else columnEditFiltrate.add(column);
+        else {
+			if (!columnEditFiltrate.contains(column))columnEditFiltrate.add(column);
+		}
         if (columnEditFiltrate.size()==0) columnFiltrateFlag=true;
     }
 

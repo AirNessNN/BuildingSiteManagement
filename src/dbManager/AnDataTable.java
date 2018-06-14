@@ -19,28 +19,37 @@ public class AnDataTable implements Serializable{
     private String name="";//该集合的名称
     private String key=null;//主键
 
-    private ArrayList<AnBean> infos;//该数据表的信息
+    private final AnBean infos=new AnBean("附加属性");//该数据表的信息
 
 
 
 
 
 
+    private void initBean(){
+        infos.clear();
+        infos.addInfo(new Node("项目名称",""));
+        infos.addInfo(new Node("建设单位",""));
+        infos.addInfo(new Node("施工单位",""));
+    }
 
 
     //构造
     public AnDataTable(){
         values=new ArrayList<>();
+        initBean();
     }
 
     public AnDataTable(String name){
         values=new ArrayList<>();
         this.name=name;
+        initBean();
     }
 
     public AnDataTable(AnColumn... arrays){
         values=new ArrayList<>();
         values.addAll(Arrays.asList(arrays));
+        initBean();
     }
 
 
@@ -758,6 +767,63 @@ public class AnDataTable implements Serializable{
             return false;
         return column.set(rowIndex,v);
     }
+
+
+    //对表格属性的操作
+
+    public AnBean getInfos() {
+        return infos;
+    }
+
+    /**
+     * 向表格属性中添加一个属性节点
+     * @param info
+     * @return
+     */
+    public boolean addInfo(Node info){
+        int oldSize=infos.getSize();
+        infos.addInfo(info);
+        return infos.getSize()>oldSize;
+    }
+
+    public void addInfo(String propertyName,Object value){
+        Node node=new Node(propertyName,value);
+        infos.addInfo(node);
+    }
+
+    public void removeInfo(String propertyName){
+        infos.removeInfo(infos.find(propertyName));
+    }
+
+    public void setInfosValue(String propertyName,Object value){
+        Node node=infos.find(propertyName);
+        if (node!=null){
+            node.setValue(value);
+        }
+    }
+
+    public Object getInfosValue(String propertyName){
+        Node node= infos.find(propertyName);
+        if (node==null)return null;
+        return node.getValue();
+    }
+
+    public String[] getInfoPropertyNames(){
+        String[] names=new String[infos.getSize()];
+        for (int i=0;i<infos.getSize();i++){
+            names[i]=infos.getAt(i).getName();
+        }
+        return names;
+    }
+
+    public Object[] getInfoValues(){
+        Object[] values=new Object[infos.getSize()];
+        for (int i=0;i<infos.getSize();i++){
+            values[i]=infos.getAt(i).getValue();
+        }
+        return values;
+    }
+
 
 
 

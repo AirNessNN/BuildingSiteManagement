@@ -8,7 +8,7 @@ import java.util.ArrayList;
  */
 public class AnBean implements Serializable {
 
-    private ArrayList<Info> valueList=null;
+    private ArrayList<Node> valueList=null;
 
     private String beanName="";
 
@@ -35,11 +35,11 @@ public class AnBean implements Serializable {
      * 填充Bean值数组
      * @param arr
      */
-    public void setList(Info[] arr){
+    public void setList(Node[] arr){
         if(valueList!=null){
-            for(Info info:arr){
-                if(!valueList.contains(info)){
-                    valueList.add(info);
+            for(Node node :arr){
+                if(!valueList.contains(node)){
+                    valueList.add(node);
                 }
             }
         }
@@ -47,24 +47,24 @@ public class AnBean implements Serializable {
 
     /**
      * 添加Info对象
-     * @param info
+     * @param node
      */
-    public void addInfo(Info info){
+    public void addInfo(Node node){
        if(valueList==null)
            return;
-       if(valueList.contains(info))
+       if(valueList.contains(node))
            return;
-       valueList.add(info);
+       valueList.add(node);
     }
 
     /**
      * 移除Info对象
-     * @param info
+     * @param node
      */
-    public void removeInfo(Info info){
+    public void removeInfo(Node node){
         if(valueList==null)
             return;
-        valueList.remove(info);
+        valueList.remove(node);
     }
 
     /**
@@ -72,7 +72,7 @@ public class AnBean implements Serializable {
      * @param index
      * @return
      */
-    public Info getAt(int index){
+    public Node getAt(int index){
         if(valueList!=null){
             return valueList.get(index);
         }
@@ -84,11 +84,11 @@ public class AnBean implements Serializable {
      * @param name
      * @return
      */
-    public Info find(String name){
+    public Node find(String name){
         if(valueList!=null){
-            for(Info info:valueList){
-                if(info.getName().equals(name)){
-                    return info;
+            for(Node node :valueList){
+                if(node.getName().equals(name)){
+                    return node;
                 }
             }
         }
@@ -102,9 +102,9 @@ public class AnBean implements Serializable {
      * @return
      */
     public boolean putValueTo(String name,Object value){
-        for (Info info:valueList){
-            if (info.getName().equals(name)){
-                info.setValue(value);
+        for (Node node :valueList){
+            if (node.getName().equals(name)){
+                node.setValue(value);
                 return true;
             }
         }
@@ -132,15 +132,23 @@ public class AnBean implements Serializable {
      * 将Bean转化成数组
      * @return
      */
-    public Info[] getArray(){
+    public Node[] getArray(){
         if(valueList!=null){
-            Info[] infoList=new Info[valueList.size()];
+            Node[] nodeList =new Node[valueList.size()];
             for(int i=0;i<valueList.size();i++){
-                infoList[i]=valueList.get(i);
+                nodeList[i]=valueList.get(i);
             }
-            return infoList;
+            return nodeList;
         }
         return null;
+    }
+
+    /**
+     * 清空所有节点
+     */
+    public void clear(){
+        if (valueList!=null)
+            valueList.clear();
     }
 
     /**
@@ -157,15 +165,15 @@ public class AnBean implements Serializable {
      * 返回Bean的ArrayLis实例
      * @return
      */
-    public ArrayList<Info> getValueList() {
+    public ArrayList<Node> getValueList() {
         return valueList;
     }
 
     @Override
     public String toString() {
         StringBuilder sb=new StringBuilder();
-        for (Info info:getArray()){
-            sb.append(info.toString()+"  ");
+        for (Node node :getArray()){
+            sb.append(node.toString()+"  ");
         }
         return sb.toString();
     }

@@ -1,21 +1,17 @@
 package test;
 
-import SwingTool.MyButton;
 import animation.AnimationManager;
 import animation.Iterator;
 import application.AnUtils;
-import application.PropertyWindow;
-import application.Window;
+import application.SiteCreateWindow;
 import component.AnAnimButton;
-import component.AnDateChooser;
 import component.AnimButton;
-import dbManager.*;
-
+import dbManager.DBManager;
+import dbManager.User;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.util.*;
+import java.util.Collection;
+import java.util.Random;
 
 public class Test extends JFrame{
 
@@ -117,35 +113,13 @@ public class Test extends JFrame{
 			e.printStackTrace();
 		}
 
-		//WorkerInfoWindow wd=new WorkerInfoWindow();
 
-		//wd.setVisible(true);
-		//AnPopDialog.show(null,"阿萨德和考拉上的痕迹卡的阿手机客户端按实际的",AnPopDialog.SHORT_TIME)
-		//System.out.println(EntryWindow.showWindow());
-		/*AnBean worker=DBManager.getManager().getWorker(0);
-		InfoWindow infoWindow=new InfoWindow();
-		infoWindow.initializeWorker(
-				DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD),
-				DBManager.getManager().getWorkerAt(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD)).getColumn(0)
-				);
-		infoWindow.setVisible(true);*/
+		SiteCreateWindow siteCreateWindow=new SiteCreateWindow();
+		siteCreateWindow.setVisible(true);
+		siteCreateWindow.setCallback(values -> {
 
-		/*AnColumn column=new AnColumn(true,true,"哈哈");
-		column.addValue(2);
-		column.addValue(null);
-		column.addValue(null);
-		column.addValue(12);
-		column.addValue(null);
-		column.set(100,"");
-		System.out.println(column.indexOf(null));
-		System.out.println(column.size());
-		column.setNullAble(false);
-		System.out.println(column.size());
-		AnDataTable dataTable=PropertyFactory.createBuildingSite();
-		dataTable.setName("测试工地");
-		System.out.println(dataTable);*/
-
-		new Test();
+		    return true;
+        });
 
 	}
 

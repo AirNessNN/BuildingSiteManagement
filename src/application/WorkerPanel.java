@@ -3,9 +3,14 @@ package application;
 import component.*;
 import dbManager.*;
 import resource.Resource;
-import java.awt.Color;
 import javax.swing.*;
-import java.awt.Font;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.MouseInputAdapter;
+import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
@@ -13,12 +18,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.*;
-import SwingTool.MyButton;
-import javax.swing.border.TitledBorder;
-import javax.swing.border.LineBorder;
-import java.awt.SystemColor;
 
 
 public class WorkerPanel extends JPanel implements Loadable{
@@ -30,10 +29,10 @@ public class WorkerPanel extends JPanel implements Loadable{
 
     private AnTextField searchBox;
     private AnList<AnListRenderModel> list=null;
-    private MyButton btnEntry;
-    private MyButton btnPrint;
-    private MyButton btnRefresh;
-    private MyButton btnPropertyAlert;
+    private AnButton btnEntry;
+    private AnButton btnPrint;
+    private AnButton btnRefresh;
+    private AnButton btnPropertyAlert;
 
     private JComboBox<String> cobSite;//所属工地筛选器
     private AnImageLabel anImageLabel;
@@ -57,6 +56,10 @@ public class WorkerPanel extends JPanel implements Loadable{
     private AnLabel labWorkingSiteCount;
 
     private int birthdayCount=0;//生日人数
+
+    private Color pressColor=new Color(40, 160, 79);
+    private Color enterColor=new Color(24, 96, 48);
+    private Color normalColor=new Color(114, 114, 114);
 
 
 
@@ -104,20 +107,26 @@ public class WorkerPanel extends JPanel implements Loadable{
         //身份证的字符限制
         searchBox.setColumns(18);
 
-        btnPrint = new MyButton("打印信息");
+        btnPrint = new AnButton("打印信息");
         springLayout.putConstraint(SpringLayout.NORTH, btnPrint, 1, SpringLayout.NORTH, searchBox);
         springLayout.putConstraint(SpringLayout.SOUTH, btnPrint, 107, SpringLayout.NORTH, this);
         btnPrint.setToolTipText("将列表中的所有工人的个人信息，打印成列表");
         add(btnPrint);
+        btnPrint.setBorderColor(normalColor);
+        btnPrint.setBorderEnterColor(enterColor);
+        btnPrint.setBorderPressColor(pressColor);
 
 
-        btnEntry = new MyButton("添加工人");
+        btnEntry = new AnButton("添加工人");
         springLayout.putConstraint(SpringLayout.NORTH, btnEntry, 1, SpringLayout.NORTH, searchBox);
         springLayout.putConstraint(SpringLayout.SOUTH, btnEntry, 107, SpringLayout.NORTH, this);
         btnEntry.setToolTipText("创建一个新的工人，并且可以快捷设置他的工地");
         add(btnEntry);
+        btnEntry.setBorderColor(normalColor);
+        btnEntry.setBorderEnterColor(enterColor);
+        btnEntry.setBorderPressColor(pressColor);
         
-        btnRefresh = new MyButton("刷新");
+        btnRefresh = new AnButton("刷新");
         springLayout.putConstraint(SpringLayout.WEST, btnPrint, -90, SpringLayout.WEST, btnRefresh);
         springLayout.putConstraint(SpringLayout.WEST, btnRefresh, -70, SpringLayout.EAST, this);
         springLayout.putConstraint(SpringLayout.EAST, btnPrint, -6, SpringLayout.WEST, btnRefresh);
@@ -125,8 +134,11 @@ public class WorkerPanel extends JPanel implements Loadable{
         springLayout.putConstraint(SpringLayout.SOUTH, btnRefresh, 107, SpringLayout.NORTH, this);
         springLayout.putConstraint(SpringLayout.EAST, btnRefresh, -10, SpringLayout.EAST, this);
         add(btnRefresh);
+        btnRefresh.setBorderColor(normalColor);
+        btnRefresh.setBorderEnterColor(enterColor);
+        btnRefresh.setBorderPressColor(pressColor);
 
-        btnPropertyAlert = new MyButton("属性修改");
+        btnPropertyAlert = new AnButton("属性修改");
         springLayout.putConstraint(SpringLayout.WEST, btnEntry, -90, SpringLayout.WEST, btnPropertyAlert);
         springLayout.putConstraint(SpringLayout.EAST, btnEntry, -6, SpringLayout.WEST, btnPropertyAlert);
         springLayout.putConstraint(SpringLayout.WEST, btnPropertyAlert, -90, SpringLayout.WEST, btnPrint);
@@ -135,6 +147,9 @@ public class WorkerPanel extends JPanel implements Loadable{
         springLayout.putConstraint(SpringLayout.EAST, btnPropertyAlert, -6, SpringLayout.WEST, btnPrint);
         btnPropertyAlert.setToolTipText("增删改属性");
         add(btnPropertyAlert);
+        btnPropertyAlert.setBorderColor(normalColor);
+        btnPropertyAlert.setBorderEnterColor(enterColor);
+        btnPropertyAlert.setBorderPressColor(pressColor);
         
         cobSite = new JComboBox<>();
         cobSite.setFont(new Font("等线", Font.PLAIN, 15));
@@ -540,8 +555,8 @@ public class WorkerPanel extends JPanel implements Loadable{
 
                     AnBean anBean =DBManager.getManager().loadingWorkerList().get(i);
                     //获取Info属性
-                    Info name= anBean.find("名字");
-                    Info number= anBean.find("身份证");
+                    Node name= anBean.find("名字");
+                    Node number= anBean.find("身份证");
                     //获取值
                     String strName=(String) name.getValue();
                     String strNum=(String)number.getValue();
@@ -685,8 +700,8 @@ public class WorkerPanel extends JPanel implements Loadable{
        }
        for(AnBean anBean :beans){
             //获取Info属性
-            Info name= anBean.find("名字");
-            Info number= anBean.find("身份证");
+            Node name= anBean.find("名字");
+            Node number= anBean.find("身份证");
             //获取值
             String strName=(String) name.getValue();
             String strNum=(String)number.getValue();
@@ -707,11 +722,13 @@ public class WorkerPanel extends JPanel implements Loadable{
      * 刷新所有数据
      */
     private void refresh(){
+        int ol=cobSite.getSelectedIndex();
         assert DBManager.getManager() != null;
         DBManager.getManager().updateSalaryManagerData();
         DBManager.getManager().updateWorkerBaseData();
         loading(null);
         list.revalidate();
+        cobSite.setSelectedIndex(ol);
     }
 
 

@@ -1,17 +1,15 @@
 package application;
 
-import SwingTool.MyButton;
 import component.*;
-import dbManager.*;
+import dbManager.AnColumn;
+import dbManager.DBManager;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
-import java.awt.GridLayout;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.awt.Color;
 
 /**
  * <h2>属性窗口</h2>

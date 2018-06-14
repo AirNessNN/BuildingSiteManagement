@@ -3,6 +3,7 @@ package application;
 import javax.swing.*;
 
 public class Window extends JFrame{
+
     private CloseCallback callback=null;
 
     public Window(){
@@ -21,7 +22,7 @@ public class Window extends JFrame{
 
     /**
      * 设置窗口关闭回调
-     * @param callback
+     * @param callback 回调接口的实现
      */
     public void setCallback(CloseCallback callback){
         this.callback=callback;
@@ -31,7 +32,7 @@ public class Window extends JFrame{
      * 执行回调
      * @param values
      */
-    public void  callback(Object... values){
+    protected void  callback(Object... values){
         if (callback!=null)
             callback.callback(values);
     }

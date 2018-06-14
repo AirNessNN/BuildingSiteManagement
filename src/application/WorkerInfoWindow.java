@@ -1,19 +1,18 @@
 package application;
 
-import SwingTool.MyButton;
 import component.*;
 import dbManager.*;
 import resource.Resource;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import javax.swing.border.TitledBorder;
-import javax.swing.border.LineBorder;
 import java.util.Objects;
 
 /**
@@ -45,14 +44,14 @@ public class WorkerInfoWindow extends Window {
 	private JLabel labBornDate;
 	private JLabel labWorkDay;
 	private JLabel labAge;
-	private MyButton btnInfo;
+	private AnButton btnInfo;
 	private AnLabel labEntry;
 	private AnLabel labAddress;
-	private MyButton btnCheck;
-	private MyButton btnDelete;
-	private MyButton btnLeave;
-	private MyButton btnPrint;
-	private MyButton btnFile;
+	private AnButton btnCheck;
+	private AnButton btnDelete;
+	private AnButton btnLeave;
+	private AnButton btnPrint;
+	private AnButton btnFile;
 
 
 
@@ -200,38 +199,38 @@ public class WorkerInfoWindow extends Window {
 								getContentPane().add(panel_1);
 								panel_1.setLayout(null);
 								
-								btnLeave = new MyButton("离职登记");
+								btnLeave = new AnButton("离职登记");
 								btnLeave.setFont(new Font("等线", Font.PLAIN, 14));
 								btnLeave.setToolTipText("登记此工人离职");
 								btnLeave.setBounds(11, 422, 120, 30);
 								panel_1.add(btnLeave);
 								btnLeave.setEnabled(false);
 								
-								btnDelete = new MyButton("删除工人");
+								btnDelete = new AnButton("删除工人");
 								btnDelete.setFont(new Font("等线", Font.PLAIN, 14));
 								btnDelete.setBounds(11, 464, 120, 30);
 								panel_1.add(btnDelete);
 								
-								btnCheck = new MyButton("考勤当天");
+								btnCheck = new AnButton("考勤当天");
 								btnCheck.setFont(new Font("等线", Font.PLAIN, 14));
 								btnCheck.setToolTipText("点击即可完成当天的考勤");
 								btnCheck.setBounds(11, 380, 120, 30);
 								panel_1.add(btnCheck);
 								btnCheck.setEnabled(false);
 
-								btnFile = new MyButton("相关文件");
+								btnFile = new AnButton("相关文件");
 								btnFile.setFont(new Font("等线", Font.PLAIN, 14));
 								btnFile.setToolTipText("打开存放工人相关文件的文件夹");
 								btnFile.setBounds(11, 338, 120, 30);
 								panel_1.add(btnFile);
 								
-								btnInfo = new MyButton("详细信息");
+								btnInfo = new AnButton("详细信息");
 								btnInfo.setFont(new Font("等线", Font.PLAIN, 14));
 								btnInfo.setToolTipText("修改和查看关于该工人的所有数据");
 								btnInfo.setBounds(11, 296, 120, 30);
 								panel_1.add(btnInfo);
 								
-								btnPrint = new MyButton("导出到Excel");
+								btnPrint = new AnButton("导出到Excel");
 								btnPrint.setFont(new Font("等线", Font.PLAIN, 14));
 								btnPrint.setToolTipText("将工人的信息打印到Excel中持久储存");
 								btnPrint.setBounds(11, 254, 120, 30);

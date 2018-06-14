@@ -569,4 +569,12 @@ public class AnUtils {
 	public static boolean dateAfter(Date d1,Date d2){
 		return dateCompareInt(d1,d2)==1;
 	}
+
+	public static Object[] convertObjectArray(String[] values){
+		Object[] objects=new Object[values.length];
+		for (int i=0;i<values.length;i++){
+			objects[i]=values[i];
+		}
+		return objects;
+	}
 }
