@@ -6,9 +6,9 @@ import java.util.ArrayList;
 /**
  * 基本的信息Bean，封装一个拥有属性名称和属性值的集合
  */
-public class AnBean implements Serializable {
+public class Bean implements Serializable {
 
-    private ArrayList<Node> valueList=null;
+    private ArrayList<Info> valueList=null;
 
     private String beanName="";
 
@@ -21,11 +21,11 @@ public class AnBean implements Serializable {
     }
 
 
-    public AnBean(){
+    public Bean(){
         init();
     }
 
-    public AnBean(String beanName){
+    public Bean(String beanName){
         init();
         this.beanName=beanName;
     }
@@ -35,11 +35,11 @@ public class AnBean implements Serializable {
      * 填充Bean值数组
      * @param arr
      */
-    public void setList(Node[] arr){
+    public void setList(Info[] arr){
         if(valueList!=null){
-            for(Node node :arr){
-                if(!valueList.contains(node)){
-                    valueList.add(node);
+            for(Info info :arr){
+                if(!valueList.contains(info)){
+                    valueList.add(info);
                 }
             }
         }
@@ -47,24 +47,24 @@ public class AnBean implements Serializable {
 
     /**
      * 添加Info对象
-     * @param node
+     * @param info
      */
-    public void addInfo(Node node){
+    public void addInfo(Info info){
        if(valueList==null)
            return;
-       if(valueList.contains(node))
+       if(valueList.contains(info))
            return;
-       valueList.add(node);
+       valueList.add(info);
     }
 
     /**
      * 移除Info对象
-     * @param node
+     * @param info
      */
-    public void removeInfo(Node node){
+    public void removeInfo(Info info){
         if(valueList==null)
             return;
-        valueList.remove(node);
+        valueList.remove(info);
     }
 
     /**
@@ -72,7 +72,7 @@ public class AnBean implements Serializable {
      * @param index
      * @return
      */
-    public Node getAt(int index){
+    public Info getAt(int index){
         if(valueList!=null){
             return valueList.get(index);
         }
@@ -84,11 +84,11 @@ public class AnBean implements Serializable {
      * @param name
      * @return
      */
-    public Node find(String name){
+    public Info find(String name){
         if(valueList!=null){
-            for(Node node :valueList){
-                if(node.getName().equals(name)){
-                    return node;
+            for(Info info :valueList){
+                if(info.getName().equals(name)){
+                    return info;
                 }
             }
         }
@@ -102,9 +102,9 @@ public class AnBean implements Serializable {
      * @return
      */
     public boolean putValueTo(String name,Object value){
-        for (Node node :valueList){
-            if (node.getName().equals(name)){
-                node.setValue(value);
+        for (Info info :valueList){
+            if (info.getName().equals(name)){
+                info.setValue(value);
                 return true;
             }
         }
@@ -132,13 +132,13 @@ public class AnBean implements Serializable {
      * 将Bean转化成数组
      * @return
      */
-    public Node[] getArray(){
+    public Info[] getArray(){
         if(valueList!=null){
-            Node[] nodeList =new Node[valueList.size()];
+            Info[] infoList =new Info[valueList.size()];
             for(int i=0;i<valueList.size();i++){
-                nodeList[i]=valueList.get(i);
+                infoList[i]=valueList.get(i);
             }
-            return nodeList;
+            return infoList;
         }
         return null;
     }
@@ -165,15 +165,15 @@ public class AnBean implements Serializable {
      * 返回Bean的ArrayLis实例
      * @return
      */
-    public ArrayList<Node> getValueList() {
+    public ArrayList<Info> getValueList() {
         return valueList;
     }
 
     @Override
     public String toString() {
         StringBuilder sb=new StringBuilder();
-        for (Node node :getArray()){
-            sb.append(node.toString()+"  ");
+        for (Info info :getArray()){
+            sb.append(info.toString()+"  ");
         }
         return sb.toString();
     }

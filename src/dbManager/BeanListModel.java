@@ -8,7 +8,7 @@ import java.util.*;
  */
 public class BeanListModel extends AbstractListModel implements List {
 
-    Vector<AnBean> source=null;
+    Vector<Bean> source=null;
 
 
     @Override

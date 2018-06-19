@@ -18,8 +18,6 @@ import resource.Resource;
  */
 public class MainWindow extends Window implements ComponentLoader {
 
-	private User user=null;
-
 	private Rectangle rectangle=new Rectangle(295,390,90,60);
 
 
@@ -46,23 +44,13 @@ public class MainWindow extends Window implements ComponentLoader {
 		initializeData();
 	}
 
-	private MainWindow(User user){
-		initializeComponent();
-		initializeEvent();
-		initializeData();
-		this.user=user;
-	}
 
 
-	public static MainWindow getMainWindow(User user){
+	public static MainWindow getMainWindow(){
 		//准备数据
-		assert DBManager.getManager() != null;
-		DBManager.getManager().loadUser(user);
-
 		if(mainWindow==null){
-			mainWindow=new MainWindow(user);
+			mainWindow=new MainWindow();
 		}
-
 		return mainWindow;
 	}
 
@@ -121,8 +109,11 @@ public class MainWindow extends Window implements ComponentLoader {
 
 		btnWorker.setActionListener(event -> {
 			if (event.getAction()==AnActionEvent.CILCKED){
-				if (workerWindow==null)
+				setVisible(false);
+				if (workerWindow==null){
 					workerWindow=new WorkerWindow();
+					workerWindow.setCallback(values -> setVisible(true));
+				}
 				workerWindow.setVisible(true);
 			}
 		});
@@ -141,11 +132,16 @@ public class MainWindow extends Window implements ComponentLoader {
 
 		btnSite.setActionListener(event -> {
 			if (event.getAction()==AnActionEvent.CILCKED){
-				if (siteWindow==null)
-					siteWindow=new SiteWindow();
+				this.setVisible(false);
+				if (siteWindow==null) {
+					siteWindow = new SiteWindow();
+					siteWindow.setCallback(values -> this.setVisible(true));
+				}
 				siteWindow.setVisible(true);
 			}
 		});
+
+
 
 
 

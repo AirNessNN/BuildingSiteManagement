@@ -24,7 +24,7 @@ public class InfoWindow extends Window implements ComponentLoader {
     private static final String[] CHECK_IN_HEADER =new String[]{"日期","出勤记录","备注"};
     private static final String[] SALARY_HEADER=new String[]{"日期","领取数额","备注"};
     //工人
-    private AnBean worker;
+    private Bean worker;
     //数据表格
     private AnTable infoTable;
     private AnTable checkInTable;
@@ -226,7 +226,7 @@ public class InfoWindow extends Window implements ComponentLoader {
 
 
     @Deprecated
-    public void initializeWorker(AnBean worker,String site){
+    public void initializeWorker(Bean worker, String site){
 	    if (worker==null)
 	        return;
 	    this.worker=worker;
@@ -254,34 +254,34 @@ public class InfoWindow extends Window implements ComponentLoader {
         ArrayList tmpList=worker.getValueList();
         Vector<Vector> infoRows=new Vector<>();
         for (Object o:tmpList){
-            Node node = (Node) o;
+            Info info = (Info) o;
 
-            if (node.getName().equals(PropertyFactory.LABEL_NUMBER))
+            if (info.getName().equals(PropertyFactory.LABEL_NUMBER))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_AGE))
+            if (info.getName().equals(PropertyFactory.LABEL_AGE))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_BIRTH))
+            if (info.getName().equals(PropertyFactory.LABEL_BIRTH))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_SITE))
+            if (info.getName().equals(PropertyFactory.LABEL_SITE))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_LEAVE_TIME))
+            if (info.getName().equals(PropertyFactory.LABEL_LEAVE_TIME))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_WORKER_STATE))
+            if (info.getName().equals(PropertyFactory.LABEL_WORKER_STATE))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_TOTAL_WORKING_DAY))
+            if (info.getName().equals(PropertyFactory.LABEL_TOTAL_WORKING_DAY))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_SURPLUS_SALARY))
+            if (info.getName().equals(PropertyFactory.LABEL_SURPLUS_SALARY))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_DUTY_ARR))
+            if (info.getName().equals(PropertyFactory.LABEL_DUTY_ARR))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_COST_OF_LIVING))
+            if (info.getName().equals(PropertyFactory.LABEL_COST_OF_LIVING))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_SITE))
+            if (info.getName().equals(PropertyFactory.LABEL_SITE))
                 continue;
 
             Vector cells=new Vector();
-            cells.add(node.getName());
-            cells.add(node.getValue());
+            cells.add(info.getName());
+            cells.add(info.getValue());
             infoRows.add(cells);
         }
         infoTable.getTableModel().setDataVector(infoRows,AnUtils.convertToVector(INFO_HEADER));
@@ -341,7 +341,7 @@ public class InfoWindow extends Window implements ComponentLoader {
 
         //加载工地信息
         Vector<Vector> vectors=new Vector<>();
-        AnDataTable site=DBManager.getManager().getBuildingSite(siteName);
+        DataTable site=DBManager.getManager().getBuildingSite(siteName);
 
         if (site==null)
             return;
@@ -443,9 +443,9 @@ public class InfoWindow extends Window implements ComponentLoader {
             }else{
                 //更新其他信息
                 try {
-                    Node node =worker.find(pn);
+                    Info info =worker.find(pn);
                     Object object=bean.getNewValue(i);
-                    node.setValue(object);
+                    info.setValue(object);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -458,8 +458,8 @@ public class InfoWindow extends Window implements ComponentLoader {
             assert DBManager.getManager() != null;
             ArrayList<String> siteList=DBManager.getManager().getWorkerAt(oldID);
             for (String aSiteList : siteList) {
-                AnDataTable tmpSite = DBManager.getManager().getBuildingSite(aSiteList);
-                AnColumn array = tmpSite.findColumn(PropertyFactory.LABEL_ID_CARD);
+                DataTable tmpSite = DBManager.getManager().getBuildingSite(aSiteList);
+                Column array = tmpSite.findColumn(PropertyFactory.LABEL_ID_CARD);
                 boolean flag = array.changeValue(oldID, newID);//设置工地列表中存放的工人身份信息
                 //找到工地的话，一定会存在工资和出勤，所以也要更新工资和出勤信息
                 if (flag) {
@@ -597,7 +597,7 @@ public class InfoWindow extends Window implements ComponentLoader {
             pns[i]= (String) siteTable.getCell(tableProperty.getPoint(i).x,0);
         }
         assert DBManager.getManager() != null;
-        AnDataTable site=DBManager.getManager().getBuildingSite(siteName);
+        DataTable site=DBManager.getManager().getBuildingSite(siteName);
         if (siteTable==null)
             return;
 

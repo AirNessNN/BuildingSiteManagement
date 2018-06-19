@@ -1,33 +1,31 @@
 package dbManager.dbInterface;
 
-import dbManager.Node;
-
-import java.util.Collection;
+import dbManager.Info;
 
 /**
  * Bean的属性集合接口
  */
 public interface Bean {
     //增加node
-    boolean addNode(Node node);
-    boolean insertNode(int index,Node node);
+    boolean addNode(Info info);
+    boolean insertNode(int index, Info info);
 
     //移除node
-    boolean removeNode(Node node);
+    boolean removeNode(Info info);
     boolean removeNodeAt(int index);
 
     //查找node
-    Node findNode(String propertyName);
-    Node get(int index);
+    Info findNode(String propertyName);
+    Info get(int index);
 
     //查找node下标
-    int nodeOf(Node node);
+    int nodeOf(Info info);
     int nodeOf(String propertyName);
 
     //设置node
-    boolean set(int index,Node node);
+    boolean set(int index, Info info);
 
-    Node[] toArray();
+    Info[] toArray();
     int size();
 
     //设置查找到的node值

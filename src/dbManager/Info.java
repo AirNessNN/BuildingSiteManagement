@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 信息类，存放字符型变量和数字型变量，用于自定义信息
  */
-public class Node<T> implements Serializable ,Cloneable{
+public class Info<T> implements Serializable ,Cloneable{
 
     /**
      * 类型 1 2 3 4
@@ -48,14 +48,14 @@ public class Node<T> implements Serializable ,Cloneable{
     }
 
     //构造
-    public Node(){
+    public Info(){
     }
 
-    public Node(String name){
+    public Info(String name){
         init(name,null);
     }
 
-    public Node(int type, String name){
+    public Info(int type, String name){
         init(name,null);
         try {
             this.type=TYPE_NAME[type];
@@ -64,7 +64,7 @@ public class Node<T> implements Serializable ,Cloneable{
         }
     }
 
-    public Node(String name, T value){
+    public Info(String name, T value){
         init(name,value);
     }
 
@@ -198,8 +198,8 @@ public class Node<T> implements Serializable ,Cloneable{
     public boolean equals(Object obj) {
         if (!obj.getClass().getName().equals(this.getClass().getName()))
             return false;
-        Node<T> node =(Node<T>)obj;
-        return node.name.equals(this.name)&& node.getType()==this.getType()&&equalsValue(node.getValue());
+        Info<T> info =(Info<T>)obj;
+        return info.name.equals(this.name)&& info.getType()==this.getType()&&equalsValue(info.getValue());
     }
 
     /**

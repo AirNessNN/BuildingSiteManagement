@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * 属性集合Bean，封装拥有一个名称，和多个值的属性
  * <li>可空的列集合：其中列表可以设置为可空或不可空，可空和重复不影响，空值不会影响排重，null值不会进入排重</li>
  */
-public class AnColumn  implements Serializable{
+public class Column implements Serializable{
 
     private String name=null;//列名
     private boolean repetable;//可重复标记
@@ -20,25 +20,25 @@ public class AnColumn  implements Serializable{
 
 
     //构造
-    public AnColumn(boolean repetable){
+    public Column(boolean repetable){
         values=new ArrayList<>();
         this.repetable=repetable;
     }
 
-    public AnColumn(boolean repetable,String name){
+    public Column(boolean repetable, String name){
         values=new ArrayList<>();
         this.name=name;
         this.repetable=repetable;
     }
 
-    public AnColumn(boolean repetable,boolean nullAble,String name){
+    public Column(boolean repetable, boolean nullAble, String name){
         values=new ArrayList<>();
         this.name=name;
         this.repetable=repetable;
         this.nullAble=nullAble;
     }
 
-    public AnColumn(boolean repetable,String name, ArrayList arrayList){
+    public Column(boolean repetable, String name, ArrayList arrayList){
         this.name=name;
         if (arrayList==null)
             values=new ArrayList<>();
@@ -47,7 +47,7 @@ public class AnColumn  implements Serializable{
         this.repetable=repetable;
     }
 
-    public AnColumn(boolean repetable,boolean nullAble,String name,ArrayList arrayList){
+    public Column(boolean repetable, boolean nullAble, String name, ArrayList arrayList){
         this.name=name;
         if (arrayList==null)
             values=new ArrayList<>();
@@ -334,8 +334,8 @@ public class AnColumn  implements Serializable{
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof AnColumn){
-            AnColumn column= (AnColumn) obj;
+        if (obj instanceof Column){
+            Column column= (Column) obj;
             if (column.getName()!=null&&this.getName()!=null&&column.getName().equals(getName())){
                 return column.size()== size();
             }

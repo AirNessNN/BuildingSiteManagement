@@ -30,16 +30,19 @@ public class AnButton  extends JLabel implements MouseListener,Runnable{
     private boolean entered=false;
     private int iterator =1;
 
-    private int round=20;
+    private int round=18;
 
     private final Object lock=new Object();//线程锁
+
+    private Thread thread=null;
 
 
     private void init(){
         setFont(new Font("等线",Font.PLAIN,14));
         setOpaque(false);
         setHorizontalAlignment(CENTER);
-        new Thread(this).start();
+        thread=new Thread(this);
+        thread.start();
         addMouseListener(this);
 
         setBackground(Color.white);
@@ -177,9 +180,6 @@ public class AnButton  extends JLabel implements MouseListener,Runnable{
         if (isEnabled()){
             entered=false;
             paintBorderColor=borderColor;
-            synchronized (lock){
-                lock.notify();
-            }
         }
     }
 
@@ -191,17 +191,17 @@ public class AnButton  extends JLabel implements MouseListener,Runnable{
                     if (entered){
                         if (roundValue>round){
                             roundValue=round;
-                            lock.wait();
-                            iterator =1;
+                            repaint();
+                            Thread.sleep(16);
+                            continue;
                         }
-                        roundValue+= iterator++;
+                        roundValue+= iterator;
                     }else {
                         if (roundValue<0){
                             roundValue=0;
                             lock.wait();
-                            iterator =1;
                         }
-                        roundValue-= iterator++;
+                        roundValue-= iterator;
                     }
                     repaint();
                     Thread.sleep(16);

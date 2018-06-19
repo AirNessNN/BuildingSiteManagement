@@ -3,7 +3,6 @@ package dbManager;
 import application.AnUtils;
 import application.Application;
 import application.Loadable;
-import component.AnColor;
 import component.IDateValueItem;
 
 import java.io.IOException;
@@ -15,14 +14,14 @@ import java.util.Date;
  * loading一个工人，对其中的Data类型的Info进行管理
  *
  * 出勤数据结构：
- *          ArrayList《AnDataTable》是所有工人的出勤信息集合
+ *          ArrayList《DataTable》是所有工人的出勤信息集合
  *          AnArrayBean是一个工人（用身份证ID识别）的所有工地的出勤信息
  *                  AnArrayBean中的InfoArray《IDataValueItem》一个工地的出勤信息（工地名称识别）
  *
  *  工资数据结构：
  *           ArrayList管理所有工资
  *              AnDataTable是一个工人的实例，其中包含几个属性，一个是工资领取记录，也该是生活费发放记录
- *                  AnColumn 是上述每个属性的实例，其中存放了日期和领取的钱数量
+ *                  Column 是上述每个属性的实例，其中存放了日期和领取的钱数量
  */
 public class ChildrenManager implements Loadable {
     public static final int MOD_ADD=0;
@@ -34,7 +33,7 @@ public class ChildrenManager implements Loadable {
     private boolean prepared;
     private String path;
 
-    private ArrayList<AnDataTable> workList;//单个工人在所有工地信息的集合
+    private ArrayList<DataTable> workList;//单个工人在所有工地信息的集合
 
 
 
@@ -56,9 +55,9 @@ public class ChildrenManager implements Loadable {
      */
     public boolean updateData(String id, String site, Date date, Object value,String tag){
 
-        AnDataTable worker;
-        AnColumn siteData = null;
-        for (AnDataTable bean: workList){
+        DataTable worker;
+        Column siteData = null;
+        for (DataTable bean: workList){
             if (bean.getName().equals(id)) {
                 worker = bean;
                 siteData=worker.findColumn(site);
@@ -86,9 +85,9 @@ public class ChildrenManager implements Loadable {
      * @return 成功返回true
      */
     public boolean deleteData(String id,String siteName,Date date){
-        AnDataTable worker;
-        AnColumn siteData = null;
-        for (AnDataTable bean: workList){
+        DataTable worker;
+        Column siteData = null;
+        for (DataTable bean: workList){
             if (bean.getName().equals(id)) {
                 worker = bean;
                 siteData=worker.findColumn(siteName);
@@ -122,9 +121,9 @@ public class ChildrenManager implements Loadable {
      * @return 成功返回true
      */
     public boolean updateDate(String id,String site,Date od,Date nd){
-        AnDataTable worker;
-        AnColumn dateList = null;
-        for (AnDataTable bean: workList){
+        DataTable worker;
+        Column dateList = null;
+        for (DataTable bean: workList){
             if (bean.getName().equals(id)) {
                 worker = bean;
                 dateList=worker.findColumn(site);
@@ -166,7 +165,7 @@ public class ChildrenManager implements Loadable {
 
 
             for (String siteName : siteNames){
-                AnDataTable site=manager.getBuildingSite(siteName);
+                DataTable site=manager.getBuildingSite(siteName);
                 for (int i=0;i<site.findColumn(PropertyFactory.LABEL_ID_CARD).size();i++){
                     String id= (String) site.findColumn(PropertyFactory.LABEL_ID_CARD).get(i);
                     /*
@@ -180,30 +179,30 @@ public class ChildrenManager implements Loadable {
                      */
                     //判断此工人是否存在
                     boolean found=false;
-                    for (AnDataTable worker:workList) if (worker.getName().equals(id))found=true;
+                    for (DataTable worker:workList) if (worker.getName().equals(id))found=true;
                     if (!found){//没有找到就要添加一个工人和此工地
-                        AnDataTable dt=new AnDataTable(id);
-                        AnColumn column=new AnColumn(false,false,siteName,new ArrayList());
+                        DataTable dt=new DataTable(id);
+                        Column column=new Column(false,false,siteName,new ArrayList());
                         dt.addColumn(column);
                         workList.add(dt);
                         continue;
                     }
                     //判断工人的工地是否存在
-                    AnDataTable child=getWorker(id);//获取子管理器的工地
+                    DataTable child=getWorker(id);//获取子管理器的工地
                     if (child.findColumn(siteName)==null){
                         //这里在子管理器中没找到这个工地
-                        child.addColumn(new AnColumn(false,false,siteName,new ArrayList()));
+                        child.addColumn(new Column(false,false,siteName,new ArrayList()));
                     }
                 }
             }
 
             //删除子管理器中多余的数据
-            ArrayList<AnDataTable> deleteTable=new ArrayList<>();//要删除的工人
-            ArrayList<AnDataTable> foundTable=new ArrayList<>();//要删除工地的工人表
-            ArrayList<AnColumn> deleteColumn=new ArrayList<>();//要删除的工地
-            for (AnDataTable dt : workList){
+            ArrayList<DataTable> deleteTable=new ArrayList<>();//要删除的工人
+            ArrayList<DataTable> foundTable=new ArrayList<>();//要删除工地的工人表
+            ArrayList<Column> deleteColumn=new ArrayList<>();//要删除的工地
+            for (DataTable dt : workList){
                 //获取此子管理器中的所有工地
-                for (AnColumn column : dt.getValues()){
+                for (Column column : dt.getValues()){
                     //判断工人是否在
                     String id=dt.getName();
                     //工人没有在任何一个工地中工作
@@ -220,7 +219,7 @@ public class ChildrenManager implements Loadable {
                 }
             }
             //删除工人
-            for (AnDataTable dataTable:deleteTable){
+            for (DataTable dataTable:deleteTable){
                 workList.remove(dataTable);
             }
             //删除
@@ -258,7 +257,7 @@ public class ChildrenManager implements Loadable {
             try {
                 if (path==null)
                     return;
-                workList = (ArrayList<AnDataTable>) DBManager.readObject(path);
+                workList = (ArrayList<DataTable>) DBManager.readObject(path);
             } catch (IOException | ClassNotFoundException e) {
                 Application.debug(this,e.toString());
                 workList =new ArrayList<>();
@@ -272,7 +271,7 @@ public class ChildrenManager implements Loadable {
      * 获取所有员工的所有工地上的考勤数据
      * @return
      */
-    public ArrayList<AnDataTable> getDataBase() {
+    public ArrayList<DataTable> getDataBase() {
         return workList;
     }
 
@@ -283,9 +282,9 @@ public class ChildrenManager implements Loadable {
      * @return
      */
     public ArrayList getWorkerDateValueList(String id, String site){
-        for (AnDataTable bean : workList){
+        for (DataTable bean : workList){
             if (bean.getName().equals(id)){
-                for (AnColumn info :bean.getValues()){
+                for (Column info :bean.getValues()){
                     if (info.getName().equals(site)){
                         return  info.getValues();
                     }
@@ -297,8 +296,8 @@ public class ChildrenManager implements Loadable {
 
 
     public Object getValueAt(String id,String siteName,Date date){
-        AnDataTable worker=getWorker(id);
-        AnColumn site=worker.findColumn(siteName);
+        DataTable worker=getWorker(id);
+        Column site=worker.findColumn(siteName);
         for (int i=0;i<site.size();i++){
             IDateValueItem item= (IDateValueItem) site.get(i);
             if (AnUtils.isDateYMDEquality(item.getDate(),date)){
@@ -314,9 +313,9 @@ public class ChildrenManager implements Loadable {
      * @param source
      */
     public void setWorkerDateValueList(String id,String site,ArrayList<IDateValueItem> source){
-        for (AnDataTable bean:workList){
+        for (DataTable bean:workList){
             if (bean.getName().equals(id)){
-                for (AnColumn info:bean.getValues()){
+                for (Column info:bean.getValues()){
                     if (info.getName().equals(site)){
                         info.setValues(source);
                         return;
@@ -332,8 +331,8 @@ public class ChildrenManager implements Loadable {
      * @param id 身份证
      * @return
      */
-    public AnDataTable getWorker(String id){
-        for (AnDataTable bean:workList){
+    public DataTable getWorker(String id){
+        for (DataTable bean:workList){
             if (bean.getName().equals(id))
                 return bean;
         }

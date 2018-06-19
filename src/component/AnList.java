@@ -129,4 +129,8 @@ public class AnList<E> extends JList {
     public void setSelectedColor(Color selectedColor) {
         this.selectedColor = selectedColor;
     }
+
+    public DefaultListModel getDefaultListModel(){
+        return listModel;
+    }
 }

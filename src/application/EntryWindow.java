@@ -3,9 +3,9 @@ package application;
 import component.AnComboBoxEditor;
 import component.AnTable;
 import component.DialogResult;
-import dbManager.AnBean;
+import dbManager.Bean;
 import dbManager.DBManager;
-import dbManager.Node;
+import dbManager.Info;
 import dbManager.PropertyFactory;
 import resource.Resource;
 
@@ -22,10 +22,10 @@ public class EntryWindow extends JDialog {
     public static EntryWindow window=null;
 
 	private AnTable table;
-	private AnBean worker=null;
+	private Bean worker=null;
 	private DialogResult dialogResult=DialogResult.RESULT_CANCEL;
 
-	public static AnBean showWindow(){
+	public static Bean showWindow(){
 	    window=new EntryWindow();
 
 	    return window.getWorker();
@@ -75,27 +75,27 @@ public class EntryWindow extends JDialog {
             for (Object o:table.getTableModel().getDataVector()){
                 Vector<String> cells= (Vector<String>) o;
                 String value=cells.get(1);
-                Node node =worker.find(cells.get(0));
-                if (node.getType()==Node.TYPE_STRING)
-                    node.setValue(value);
-                if (node.getType()==Node.TYPE_DOUBLE)
+                Info info =worker.find(cells.get(0));
+                if (info.getType()==Info.TYPE_STRING)
+                    info.setValue(value);
+                if (info.getType()==Info.TYPE_DOUBLE)
                     try{
-                        node.setValue(Double.valueOf(value));
+                        info.setValue(Double.valueOf(value));
                     }catch (Exception ex){
-                        Application.debug(node,ex.toString());
+                        Application.debug(info,ex.toString());
                     }
-                if (node.getType()==Node.TYPE_DATE) {
+                if (info.getType()==Info.TYPE_DATE) {
                     try {
-                        node.setValue(new SimpleDateFormat((Resource.DATE_FORMATE)).parse(value));
+                        info.setValue(new SimpleDateFormat((Resource.DATE_FORMATE)).parse(value));
                     } catch (ParseException e1) {
-                        Application.debug(node,e1.toString());
+                        Application.debug(info,e1.toString());
                     }
                 }
-                if (node.getType()==Node.TYPE_INTEGER)
+                if (info.getType()==Info.TYPE_INTEGER)
                     try{
-                        node.setValue(Integer.valueOf(value));
+                        info.setValue(Integer.valueOf(value));
                     }catch (Exception ex){
-                        Application.debug(node,ex.toString());
+                        Application.debug(info,ex.toString());
                     }
             }
             if (worker.find(PropertyFactory.LABEL_ID_CARD).getValueString().equals("")||worker.find(PropertyFactory.LABEL_NAME).getValueString().equals("")){
@@ -132,38 +132,38 @@ public class EntryWindow extends JDialog {
         ArrayList tmpList=worker.getValueList();
         Vector<Vector> rows=new Vector<>();
         for (Object o:tmpList){
-            Node node = (Node) o;
+            Info info = (Info) o;
 
-            if (node.getName().equals(PropertyFactory.LABEL_NUMBER))
+            if (info.getName().equals(PropertyFactory.LABEL_NUMBER))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_AGE))
+            if (info.getName().equals(PropertyFactory.LABEL_AGE))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_BIRTH))
+            if (info.getName().equals(PropertyFactory.LABEL_BIRTH))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_SITE))
+            if (info.getName().equals(PropertyFactory.LABEL_SITE))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_LEAVE_TIME))
+            if (info.getName().equals(PropertyFactory.LABEL_LEAVE_TIME))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_WORKER_STATE))
+            if (info.getName().equals(PropertyFactory.LABEL_WORKER_STATE))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_TOTAL_WORKING_DAY))
+            if (info.getName().equals(PropertyFactory.LABEL_TOTAL_WORKING_DAY))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_SURPLUS_SALARY))
+            if (info.getName().equals(PropertyFactory.LABEL_SURPLUS_SALARY))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_DUTY_ARR))
+            if (info.getName().equals(PropertyFactory.LABEL_DUTY_ARR))
                 continue;
-            if (node.getName().equals(PropertyFactory.LABEL_COST_OF_LIVING))
+            if (info.getName().equals(PropertyFactory.LABEL_COST_OF_LIVING))
                 continue;
 
             Vector cells=new Vector();
-            cells.add(node.getName());
+            cells.add(info.getName());
             cells.add("");
             rows.add(cells);
         }
         table.getTableModel().setDataVector(rows,AnUtils.convertToVector(HEADER));
     }
 
-    private AnBean getWorker(){
+    private Bean getWorker(){
 	    if (dialogResult== DialogResult.RESULT_OK)
             return worker;
 	    else

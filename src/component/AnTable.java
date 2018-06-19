@@ -212,7 +212,7 @@ public class AnTable extends JTable{
 	 * @param column 列号
 	 * @param editable 设置数值
 	 */
-	public void setCellColumnEdited(int column,boolean editable){
+	public void setCellColumnEdited(Integer column,boolean editable){
 		columnFiltrateFlag =false;//设置筛选已经打开
         if (editable) columnEditFiltrate.remove(column);
         else {
@@ -238,6 +238,11 @@ public class AnTable extends JTable{
 		//判重复
 		if (!components.contains(component))
 			components.add(component);
+	}
+
+	public void clearComponentCell(){
+		if (components!=null)
+			components.clear();
 	}
 
 
@@ -365,6 +370,16 @@ public class AnTable extends JTable{
 
 		Vector cells= (Vector) getTableModel().getDataVector().get(row);
 		cells.set(column,value);
+	}
+
+
+	public void setColumnWidth(int index,int width){
+		getColumnModel().getColumn(index).setWidth(width);
+	}
+
+	public void setColumnWidth(String columnName,int width){
+		int i=getColumnModel().getColumnIndex(columnName);
+		setColumnWidth(i,width);
 	}
 
 

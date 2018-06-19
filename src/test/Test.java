@@ -2,8 +2,7 @@ package test;
 
 import animation.AnimationManager;
 import animation.Iterator;
-import application.AnUtils;
-import application.SiteCreateWindow;
+import application.*;
 import component.AnAnimButton;
 import component.AnimButton;
 import dbManager.DBManager;
@@ -114,12 +113,9 @@ public class Test extends JFrame{
 		}
 
 
-		SiteCreateWindow siteCreateWindow=new SiteCreateWindow();
-		siteCreateWindow.setVisible(true);
-		siteCreateWindow.setCallback(values -> {
+		SiteInfoWindow siteInfoWindow=new SiteInfoWindow("测试工地");
+		siteInfoWindow.setVisible(true);
 
-		    return true;
-        });
 
 	}
 

@@ -63,7 +63,7 @@ public class Application {
 	/**
 	 * 开启欢迎界面
 	 */
-	public static void showStartWindow() {
+	private static void showStartWindow() {
 		new Thread(()->{
             startWindow =new StartWindow();
             startWindow.setVisible(true);
@@ -73,7 +73,7 @@ public class Application {
 	/**
 	 * 关闭欢迎界面
 	 */
-	public static void closeStartWindow() {
+	private static void closeStartWindow() {
 		startWindow.setVisible(false);
 	}
 	
@@ -96,20 +96,20 @@ public class Application {
 	/*
 	 * DbManager操作
 	 */
-	public static void addUser(User user) {
+	static void addUser(User user) {
 		if(dbManager!=null) {
 			dbManager.addUser(user);
 		}
 	}
 
-	public static void saveSetting(){
+	static void saveSetting(){
 
     }
 
     /**
      * 在DB中更新用户数据到文件
      */
-	public static void updateUserData() {
+	static void updateUserData() {
 		if(dbManager!=null) {
 			try {
 				dbManager.updateUserListFile();
@@ -146,7 +146,7 @@ public class Application {
 
 	/**
 	 * 线程操作
-	 * @param run
+	 * @param run 任务
 	 */
 	public static void startService(Runnable run){
 		if (executorService==null){
@@ -179,7 +179,10 @@ public class Application {
         }
 
 		//Debug
-		MainWindow.getMainWindow(new User("test","1234","","")).setVisible(true);
+		assert DBManager.getManager() != null;
+		DBManager.getManager().loadUser(new User("test","123456","",""));
+		MainWindow.getMainWindow().setVisible(true);
+		//
 
         //确认用户信息
         setLoadMessage("确认用户信息");
@@ -199,10 +202,12 @@ public class Application {
                         loginUser=name;
                         //关闭开始窗口
                         closeStartWindow();
+                        login.dispose();
                     }
                 }
 				if(loginFlag){
-				MainWindow.getMainWindow(loginUser).setVisible(true);
+                	DBManager.getManager().loadUser(loginUser);
+					MainWindow.getMainWindow().setVisible(true);
                 }else {
                     Application.informationWindow("未找到用户，请注册。");
                 }

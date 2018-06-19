@@ -1,7 +1,7 @@
 package application;
 
 import component.*;
-import dbManager.AnColumn;
+import dbManager.Column;
 import dbManager.DBManager;
 
 import javax.swing.*;
@@ -183,7 +183,7 @@ public class PropertyWindow extends JFrame implements  ComponentLoader {
             list.clear();
         manager=DBManager.getManager();
         assert manager != null;
-        for (AnColumn property:manager.loadingWorkerProperty().getValues()){
+        for (Column property:manager.loadingWorkerProperty().getValues()){
             AnListRenderModel model=new AnListRenderModel(property.getName(),String.valueOf(property.size())+"个数据");
             list.addElement(model);
         }

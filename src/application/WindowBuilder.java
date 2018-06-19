@@ -94,10 +94,9 @@ public class WindowBuilder {
 
     /**
      * 显示主窗口
-     * @param user 需要载入的用户
      */
-    public static void showMainWindow(User user){
-        mainWindow=MainWindow.getMainWindow(user);
+    public static void showMainWindow(){
+        mainWindow=MainWindow.getMainWindow();
         mainWindow.setVisible(true);
     }
 

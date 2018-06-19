@@ -10,43 +10,39 @@ import java.util.Arrays;
  * <li>JavaBean：属性集合的集合，在此容器中可以存放封装有一个对象集合和属性名的属性包装对象，并且支持属性查询和内容查询</li>
  * <br/>
  * <p>属性包装类使用AnColumn来实现</p>
- * @see AnColumn
+ * @see Column
  */
-public class AnDataTable implements Serializable{
+public class DataTable implements Serializable{
 
     private int selectedRowIndex =-1;//集合在操作的下标
-    private ArrayList<AnColumn> values;//集合表
+    private ArrayList<Column> values;//集合表
     private String name="";//该集合的名称
     private String key=null;//主键
 
-    private final AnBean infos=new AnBean("附加属性");//该数据表的信息
+    private final Bean infos=new Bean("附加属性");//该数据表的信息
 
 
-
-
-
-
+    /**
+     * 加载表格属性
+     */
     private void initBean(){
         infos.clear();
-        infos.addInfo(new Node("项目名称",""));
-        infos.addInfo(new Node("建设单位",""));
-        infos.addInfo(new Node("施工单位",""));
     }
 
 
     //构造
-    public AnDataTable(){
+    public DataTable(){
         values=new ArrayList<>();
         initBean();
     }
 
-    public AnDataTable(String name){
+    public DataTable(String name){
         values=new ArrayList<>();
         this.name=name;
         initBean();
     }
 
-    public AnDataTable(AnColumn... arrays){
+    public DataTable(Column... arrays){
         values=new ArrayList<>();
         values.addAll(Arrays.asList(arrays));
         initBean();
@@ -63,7 +59,7 @@ public class AnDataTable implements Serializable{
      * 获取所有元素
      * @return 元素
      */
-    public ArrayList<AnColumn> getValues() {
+    public ArrayList<Column> getValues() {
         if (values==null)
             return new ArrayList<>();
         return new ArrayList<>(values);
@@ -78,7 +74,7 @@ public class AnDataTable implements Serializable{
      * 填充元素
      * @param values 元素
      */
-    public void setValues(ArrayList<AnColumn> values) {
+    public void setValues(ArrayList<Column> values) {
         this.values = values;
         selectedRowIndex =-1;
         key=null;
@@ -94,7 +90,7 @@ public class AnDataTable implements Serializable{
      * @param e 属性结婚
      * @throws Exception 相同抛出异常
      */
-    public void addColumn(AnColumn e) throws Exception {
+    public void addColumn(Column e) throws Exception {
         if(values==null)
             return;
         //属性名不能相同
@@ -113,7 +109,7 @@ public class AnDataTable implements Serializable{
      * 移除一个属性
      * @param e 要移除的属性
      */
-    public void removeColumn(AnColumn e){
+    public void removeColumn(Column e){
         if(values==null)
             return;
         values.remove(e);
@@ -150,7 +146,7 @@ public class AnDataTable implements Serializable{
      * @param index
      * @return
      */
-    public AnColumn getColumn(int index){
+    public Column getColumn(int index){
         if (values==null)
             return null;
         return values.get(index);
@@ -170,9 +166,9 @@ public class AnDataTable implements Serializable{
     public boolean addValueTo(String columnName,Object value){
         if(null==value)
             return false;
-        for (AnColumn anColumn :values){
-            if (anColumn.getName().equals(columnName)){
-                anColumn.addValue(value);
+        for (Column column :values){
+            if (column.getName().equals(columnName)){
+                column.addValue(value);
                 return true;
             }
         }
@@ -189,10 +185,10 @@ public class AnDataTable implements Serializable{
      * @param name 属性名
      * @return 返回属性节点
      */
-    public AnColumn findColumn(String name){
+    public Column findColumn(String name){
         if (null==values)
             return null;
-        for(AnColumn info:values){
+        for(Column info:values){
             if (info.getName().equals(name)){
                 return info;
             }
@@ -210,7 +206,7 @@ public class AnDataTable implements Serializable{
      * @param index 下标
      * @return 节点
      */
-    public AnColumn columnAt(int index){
+    public Column columnAt(int index){
         if (null==values)
             return null;
         return values.get(index);
@@ -226,7 +222,7 @@ public class AnDataTable implements Serializable{
      * @param property 节点
      * @return 下标
      */
-    public int columnIndexOf(AnColumn property){
+    public int columnIndexOf(Column property){
         for (int i=0;i<this.values.size();i++){
             if (values.get(i).equals(property))
                 return i;
@@ -316,7 +312,7 @@ public class AnDataTable implements Serializable{
         int index= getMinRowCount();
         int i=0;
         boolean added=false;
-        for (AnColumn column:values){
+        for (Column column:values){
             if (index==column.size()){
                 column.addValue(objects[i]);
                 added=true;
@@ -347,14 +343,14 @@ public class AnDataTable implements Serializable{
 
         //检查下标
         for (int i=0;i<columnNames.length;i++){
-            AnColumn column=findColumn(columnNames[i]);
+            Column column=findColumn(columnNames[i]);
             if (index>=column.size()){//大于下标
                 return false;
             }
         }
         //添加
         for (int i=0;i<columnNames.length;i++){
-            AnColumn column=findColumn(columnNames[i]);
+            Column column=findColumn(columnNames[i]);
             column.set(index,objects[i]);
         }
         return true;
@@ -413,7 +409,7 @@ public class AnDataTable implements Serializable{
             return false;
         int index=-1;
 
-        AnColumn column= findColumn(key);
+        Column column= findColumn(key);
         index=column.indexOf(value);
         if (index==-1)
             return false;
@@ -439,7 +435,7 @@ public class AnDataTable implements Serializable{
             return null;
         if (values.size()==0)
             return null;
-        AnColumn column=values.get(col);
+        Column column=values.get(col);
         if (column.size()==0||column.size()<row)
             return null;
 
@@ -475,7 +471,7 @@ public class AnDataTable implements Serializable{
     public Object getSelectedRowAt(String propertyName){
         if (selectedRowIndex ==-1)return null;
 
-        AnColumn column= findColumn(propertyName);
+        Column column= findColumn(propertyName);
         if (column==null)return null;
 
         return column.get(selectedRowIndex);
@@ -494,7 +490,7 @@ public class AnDataTable implements Serializable{
     public void setSelectedRow(String propertyName, Object value){
         if (selectedRowIndex ==-1)return;
 
-        AnColumn column= findColumn(propertyName);
+        Column column= findColumn(propertyName);
         column.set(selectedRowIndex,value);
     }
 
@@ -556,7 +552,7 @@ public class AnDataTable implements Serializable{
     public int selectRow(String columnName,Object v){
         selectedRowIndex =-1;//初始化选择
 
-        AnColumn column= findColumn(columnName);
+        Column column= findColumn(columnName);
         if (column==null)return selectedRowIndex;
 
         return selectRow(column.indexOf(v));
@@ -624,7 +620,7 @@ public class AnDataTable implements Serializable{
      */
     public int getMinRowCount(){
         int count=Integer.MAX_VALUE;
-        for (AnColumn column:values){
+        for (Column column:values){
             if (count>column.size())
                 count=column.size();
         }
@@ -642,7 +638,7 @@ public class AnDataTable implements Serializable{
      */
     public int getMaxRowCount(){
         int count=Integer.MIN_VALUE;
-        for (AnColumn column:values){
+        for (Column column:values){
             if (column.size()>count)
                 count=column.size();
         }
@@ -760,7 +756,7 @@ public class AnDataTable implements Serializable{
      * @return 成功返回true
      */
     public boolean setCellAt(String columnName,int rowIndex,Object v){
-        AnColumn column=findColumn(columnName);
+        Column column=findColumn(columnName);
         if (column==null)
             return false;
         if (rowIndex>=column.size()||rowIndex<0)
@@ -771,24 +767,24 @@ public class AnDataTable implements Serializable{
 
     //对表格属性的操作
 
-    public AnBean getInfos() {
+    public Bean getInfos() {
         return infos;
     }
 
     /**
      * 向表格属性中添加一个属性节点
-     * @param info
-     * @return
+     * @param info 属性节点
+     * @return 成功返回true
      */
-    public boolean addInfo(Node info){
+    public boolean addInfo(Info info){
         int oldSize=infos.getSize();
         infos.addInfo(info);
         return infos.getSize()>oldSize;
     }
 
     public void addInfo(String propertyName,Object value){
-        Node node=new Node(propertyName,value);
-        infos.addInfo(node);
+        Info info =new Info(propertyName,value);
+        infos.addInfo(info);
     }
 
     public void removeInfo(String propertyName){
@@ -796,16 +792,16 @@ public class AnDataTable implements Serializable{
     }
 
     public void setInfosValue(String propertyName,Object value){
-        Node node=infos.find(propertyName);
-        if (node!=null){
-            node.setValue(value);
+        Info info =infos.find(propertyName);
+        if (info !=null){
+            info.setValue(value);
         }
     }
 
     public Object getInfosValue(String propertyName){
-        Node node= infos.find(propertyName);
-        if (node==null)return null;
-        return node.getValue();
+        Info info = infos.find(propertyName);
+        if (info ==null)return null;
+        return info.getValue();
     }
 
     public String[] getInfoPropertyNames(){
@@ -835,7 +831,7 @@ public class AnDataTable implements Serializable{
     public String toString() {
         StringBuilder sb=new StringBuilder();
         sb.append("{ ");
-        sb.append("AnDataTable : \""+getName()+"\" \n");
+        sb.append("DataTable : \""+getName()+"\" \n");
         for (int i=0;i<values.size();i++){
             sb.append(values.get(i).getName()+" : ");
             for (Object o:values.get(i).getValues()){
@@ -850,15 +846,15 @@ public class AnDataTable implements Serializable{
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof AnDataTable))
+        if (!(obj instanceof DataTable))
             return false;
-        AnDataTable bean= (AnDataTable) obj;
+        DataTable bean= (DataTable) obj;
         if (bean.getSize()!=this.getSize())
             return false;
-        for (AnColumn anColumn :bean.getValues()){
+        for (Column column :bean.getValues()){
             boolean found=false;
-            for (AnColumn tmp:this.getValues()){
-                if (anColumn.getName().equals(tmp.getName())){
+            for (Column tmp:this.getValues()){
+                if (column.getName().equals(tmp.getName())){
                     found=true;
                 }
             }

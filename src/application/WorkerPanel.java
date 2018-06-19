@@ -553,10 +553,10 @@ public class WorkerPanel extends JPanel implements Loadable{
                         textChanged=0;
                     }
 
-                    AnBean anBean =DBManager.getManager().loadingWorkerList().get(i);
+                    Bean bean =DBManager.getManager().loadingWorkerList().get(i);
                     //获取Info属性
-                    Node name= anBean.find("名字");
-                    Node number= anBean.find("身份证");
+                    Info name= bean.find("名字");
+                    Info number= bean.find("身份证");
                     //获取值
                     String strName=(String) name.getValue();
                     String strNum=(String)number.getValue();
@@ -610,7 +610,6 @@ public class WorkerPanel extends JPanel implements Loadable{
 
                     WindowBuilder.showWorkWindow(model.getInfo(),siteName,(values)-> {
                         refresh();
-                        return true;
                     });
                 }
             }
@@ -679,7 +678,7 @@ public class WorkerPanel extends JPanel implements Loadable{
         if(list!=null)
             list.clear();
         //读取工人列表
-        ArrayList<AnBean> beans;
+        ArrayList<Bean> beans;
        if (cobSite ==null){
            assert DBManager.getManager() != null;
            beans=DBManager.getManager().loadingWorkerList();
@@ -692,16 +691,16 @@ public class WorkerPanel extends JPanel implements Loadable{
        }else{
            String value =(String) cobSite.getSelectedItem();
            assert DBManager.getManager() != null;
-           AnDataTable dataTable=DBManager.getManager().getBuildingSite(value);
+           DataTable dataTable=DBManager.getManager().getBuildingSite(value);
            beans=new ArrayList<>();
            for (Object id:dataTable.findColumn(PropertyFactory.LABEL_ID_CARD).toArray()){
                 beans.add(DBManager.getManager().getWorker((String) id));
            }
        }
-       for(AnBean anBean :beans){
+       for(Bean bean :beans){
             //获取Info属性
-            Node name= anBean.find("名字");
-            Node number= anBean.find("身份证");
+            Info name= bean.find("名字");
+            Info number= bean.find("身份证");
             //获取值
             String strName=(String) name.getValue();
             String strNum=(String)number.getValue();
@@ -740,7 +739,7 @@ public class WorkerPanel extends JPanel implements Loadable{
         if (model==null)
             return;
         assert DBManager.getManager() != null;
-        AnBean worker=DBManager.getManager().getWorker(model.getInfo());
+        Bean worker=DBManager.getManager().getWorker(model.getInfo());
         if (worker==null)
             return;
         labAge.setText(String.valueOf(AnUtils.convertAge(model.getInfo())));
@@ -762,7 +761,7 @@ public class WorkerPanel extends JPanel implements Loadable{
         boolean hasBirthday=false;
         birthdayCount=0;
 
-        for (AnBean worker:DBManager.getManager().loadingWorkerList()){
+        for (Bean worker:DBManager.getManager().loadingWorkerList()){
             String id=DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD);
             if (DBManager.getManager().isWorkerLeaveAllSite(id))
                 continue;
@@ -790,14 +789,14 @@ public class WorkerPanel extends JPanel implements Loadable{
     private void loadingProperty(){
         //读取工人属性
         assert DBManager.getManager() != null;
-        AnDataTable property=DBManager.getManager().loadingWorkerProperty();//在这里装载属性
+        DataTable property=DBManager.getManager().loadingWorkerProperty();//在这里装载属性
         if (property==null)
             return;
 
         cobSite.removeAllItems();
         cobSite.addItem("全部");
-        AnColumn anColumn =property.findColumn(PropertyFactory.LABEL_SITE);
-        for (Object value: anColumn.getValues()){
+        Column column =property.findColumn(PropertyFactory.LABEL_SITE);
+        for (Object value: column.getValues()){
             cobSite.addItem((String) value);
         }
         cobSite.setSelectedIndex(0);

@@ -3,12 +3,15 @@ package application;
 import component.AnButton;
 import component.AnPopDialog;
 import component.ComponentLoader;
-import dbManager.AnDataTable;
+import dbManager.DataTable;
 import dbManager.DBManager;
 import dbManager.PropertyFactory;
+import resource.Resource;
+
 import javax.swing.*;
 import java.awt.*;
-import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.util.Vector;
 
 public class SiteCreateWindow extends Window implements ComponentLoader {
 	private JTextField tbName;
@@ -21,6 +24,7 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
     private WorkerChooser chooser=null;
 
 	private String[] ids=null;
+	private Vector<Vector> vectors=null;
 	private AnButton btnSeleteWorker;
 
 
@@ -155,14 +159,23 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
             }
             //名称已经通过
             try {
-                AnDataTable site=DBManager.getManager().createBuildingSite(siteName);
+                DataTable site=DBManager.getManager().createBuildingSite(siteName);
                 site.setInfosValue(PropertyFactory.LABEL_PROJECT_NAME,tbProjectName.getText());
                 site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DO,tbBuidUnit.getText());
                 site.setInfosValue(PropertyFactory.LAB_UNIT_OF_BUILD,tbDeginUnit.getText());
 
                 if (ids!=null){
-                    for (String id :ids){
-                        DBManager.getManager().addWorkerToSite(id,siteName, 0d,"其他",new Date());
+                    SimpleDateFormat simpleDateFormat=new SimpleDateFormat(Resource.DATE_FORMATE);
+
+                    for (int i=0;i<ids.length;i++){
+                        String id=ids[i];
+                        Double d=0d;
+                        try{
+                            d=Double.valueOf((String) vectors.get(i).get(2));
+                        }catch (Exception ex){
+                            Application.debug(this,ex.toString());
+                        }
+                        DBManager.getManager().addWorkerToSite(id,siteName, d, (String) vectors.get(i).get(3),simpleDateFormat.parse((String) vectors.get(i).get(4)));
                     }
                     AnPopDialog.show(this,"已经添加"+ids.length+"个工人到"+siteName+"，所有工人数据为预设值，要修改请到工人详情页。",AnPopDialog.LONG_TIME);
                 }else
@@ -170,7 +183,7 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
-            callback((Object) null);
+            callback();
             dispose();
         });
 
@@ -182,10 +195,14 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
             chooser.initializeData();
             chooser.setVisible(true);
             chooser.setCallback(values -> {
-                String[] ids= (String[]) values;
+                String[] ids= (String[]) values[0];
                 btnSeleteWorker.setText("选择了 "+ids.length+" 个工人");
                 this.ids=ids;
-                return true;
+
+                Vector<Vector> vectors= (Vector<Vector>) values[1];
+                this.vectors=vectors;
+
+                AnPopDialog.show(this,"工人数据填充完成",AnPopDialog.SHORT_TIME);
             });
         });
     }

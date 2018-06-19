@@ -12,4 +12,7 @@ public class AnColor {
 
     public static final Color LIGHT_BLUE=new Color(102,204,255);
     public static final Color DARK__BLUE=new Color(102,153,204);
+
+    public static final Color LIGHT_ORINGE=new Color(249, 156, 51);
+    public static final Color DARK__ORINGE=new Color(216, 99, 68);
 }

@@ -1,25 +1,26 @@
 package application;
 
 import component.*;
-import dbManager.AnBean;
+import dbManager.Bean;
 import dbManager.DBManager;
 import dbManager.PropertyFactory;
 
-import javax.swing.JScrollPane;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Date;
 import java.util.Vector;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 public class WorkerChooser extends Window implements ComponentLoader {
 
     private final String[] headers=new String[]{"姓名","身份证"};
-    private Vector<Vector> tmpList=null;
+    private Vector<Vector> tmpList=new Vector<>();
+    private Vector<Vector> workerInfos=new Vector<>();
     
 	private AnTable table;
 	private AnButton btnOK;
@@ -27,6 +28,7 @@ public class WorkerChooser extends Window implements ComponentLoader {
 	private JTextField tbSearch;
 	private AnButton btnSelect;
 	private AnButton btnCancel;
+	private AnButton btnSetProperty;
 
 
     public WorkerChooser(){
@@ -82,15 +84,20 @@ public class WorkerChooser extends Window implements ComponentLoader {
         getContentPane().add(tbSearch);
         tbSearch.setColumns(10);
         
-        JLabel lblNewLabel = new JLabel("帮助：从右边的数据区选择工人到左边的列表中，完成选择即可继续下一步操作");
-        lblNewLabel.setForeground(Color.GRAY);
+        JLabel lblNewLabel = new JLabel("帮助：右边待选区，左边选中区，双击或者点击“选择工人”");
+        lblNewLabel.setForeground(SystemColor.textHighlight);
         lblNewLabel.setFont(new Font("等线", Font.PLAIN, 14));
-        lblNewLabel.setBounds(252, 459, 522, 15);
+        lblNewLabel.setBounds(252, 459, 412, 15);
         getContentPane().add(lblNewLabel);
         
         btnSelect = new AnButton("选择工人");
         btnSelect.setBounds(674, 425, 100, 24);
         getContentPane().add(btnSelect);
+        
+        btnSetProperty = new AnButton("选择工人");
+        btnSetProperty.setText("设置属性");
+        btnSetProperty.setBounds(674, 459, 100, 24);
+        getContentPane().add(btnSetProperty);
     }
 
     @Override
@@ -104,13 +111,11 @@ public class WorkerChooser extends Window implements ComponentLoader {
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                System.out.println("asd");
                 updateTable(tbSearch.getText());
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                System.out.println("asd");
                 updateTable(tbSearch.getText());
             }
         });
@@ -125,7 +130,8 @@ public class WorkerChooser extends Window implements ComponentLoader {
                 AnListRenderModel model= (AnListRenderModel) list.getElementAt(i);
                 ids[i]=model.getInfo();
             }
-            callback(ids);
+            Object o=ids;
+            callback(o,workerInfos);
             dispose();
         });
 
@@ -148,6 +154,21 @@ public class WorkerChooser extends Window implements ComponentLoader {
                 }
             }
         });
+
+        btnSetProperty.addActionListener(e -> {
+
+            AnListRenderModel[] models=new AnListRenderModel[list.getItemSize()];
+            Object[] objects=list.getDefaultListModel().toArray();
+            for (int i=0;i<models.length;i++){
+                models[i]= (AnListRenderModel) objects[i];
+            }
+            PropertyDialog dialog=new PropertyDialog(models);
+            dialog.callback= values -> {
+                Vector<Vector> vectors= (Vector<Vector>) values[0];
+                workerInfos=vectors;
+            };
+            dialog.showDialog();
+        });
     }
 
     @Override
@@ -161,7 +182,7 @@ public class WorkerChooser extends Window implements ComponentLoader {
 
         //填充工人列表
         Vector<Vector> vectors=new Vector<>();
-        for (AnBean worker:manager.loadingWorkerList()){
+        for (Bean worker:manager.loadingWorkerList()){
             Vector<String> rows=new Vector<>();
             rows.add(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_NAME));
             rows.add(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD));
@@ -221,4 +242,69 @@ public class WorkerChooser extends Window implements ComponentLoader {
     }
 
 
+    public static class PropertyDialog extends JDialog {
+        private final String[] headers=new String[]{"名字","身份证","协议工价","工种","入职日期"};
+        private AnTable table=new AnTable();
+
+        private Vector<Vector> rows=new Vector<>();
+
+        private CloseCallback callback=null;
+
+        public PropertyDialog(AnListRenderModel[] models){
+            setTitle("属性填充器");
+            setSize(800,600);
+            setMinimumSize(getSize());
+            setLocationRelativeTo(null);
+            JScrollPane scrollPane=new JScrollPane();
+            scrollPane.setViewportView(table);
+            getContentPane().add(scrollPane);
+
+            table.setColumn(AnUtils.convertObjectArray(headers));
+            table.setCellColumnEdited(0,false);
+            table.setCellColumnEdited(1,false);
+
+            addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    super.windowClosing(e);
+                    if (callback!=null)callback.callback(rows);
+                }
+            });
+
+            fillData(models);
+        }
+
+        public void fillData(AnListRenderModel[] models){
+            table.clearComponentCell();
+            rows.clear();
+
+            Date date=new Date();
+            assert DBManager.getManager() != null;
+            String[] selectMod=DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_WORKER_TYPE);
+
+            for (int i=0;i<models.length;i++){
+                Vector<String> cells=new Vector<>();
+                cells.add(models[i].getTitle());
+                cells.add(models[i].getInfo());
+                cells.add("");
+                cells.add("");
+                cells.add(AnUtils.formateDate(date));
+
+                AnDateComboBoxEditor editor=new AnDateComboBoxEditor();
+                table.addComponentCell(editor,i,4);
+
+                AnComboBoxEditor editor1=new AnComboBoxEditor();
+                editor1.setModel(new DefaultComboBoxModel<>(selectMod));
+                table.addComponentCell(editor1,i,3);
+
+                rows.add(cells);
+            }
+            table.getTableModel().setDataVector(rows,AnUtils.convertToVector(AnUtils.convertObjectArray(headers)));
+        }
+
+        public void showDialog(){
+            setModal(true);
+            setVisible(true);
+        }
+    }
 }

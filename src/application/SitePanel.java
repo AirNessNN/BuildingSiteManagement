@@ -1,7 +1,7 @@
 package application;
 
 import component.*;
-import dbManager.AnDataTable;
+import dbManager.DataTable;
 import dbManager.DBManager;
 import resource.Resource;
 import javax.swing.*;
@@ -61,12 +61,12 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
 
 
 
-    private void initList(ArrayList<AnDataTable> tables){
+    private void initList(ArrayList<DataTable> tables){
         if (listModel!=null)
             listModel.clear();
 
 
-        for (AnDataTable site:tables){
+        for (DataTable site:tables){
             AnListRenderModel model=new AnListRenderModel(site.getName(),site.getColumnRowCount(0)+"个工人");
             this.listModel.addElement(model);
         }
@@ -74,11 +74,11 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         list.validate();
     }
 
-    private void initList(ArrayList<AnDataTable> tables,String containsChar){
+    private void initList(ArrayList<DataTable> tables, String containsChar){
         if (listModel!=null)
             listModel.clear();
 
-        for (AnDataTable site:tables){
+        for (DataTable site:tables){
             if (site.getName().contains(containsChar)){
                 AnListRenderModel model=new AnListRenderModel(site.getName(),site.getColumnRowCount(0)+"个工人");
                 this.listModel.addElement(model);
@@ -351,8 +351,8 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
             if (createWindow==null)createWindow=new SiteCreateWindow();
             createWindow.setVisible(true);
             createWindow.setCallback(values -> {
+
                 refash();
-                return true;
             });
         });
 

@@ -33,7 +33,7 @@ public class WorkerInfoWindow extends Window {
 	private AnDataCalendar checkInPanel;
 	private AnDataCalendar salaryPanel;
 
-    private AnBean worker;//工人属性集合
+    private Bean worker;//工人属性集合
 
 
 
@@ -500,7 +500,6 @@ public class WorkerInfoWindow extends Window {
 				String id= (String) values[0];
 				String site= (String) values[1];
 				initializeData(id, site);
-				return true;
 			});
 		});
 
@@ -510,7 +509,7 @@ public class WorkerInfoWindow extends Window {
 				int r=JOptionPane.showConfirmDialog(this,"是否要恢复在职状态？","恢复确认",JOptionPane.YES_NO_OPTION);
 				if (r==JOptionPane.YES_OPTION){
 					assert DBManager.getManager() != null;
-					AnDataTable site=DBManager.getManager().getBuildingSite(Objects.requireNonNull(cobSite.getSelectedItem()).toString());
+					DataTable site=DBManager.getManager().getBuildingSite(Objects.requireNonNull(cobSite.getSelectedItem()).toString());
 					if (site!=null){
 						site.selectRow(PropertyFactory.LABEL_ID_CARD,labIDCard.getText());
 						site.setSelectedRow(PropertyFactory.LABEL_LEAVE_TIME,null);
@@ -524,7 +523,7 @@ public class WorkerInfoWindow extends Window {
 			Date leaveDate=new AnDateChooser().getDate();
 			Date entryDate;
 			assert DBManager.getManager() != null;
-			AnDataTable site=DBManager.getManager().getBuildingSite(Objects.requireNonNull(cobSite.getSelectedItem()).toString());
+			DataTable site=DBManager.getManager().getBuildingSite(Objects.requireNonNull(cobSite.getSelectedItem()).toString());
 			if (site!=null&&leaveDate!=null){
 				site.setSelectedRow(PropertyFactory.LABEL_ID_CARD,labIDCard.getText());
 				entryDate= (Date) site.getSelectedRowAt(PropertyFactory.LABEL_ENTRY_TIME);
@@ -695,7 +694,7 @@ public class WorkerInfoWindow extends Window {
 			siteName=manager.getWorkerAt(id).get(0);
 		}
 
-		AnDataTable site=DBManager.getManager().getBuildingSite(siteName);
+		DataTable site=DBManager.getManager().getBuildingSite(siteName);
 		if (site==null)
 			return;
 		//获取工人全部的工地列表，如果工地不存在，退出

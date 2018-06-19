@@ -577,4 +577,11 @@ public class AnUtils {
 		}
 		return objects;
 	}
+
+
+	private static SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");
+
+	public static String formateDate(Date date){
+		return dateFormat.format(date);
+	}
 }
