@@ -161,8 +161,8 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
             try {
                 DataTable site=DBManager.getManager().createBuildingSite(siteName);
                 site.setInfosValue(PropertyFactory.LABEL_PROJECT_NAME,tbProjectName.getText());
-                site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DO,tbBuidUnit.getText());
-                site.setInfosValue(PropertyFactory.LAB_UNIT_OF_BUILD,tbDeginUnit.getText());
+                site.setInfosValue(PropertyFactory.LAB_UNIT_OF_BULID,tbBuidUnit.getText());
+                site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN,tbDeginUnit.getText());
 
                 if (ids!=null){
                     SimpleDateFormat simpleDateFormat=new SimpleDateFormat(Resource.DATE_FORMATE);

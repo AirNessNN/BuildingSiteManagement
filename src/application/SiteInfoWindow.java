@@ -1,20 +1,17 @@
 package application;
 
-import component.AnColor;
-import component.AnTable;
-import component.ComponentLoader;
-import javax.swing.SpringLayout;
+import component.*;
+
+import javax.swing.*;
 import java.awt.SystemColor;
-import javax.swing.JSplitPane;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.Color;
-import javax.swing.JScrollPane;
-import javax.swing.JPanel;
+import java.util.Date;
+import java.util.Vector;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.LineBorder;
-import component.AnButton;
+
+import dbManager.*;
 
 public class SiteInfoWindow extends Window implements ComponentLoader {
 
@@ -142,8 +139,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         springLayout.putConstraint(SpringLayout.WEST, btnSave, -100, SpringLayout.EAST, getContentPane());
         springLayout.putConstraint(SpringLayout.SOUTH, btnSave, 35, SpringLayout.NORTH, getContentPane());
         springLayout.putConstraint(SpringLayout.EAST, btnSave, -10, SpringLayout.EAST, getContentPane());
-        btnSave.setToolTipText("打印所选择的数据");
-        btnSave.setText("更改");
+        btnSave.setToolTipText("");
+        btnSave.setText("打开编辑");
         btnSave.setBorderPressColor(new Color(249, 156, 51));
         btnSave.setBorderEnterColor(new Color(216, 99, 68));
         btnSave.setBorderColor(new Color(114, 114, 114));
@@ -153,7 +150,16 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
     @Override
     public void initializeEvent() {
         btnSave.addActionListener(e -> {
+            if (tbBuildUnit.isEditable()){
+                //编辑已经打开的状态
+                if (table.getChangedCells().getSize()>0){
+
+                }
+            }else {
+
+            }
             setEnable(!tbBuildUnit.isEditable());
+
         });
     }
 
@@ -168,6 +174,11 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         table.setColumnWidth(5,100);
         table.setCellColumnEdited(0,false);
         table.setCellColumnEdited(1,false);
+        table.setCellColumnEdited(2,false);
+        table.setCellColumnEdited(3,false);
+        table.setCellColumnEdited(4,false);
+        table.setCellColumnEdited(5,false);
+        fillData();
     }
 
 
@@ -183,7 +194,57 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
 
         if (b) btnSave.setText("关闭编辑");
         else btnSave.setText("打开编辑");
-        repaint();
-        System.out.println(b);
+    }
+
+    /**
+     *
+     */
+    private void fillData(){
+        assert DBManager.getManager() != null;
+        DataTable site=DBManager.getManager().getBuildingSite(siteName);
+        if (site==null)return;
+
+        Vector<Vector> vectors=new Vector<>();
+        Column idc=site.findColumn(PropertyFactory.LABEL_ID_CARD);
+        if (idc==null)return;
+
+        Object[] ids=idc.toArray();
+        Object[] names=new Object[ids.length];
+        for (int i=0;i<ids.length;i++){
+            Bean worker=DBManager.getManager().getWorker((String) ids[i]);
+            names[i]=worker.find(PropertyFactory.LABEL_NAME).getValueString();
+        }
+
+
+
+        for (int i=0;i<site.findColumn(PropertyFactory.LABEL_ID_CARD).size();i++){
+            Vector<String> cells=new Vector<>();
+            site.selectRow(i);
+            cells.add((String) site.getSelectedRowAt(PropertyFactory.LABEL_ID_CARD));
+            cells.add(names[i].toString());
+            cells.add(site.getSelectedRowAt(PropertyFactory.LABEL_DEAL_SALARY).toString());
+            cells.add(site.getSelectedRowAt(PropertyFactory.LABEL_WORKER_TYPE).toString());
+            cells.add(AnUtils.formateDate((Date) site.getSelectedRowAt(PropertyFactory.LABEL_ENTRY_TIME)));
+            cells.add(AnUtils.formateDate((Date) site.getSelectedRowAt(PropertyFactory.LABEL_LEAVE_TIME)));
+            vectors.add(cells);
+
+            AnDateComboBoxEditor dateComboBoxEditor=new AnDateComboBoxEditor();
+            table.addComponentCell(dateComboBoxEditor,i,4);
+
+            AnDateComboBoxEditor dateComboBoxEditor1=new AnDateComboBoxEditor();
+            table.addComponentCell(dateComboBoxEditor1,i,5);
+
+            AnComboBoxEditor comboBoxEditor=new AnComboBoxEditor();
+            table.addComponentCell(comboBoxEditor,i,3);
+            comboBoxEditor.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_WORKER_TYPE)));
+        }
+        table.getTableModel().setDataVector(vectors,AnUtils.convertToVector(headers));
+
+        tbPorjectName.setText((String) site.getInfosValue(PropertyFactory.LABEL_PROJECT_NAME));
+        tbDeginUnit.setText((String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN));
+        tbBuildUnit.setText((String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_BULID));
+
+        table.clearCheckPoint();
+        table.setCheckPoint();
     }
 }

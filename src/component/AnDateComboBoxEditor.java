@@ -1,12 +1,11 @@
 package component;
-
-import SwingTool.MyButton;
-
 import javax.swing.*;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,6 +19,8 @@ public class AnDateComboBoxEditor extends JButton implements AnTableCellEditor{
     private AnDateComboPanel dateComboPanel;
     private JDialog frame;
     private boolean cancelFlag=false;//取消标记
+
+    private Object value=null;
 
 
 
@@ -82,6 +83,7 @@ public class AnDateComboBoxEditor extends JButton implements AnTableCellEditor{
         if (value==null)
             value="";
         setText(value.toString());
+        this.value=value;
         //设置日期格式
         Date date;
         DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");

@@ -113,7 +113,7 @@ public class Test extends JFrame{
 		}
 
 
-		SiteInfoWindow siteInfoWindow=new SiteInfoWindow("测试工地");
+		SiteInfoWindow siteInfoWindow=new SiteInfoWindow("测试工地1");
 		siteInfoWindow.setVisible(true);
 
 

@@ -6,6 +6,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
@@ -51,6 +53,9 @@ public class AnTable extends JTable{
 
 	private Object[][] oldValues=null;
 
+	private int row=-1;
+	private int col=-1;
+
 
 
 
@@ -88,6 +93,10 @@ public class AnTable extends JTable{
                 因为行列只需要判断一个值就能断定是否点击了筛选的行，
                 在循环中只return false是的意思是找到匹配的就返回false
                  */
+
+                AnTable.this.row=row;
+                AnTable.this.col=column;
+				System.out.println("row="+row+" col="+column);
 
 				//列循环
                 for (Integer aColumnEditFiltrate : columnEditFiltrate) if (column == aColumnEditFiltrate) return false;

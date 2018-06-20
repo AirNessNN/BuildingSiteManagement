@@ -582,6 +582,7 @@ public class AnUtils {
 	private static SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");
 
 	public static String formateDate(Date date){
+	    if (date==null)return "";
 		return dateFormat.format(date);
 	}
 }

@@ -34,8 +34,8 @@ public class PropertyFactory {
     public static final String LABEL_SITE="所属工地";
     public static final String LABEL_PHONE="电话号码";
     public static final String LABEL_PROJECT_NAME="项目名称";
-    public static final String LAB_UNIT_OF_BUILD="建设单位";
-    public static final String LAB_UNIT_OF_DO="施工单位";
+    public static final String LAB_UNIT_OF_DEGIN ="建设单位";
+    public static final String LAB_UNIT_OF_BULID ="施工单位";
 
     //设置属性
     public static final String SETTING_WORKER_INDEX="工人编号";
@@ -141,8 +141,8 @@ public class PropertyFactory {
         DataTable tmpBean=new DataTable();
         //设置表格属性
         tmpBean.addInfo(new Info(LABEL_PROJECT_NAME,""));
-        tmpBean.addInfo(new Info(LAB_UNIT_OF_DO,""));
-        tmpBean.addInfo(new Info(LAB_UNIT_OF_BUILD,""));
+        tmpBean.addInfo(new Info(LAB_UNIT_OF_BULID,""));
+        tmpBean.addInfo(new Info(LAB_UNIT_OF_DEGIN,""));
         //填充表格结构
         for (Info info :PROPERTY_MODEL){
             try {
