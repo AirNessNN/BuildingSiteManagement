@@ -5,6 +5,8 @@ import java.awt.event.WindowEvent;
 
 public class WorkerWindow extends Window{
 
+
+
     public WorkerWindow(){
         setTitle("工人管理");
         getContentPane().add(new WorkerPanel());
@@ -21,11 +23,14 @@ public class WorkerWindow extends Window{
 }
 
 class SiteWindow extends Window{
+
+    SitePanel sitePanel=null;
+
     public SiteWindow(){
         setTitle("工地管理");
         setSize(1000,680);
         setMinimumSize(getSize());
-        SitePanel sitePanel=new SitePanel();
+        sitePanel= new SitePanel();
         getContentPane().add(sitePanel);
         sitePanel.loading(null);
 
@@ -35,5 +40,9 @@ class SiteWindow extends Window{
                 callback((Object) null);
             }
         });
+    }
+
+    public void refash(){
+        sitePanel.refash();
     }
 }

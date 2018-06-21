@@ -316,7 +316,7 @@ public class DBManager {
 
 
 		Random r=new Random();
-		for(int i=0;i<10;i++){
+		for(int i=0;i<20;i++){
 			Bean w= PropertyFactory.createWorker();
 			w.find(PropertyFactory.LABEL_NUMBER).setValue(i);
 			Info inf1=w.find("名字");

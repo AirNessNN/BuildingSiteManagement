@@ -116,17 +116,17 @@ public class WindowBuilder {
     public static void showWorkWindow(String id , String site, CloseCallback callBack){
         if (workerWindow!=null)
             if (workerWindow.isVisible())
-                workerWindow.dispose();
+                workerWindow.setVisible(false);
+        if (workerWindow==null)workerWindow=new WorkerInfoWindow();
         long time=System.currentTimeMillis();
-        workerWindow=new WorkerInfoWindow();
         workerWindow.initializeData(id,site);
         workerWindow.setCallback(callBack);
         workerWindow.setVisible(true);
-        System.out.println(System.currentTimeMillis()-time);
+        System.out.println("工人信息窗口打开耗时"+(System.currentTimeMillis()-time));
     }
 
 
-    static PropertyWindow propertyWindow=null;
+    private static PropertyWindow propertyWindow=null;
     public static void showPropertyWindow(){
         if (propertyWindow==null||!propertyWindow.isVisible())
             propertyWindow=new PropertyWindow();

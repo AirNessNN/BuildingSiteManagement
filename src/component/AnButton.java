@@ -27,8 +27,9 @@ public class AnButton  extends JLabel implements MouseListener,Runnable{
     private Color disabledForeground =new Color(149, 141, 146);
 
     private int roundValue=0;
-    private boolean entered=false;
+    private volatile boolean entered=false;
     private int iterator =1;
+    private volatile boolean running=false;
 
     private int round=18;
 
@@ -169,6 +170,7 @@ public class AnButton  extends JLabel implements MouseListener,Runnable{
         if (isEnabled()){
             entered=true;
             paintBorderColor= borderEnterColor;
+            if (running)return;
             synchronized (lock){
                 lock.notify();
             }
@@ -188,6 +190,7 @@ public class AnButton  extends JLabel implements MouseListener,Runnable{
         while(true){
             synchronized (lock){
                 try {
+                    running=true;
                     if (entered){
                         if (roundValue>round){
                             roundValue=round;
@@ -199,6 +202,7 @@ public class AnButton  extends JLabel implements MouseListener,Runnable{
                     }else {
                         if (roundValue<0){
                             roundValue=0;
+                            running=false;
                             lock.wait();
                         }
                         roundValue-= iterator;

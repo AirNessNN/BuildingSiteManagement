@@ -219,6 +219,9 @@ public class Application {
 	}
 
 
+
+
+
 	/**
 	 * 输出信息
 	 * @param owner

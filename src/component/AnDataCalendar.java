@@ -260,7 +260,7 @@ public class AnDataCalendar extends JPanel {
 						action(e);
 					});
 			}
-			System.gc();//清理上次填充的控件
+			//System.gc();//清理上次填充的控件
 		}
 	}
 
@@ -544,10 +544,12 @@ public class AnDataCalendar extends JPanel {
 		isEnabled=enabled;
 		if (enabled){
 			for (AnTextButton textButton:dates){
+				if (textButton==null||actionListener==null)continue;
 				textButton.setActionListener(actionListener);
 			}
 		}else{
 			for (AnTextButton textButton:dates){
+				if (textButton==null||actionListener==null)continue;
 				textButton.setActionListener(null);
 			}
 		}

@@ -1,5 +1,5 @@
 package application;
-import SwingTool.MyButton;
+
 import component.*;
 import dbManager.*;
 import resource.Resource;
@@ -25,6 +25,7 @@ public class InfoWindow extends Window implements ComponentLoader {
     private static final String[] SALARY_HEADER=new String[]{"日期","领取数额","备注"};
     //工人
     private Bean worker;
+    private String id="";
     //数据表格
     private AnTable infoTable;
     private AnTable checkInTable;
@@ -32,8 +33,8 @@ public class InfoWindow extends Window implements ComponentLoader {
     private AnTable siteTable;
     //工地名称
     private String siteName ="";
-    private MyButton btnSite;
-    private MyButton btnSave;
+    private AnButton btnSite;
+    private AnButton btnSave;
 
     private boolean infoF,salaryF,checkInF,siteF;//表格监听器改动flag
     private JComboBox cobSite;//选择的工地，出勤数据和工资领取情况都是要选择工地才能显示
@@ -71,7 +72,7 @@ public class InfoWindow extends Window implements ComponentLoader {
         sl_panel_3.putConstraint(SpringLayout.SOUTH, cobSite, -7, SpringLayout.SOUTH, panel_3);
         panel_3.add(cobSite);
         
-        btnSite = new MyButton("修改工地");
+        btnSite = new AnButton("修改工地");
         btnSite.setEnabled(false);
         sl_panel_3.putConstraint(SpringLayout.NORTH, cobSite, 0, SpringLayout.NORTH, btnSite);
         sl_panel_3.putConstraint(SpringLayout.EAST, cobSite, -40, SpringLayout.WEST, btnSite);
@@ -80,7 +81,7 @@ public class InfoWindow extends Window implements ComponentLoader {
         panel_3.add(btnSite);
         btnSite.setText("  修改工地  ");
         
-        btnSave = new MyButton("保存数据");
+        btnSave = new AnButton("保存数据");
         sl_panel_3.putConstraint(SpringLayout.WEST, btnSite, -100, SpringLayout.WEST, btnSave);
         sl_panel_3.putConstraint(SpringLayout.EAST, btnSite, -10, SpringLayout.WEST, btnSave);
         sl_panel_3.putConstraint(SpringLayout.NORTH, btnSave, 7, SpringLayout.NORTH, panel_3);
@@ -221,7 +222,11 @@ public class InfoWindow extends Window implements ComponentLoader {
 
         });
 
-        btnSave.addActionListener((e)-> save());
+        btnSave.addActionListener((e)-> {
+            long time=System.currentTimeMillis();
+            save();
+            System.out.println("保存耗时："+(System.currentTimeMillis()-time));
+        });
     }
 
 
@@ -278,6 +283,9 @@ public class InfoWindow extends Window implements ComponentLoader {
                 continue;
             if (info.getName().equals(PropertyFactory.LABEL_SITE))
                 continue;
+            if (info.getName().equals(PropertyFactory.LABEL_ID_CARD)){
+                id=info.getValueString();
+            }
 
             Vector cells=new Vector();
             cells.add(info.getName());
@@ -377,7 +385,7 @@ public class InfoWindow extends Window implements ComponentLoader {
                 return;
 
             if (cobSite.getSelectedItem()==null){//没选择工地
-                callback(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString(),null);//工地传空值回去
+                callback(id,null);//工地传空值回去
                 btnSave.setEnabled(false);
                 infoTable.setCheckPoint();
                 salaryF=false;
@@ -402,7 +410,7 @@ public class InfoWindow extends Window implements ComponentLoader {
             checkInF=false;
             infoF=false;
             //回调
-            callback(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString(),cobSite.getSelectedItem().toString());
+            callback(id,cobSite.getSelectedItem().toString());
             AnPopDialog.show(this,"保存成功！",AnPopDialog.SHORT_TIME);
         }catch (Exception e){
             Application.errorWindow(e.toString());
@@ -417,6 +425,7 @@ public class InfoWindow extends Window implements ComponentLoader {
     private boolean saveInfo(){
         //检查身份证是否更改
         boolean isIDChanged=false;
+        boolean isIDError=false;
         String oldID=null;
         String newID=null;
         TableProperty bean=infoTable.getChangedCells();
@@ -424,22 +433,15 @@ public class InfoWindow extends Window implements ComponentLoader {
         //判断身份证是否正确
         for (int i=0;i<bean.getSize();i++){
             int row=bean.getPoint(i).x;
-            String pn= (String) infoTable.getCell(row,0);
-            if (pn.equals(PropertyFactory.LABEL_ID_CARD))
-                if (!AnUtils.isIDCard(bean.getNewValue(i).toString())){
-                    Application.informationWindow("身份证信息填写不正确！");
-                    return false;
+            String pn= (String) infoTable.getCell(row,0);//获取单元格属性
+            if (pn.equals(PropertyFactory.LABEL_ID_CARD)) {
+                if (!AnUtils.isIDCard(bean.getNewValue(i).toString())) {
+                    isIDError=true;
+                }else {
+                    isIDChanged=true;
+                    oldID= (String) bean.getOldValue(i);
+                    newID=(String) bean.getNewValue(i);
                 }
-        }
-
-        for (int i = 0; i<bean.getSize(); i++){
-            Point pointInfo= bean.getPoint(i);
-            String pn= (String) infoTable.getCell(pointInfo.x,0);//获取单元格属性名PropertyName
-            if (pn.equals(PropertyFactory.LABEL_ID_CARD)){
-                isIDChanged=true;
-                oldID= (String) bean.getOldValue(i);
-                newID=(String) bean.getNewValue(i);
-                break;
             }else{
                 //更新其他信息
                 try {
@@ -451,9 +453,14 @@ public class InfoWindow extends Window implements ComponentLoader {
                 }
             }
         }
+        if (isIDError){
+            Application.informationWindow("身份证信息错误，请重新填写，已保存其他数据。");
+        }
+
         if (isIDChanged){
             //更新ID
             worker.find(PropertyFactory.LABEL_ID_CARD).setValue(newID);//设置工人列表的身份证属性
+            id=newID;
 
             assert DBManager.getManager() != null;
             ArrayList<String> siteList=DBManager.getManager().getWorkerAt(oldID);
@@ -470,7 +477,6 @@ public class InfoWindow extends Window implements ComponentLoader {
                 }
             }
         }
-        Application.debug(this,worker.toString());
         return true;
     }
 
@@ -592,7 +598,7 @@ public class InfoWindow extends Window implements ComponentLoader {
     private void saveSiteInfo() throws ParseException {
         //获取更改条目的属性名
         TableProperty tableProperty=siteTable.getChangedCells();
-        String[] pns=new String[tableProperty.getSize()];
+        String[] pns=new String[tableProperty.getSize()];//属性名
         for (int i=0;i<tableProperty.getSize();i++){
             pns[i]= (String) siteTable.getCell(tableProperty.getPoint(i).x,0);
         }
@@ -600,8 +606,7 @@ public class InfoWindow extends Window implements ComponentLoader {
         DataTable site=DBManager.getManager().getBuildingSite(siteName);
         if (siteTable==null)
             return;
-
-        site.setSelectedRow(PropertyFactory.LABEL_ID_CARD,worker.find(PropertyFactory.LABEL_ID_CARD).getValueString());
+        site.selectRow(PropertyFactory.LABEL_ID_CARD,id);
 
         //填充
         for (int i=0;i<tableProperty.getSize();i++){
@@ -610,6 +615,9 @@ public class InfoWindow extends Window implements ComponentLoader {
             if (pns[i].equals(PropertyFactory.LABEL_ENTRY_TIME)){
                 SimpleDateFormat format=new SimpleDateFormat(Resource.DATE_FORMATE);
                 site.setSelectedRow(pns[i],format.parse((String) tableProperty.getNewValue(i)));
+            }
+            if (pns[i].equals(PropertyFactory.LABEL_WORKER_TYPE)){
+                site.setSelectedRow(PropertyFactory.LABEL_WORKER_TYPE,tableProperty.getNewValue(i));
             }
         }
     }

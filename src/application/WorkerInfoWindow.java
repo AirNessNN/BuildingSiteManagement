@@ -716,7 +716,7 @@ public class WorkerInfoWindow extends Window {
 			labelState.setForeground(Color.GRAY);
 			btnLeave.setText("离职登记");
 			btnLeave.setToolTipText("单击按钮，登记工人离职，离职的工人将不能设置出勤和生活费领取");
-			checkInPanel.setEnabled(true);//关闭日期容器
+			checkInPanel.setEnabled(true);//打开日期容器
 			salaryPanel.setEnabled(true);//同上
 			btnLeave.setEnabled(true);
 			btnCheck.setEnabled(true);
@@ -759,7 +759,7 @@ public class WorkerInfoWindow extends Window {
 		setResizable(false);
     	
     	initializeComponent(null);
-    	initializeEvent();
+    	Application.startService(()-> initializeEvent());
     }
 
     public void update(){

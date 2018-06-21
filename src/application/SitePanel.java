@@ -3,6 +3,7 @@ package application;
 import component.*;
 import dbManager.DataTable;
 import dbManager.DBManager;
+import dbManager.PropertyFactory;
 import resource.Resource;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -62,16 +63,7 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
 
 
     private void initList(ArrayList<DataTable> tables){
-        if (listModel!=null)
-            listModel.clear();
-
-
-        for (DataTable site:tables){
-            AnListRenderModel model=new AnListRenderModel(site.getName(),site.getColumnRowCount(0)+"个工人");
-            this.listModel.addElement(model);
-        }
-        assert list != null;
-        list.validate();
+        initList(tables,"");
     }
 
     private void initList(ArrayList<DataTable> tables, String containsChar){
@@ -80,15 +72,24 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
 
         for (DataTable site:tables){
             if (site.getName().contains(containsChar)){
-                AnListRenderModel model=new AnListRenderModel(site.getName(),site.getColumnRowCount(0)+"个工人");
+
+                int num=0;
+                for (int i=0;i<site.getColumn(0).size();i++){
+                    if (site.getCellAt(PropertyFactory.LABEL_LEAVE_TIME,i)==null){
+                        num++;
+                    }
+                }
+                AnListRenderModel model=new AnListRenderModel(site.getName(),num+"个工人");
                 this.listModel.addElement(model);
+
+
             }
         }
         assert list != null;
         list.validate();
     }
 
-    private void refash(){
+    void refash(){
         tbSearch.setText("");
         initList(DBManager.getManager().loadingBuildingSiteList());
     }
@@ -190,7 +191,17 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         btnCreate.setBorderPressColor(pressColor);
         
         JPanel panel = new JPanel();
-        panel.setBorder(new TitledBorder(new LineBorder(new Color(128, 128, 128)), "HUB信息中心", TitledBorder.LEADING, TitledBorder.TOP, new Font("等线",Font.PLAIN,15), Color.GRAY));
+        panel.setBorder(
+                new TitledBorder(
+                        new LineBorder(
+                                new Color(128, 128, 128)
+                        ),
+                        "HUB信息中心",
+                        TitledBorder.LEADING,
+                        TitledBorder.TOP,
+                        new Font("等线",Font.PLAIN,15),
+                        Color.GRAY)
+        );
         springLayout.putConstraint(SpringLayout.NORTH, panel, 0, SpringLayout.NORTH, scrollPane);
         springLayout.putConstraint(SpringLayout.WEST, panel, 10, SpringLayout.EAST, scrollPane);
         springLayout.putConstraint(SpringLayout.SOUTH, panel, 200, SpringLayout.NORTH, scrollPane);
@@ -354,6 +365,10 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
 
                 refash();
             });
+        });
+
+        btnRefash.addActionListener(e -> {
+            refash();
         });
 
     }

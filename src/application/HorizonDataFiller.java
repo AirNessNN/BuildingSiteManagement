@@ -1,7 +1,7 @@
 package application;
 
-import SwingTool.MyButton;
 import component.AnDateChooser;
+import component.MyButton;
 
 import javax.swing.*;
 import java.awt.*;

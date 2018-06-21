@@ -136,7 +136,7 @@ public class MainWindow extends Window implements ComponentLoader {
 				if (siteWindow==null) {
 					siteWindow = new SiteWindow();
 					siteWindow.setCallback(values -> this.setVisible(true));
-				}
+				}else siteWindow.refash();
 				siteWindow.setVisible(true);
 			}
 		});

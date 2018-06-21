@@ -2,16 +2,14 @@ package application;
 
 import javax.swing.JFrame;
 import java.awt.Toolkit;
-
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import SwingTool.MyButton;
+import component.AnButton;
 import component.AnPasswordField;
 import component.AnTextField;
 import dbManager.DBManager;
 import dbManager.User;
-
 import java.awt.Font;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
@@ -69,7 +67,7 @@ public class NewUserWindow extends JFrame{
 		label_1.setBounds(12, 60, 474, 15);
 		getContentPane().add(label_1);
 		
-		MyButton btnAchieve = new MyButton("\u5B8C\u6210");
+		AnButton btnAchieve = new AnButton("\u5B8C\u6210");
 		btnAchieve.setBounds(368, 297, 93, 23);
 		getContentPane().add(btnAchieve);
 		//确认事件
@@ -148,8 +146,8 @@ public class NewUserWindow extends JFrame{
             dispose();
             window=null;
         });
-		
-		MyButton btnCanncel = new MyButton("\u53D6\u6D88");
+
+		AnButton btnCanncel = new AnButton("\u53D6\u6D88");
 		btnCanncel.setBounds(473, 297, 93, 23);
 		getContentPane().add(btnCanncel);
 		btnCanncel.addActionListener(e -> {
