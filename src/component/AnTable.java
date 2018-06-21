@@ -96,7 +96,6 @@ public class AnTable extends JTable{
 
                 AnTable.this.row=row;
                 AnTable.this.col=column;
-				System.out.println("row="+row+" col="+column);
 
 				//列循环
                 for (Integer aColumnEditFiltrate : columnEditFiltrate) if (column == aColumnEditFiltrate) return false;
@@ -383,7 +382,7 @@ public class AnTable extends JTable{
 
 
 	public void setColumnWidth(int index,int width){
-		getColumnModel().getColumn(index).setWidth(width);
+		getColumnModel().getColumn(index).setPreferredWidth(width);
 	}
 
 	public void setColumnWidth(String columnName,int width){

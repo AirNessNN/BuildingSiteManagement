@@ -15,9 +15,10 @@ import dbManager.*;
 
 public class SiteInfoWindow extends Window implements ComponentLoader {
 
-    private static final Object[] headers=new Object[]{"身份证号","姓名","约定工资","工种","入职日期","离职日期"};
+    private static final Object[] headers=new Object[]{"身份证号","姓名","协议工价","工种","入职日期","离职日期"};
 
     private String siteName=null;//工地定位名称
+    private DataTable site=null;
 
     private AnTable table=null;
     private JTextField tbPorjectName;
@@ -28,6 +29,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
 
     public SiteInfoWindow(String siteName){
         this.siteName=siteName;
+        site=DBManager.getManager().getBuildingSite(siteName);
 
         initializeComponent();
         initializeEvent();
@@ -153,8 +155,14 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
             if (tbBuildUnit.isEditable()){
                 //编辑已经打开的状态
                 if (table.getChangedCells().getSize()>0){
+                    //保存表
+
 
                 }
+                if (table.isEditing())
+                    table.getCellEditor().stopCellEditing();
+                //保存
+
             }else {
 
             }
@@ -166,18 +174,13 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
     @Override
     public void initializeData() {
         table.setColumn(headers);
-        table.setColumnWidth(0,150);
-        table.setColumnWidth(1,50);
-        table.setColumnWidth(2,50);
-        table.setColumnWidth(3,50);
-        table.setColumnWidth(4,100);
-        table.setColumnWidth(5,100);
         table.setCellColumnEdited(0,false);
         table.setCellColumnEdited(1,false);
         table.setCellColumnEdited(2,false);
         table.setCellColumnEdited(3,false);
         table.setCellColumnEdited(4,false);
         table.setCellColumnEdited(5,false);
+
         fillData();
     }
 
@@ -192,7 +195,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         table.setCellColumnEdited(4,b);
         table.setCellColumnEdited(5,b);
 
-        if (b) btnSave.setText("关闭编辑");
+        if (b) btnSave.setText("保存编辑");
         else btnSave.setText("打开编辑");
     }
 
@@ -246,5 +249,29 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
 
         table.clearCheckPoint();
         table.setCheckPoint();
+
+        table.setColumnWidth(0,130);
+        table.setColumnWidth(1,50);
+        table.setColumnWidth(2,40);
+        table.setColumnWidth(3,40);
+        table.setColumnWidth(4,60);
+        table.setColumnWidth(5,60);
+    }
+
+
+    private void save(){
+        for (int i=0;i<table.getTableModel().getRowCount();i++){
+            String id =table.getCell(i,0).toString();
+            Double dealSalary=0d;
+            try{
+                dealSalary=Double.valueOf(table.getCell(i,2).toString());
+            }catch (Exception e){
+                Application.errorWindow("协议工价数字转换错误："+e.getMessage());
+                continue;
+            }
+            String type=table.getCell(i,3).toString();
+
+
+        }
     }
 }
