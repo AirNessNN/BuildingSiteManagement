@@ -6,25 +6,32 @@ import javax.swing.*;
 import java.awt.SystemColor;
 import java.awt.Font;
 import java.awt.Color;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Vector;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.LineBorder;
 
 import dbManager.*;
+import resource.Resource;
 
 public class SiteInfoWindow extends Window implements ComponentLoader {
 
     private static final Object[] headers=new Object[]{"身份证号","姓名","协议工价","工种","入职日期","离职日期"};
 
-    private String siteName=null;//工地定位名称
-    private DataTable site=null;
+    private String siteName;//工地定位名称
+    private DataTable site;
 
     private AnTable table=null;
     private JTextField tbPorjectName;
     private JTextField tbDeginUnit;
     private JTextField tbBuildUnit;
     private AnButton btnSave;
+    private AnButton btnAdd;
+
+    private WorkerChooser workerChooser=null;
+    private String[] ids=null;
 
 
     public SiteInfoWindow(String siteName){
@@ -147,6 +154,16 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         btnSave.setBorderEnterColor(new Color(216, 99, 68));
         btnSave.setBorderColor(new Color(114, 114, 114));
         getContentPane().add(btnSave);
+        
+        btnAdd = new AnButton("增加工人");
+        btnAdd.setBorderPressColor(new Color(249, 156, 51));
+        btnAdd.setBorderEnterColor(new Color(216, 99, 68));
+        btnAdd.setBorderColor(new Color(114, 114, 114));
+        springLayout.putConstraint(SpringLayout.NORTH, btnAdd, 10, SpringLayout.SOUTH, scrollPane);
+        springLayout.putConstraint(SpringLayout.WEST, btnAdd, 10, SpringLayout.WEST, getContentPane());
+        springLayout.putConstraint(SpringLayout.SOUTH, btnAdd, 35, SpringLayout.SOUTH, scrollPane);
+        springLayout.putConstraint(SpringLayout.EAST, btnAdd, 100, SpringLayout.WEST, getContentPane());
+        getContentPane().add(btnAdd);
     }
 
     @Override
@@ -155,9 +172,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
             if (tbBuildUnit.isEditable()){
                 //编辑已经打开的状态
                 if (table.getChangedCells().getSize()>0){
-                    //保存表
-
-
+                    //保存
+                    save();
                 }
                 if (table.isEditing())
                     table.getCellEditor().stopCellEditing();
@@ -167,7 +183,37 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
 
             }
             setEnable(!tbBuildUnit.isEditable());
+        });
 
+        btnAdd.addActionListener(e -> {
+            if (workerChooser==null)workerChooser=new WorkerChooser(){
+                @Override
+                public boolean filtrator(String id) {
+                    for (int i=0;i<ids.length;i++){
+                        if (id.equals(ids[i]))return false;
+                    }
+                    return true;
+                }
+            };
+            workerChooser.setCallback(values -> {
+                String[] ids= (String[]) values[0];
+                Date date=new Date();
+
+                for (String id : ids) {
+                    Vector<String> strings = new Vector<>();
+                    strings.add(id);
+
+                    /*assert DBManager.getManager() != null;
+                    Bean worker=DBManager.getManager().getWorker(id);
+                    strings.add(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_NAME));
+                    table.addRow(strings);*/
+                    assert DBManager.getManager() != null;
+                    DBManager.getManager().addWorkerToSite(id,siteName,0d,"",date);
+                }
+                workerChooser=null;
+                fillData();
+            });
+            workerChooser.setVisible(true);
         });
     }
 
@@ -182,6 +228,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         table.setCellColumnEdited(5,false);
 
         fillData();
+        updateIds();
     }
 
 
@@ -260,18 +307,61 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
 
 
     private void save(){
-        for (int i=0;i<table.getTableModel().getRowCount();i++){
-            String id =table.getCell(i,0).toString();
-            Double dealSalary=0d;
+        ArrayList<Integer> rows=new ArrayList<>();
+        for (int i=0;i<table.getChangedCells().getSize();i++){
+            int row=table.getChangedCells().getRank(i).getRow();
+
+            boolean found=false;
+            for (Integer rw:rows){
+                if (rw==row)found=true;
+            }
+            if (found)continue;
+            rows.add(row);
+
+            String id =table.getCell(row,0).toString();
+            Double dealSalary;
             try{
-                dealSalary=Double.valueOf(table.getCell(i,2).toString());
+                dealSalary=Double.valueOf(table.getCell(row,2).toString());
             }catch (Exception e){
                 Application.errorWindow("协议工价数字转换错误："+e.getMessage());
                 continue;
             }
-            String type=table.getCell(i,3).toString();
+            String type=table.getCell(row,3).toString();
+
+            Date entry;
+            try {
+                entry=AnUtils.getDate(table.getCell(i,4).toString(),Resource.DATE_FORMATE);
+            } catch (ParseException e) {
+                Application.errorWindow("入职日期转换错误："+e.getMessage());
+                continue;
+            }
+
+            Date leave=null;
+            try {
+                String dateFormate=table.getCell(row,5).toString();
+                if (dateFormate!=null&&!dateFormate.equals(""))
+                    leave=AnUtils.getDate(dateFormate,Resource.DATE_FORMATE);
+            } catch (ParseException e) {
+                Application.errorWindow("离职日期转换错误："+e.getMessage());
+            }
+
+            site.setInfosValue(PropertyFactory.LAB_UNIT_OF_BULID,tbBuildUnit.getText());
+            site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN,tbDeginUnit.getText());
+            site.setInfosValue(PropertyFactory.LABEL_PROJECT_NAME,tbPorjectName.getText());
+
+            site.selectRow(PropertyFactory.LABEL_ID_CARD,id);
+            site.setSelectedRowValue(PropertyFactory.LABEL_DEAL_SALARY,dealSalary);
+            site.setSelectedRowValue(PropertyFactory.LABEL_ENTRY_TIME,entry);
+            site.setSelectedRowValue(PropertyFactory.LABEL_LEAVE_TIME,leave);
+            site.setSelectedRowValue(PropertyFactory.LABEL_WORKER_TYPE,type);
+        }
+    }
 
 
+    private void updateIds(){
+        ids=new String[table.getTableModel().getRowCount()];
+        for (int i=0;i<table.getTableModel().getRowCount();i++){
+            ids[i]=table.getCell(i,0).toString();
         }
     }
 }

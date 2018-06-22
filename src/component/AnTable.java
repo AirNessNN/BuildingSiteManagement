@@ -6,14 +6,16 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
 
 /**
- * An表单，可以轻松设置表单填充数据
+ * <h2>JTable的强化版本</h2>
+ * <li>便捷的单元格编辑筛选</li>
+ * <li>便捷的单元格编辑组件添加</li>
+ * <li>快速检查表格中改动的数据</li>
+ * <li></li>
  */
 public class AnTable extends JTable{
 
@@ -53,8 +55,8 @@ public class AnTable extends JTable{
 
 	private Object[][] oldValues=null;
 
-	private int row=-1;
-	private int col=-1;
+	private int selectedRow =-1;
+	private int selectedColumn =-1;
 
 
 
@@ -94,8 +96,8 @@ public class AnTable extends JTable{
                 在循环中只return false是的意思是找到匹配的就返回false
                  */
 
-                AnTable.this.row=row;
-                AnTable.this.col=column;
+                AnTable.this.selectedRow =row;
+                AnTable.this.selectedColumn =column;
 
 				//列循环
                 for (Integer aColumnEditFiltrate : columnEditFiltrate) if (column == aColumnEditFiltrate) return false;
@@ -104,7 +106,7 @@ public class AnTable extends JTable{
                 //单元格循环
                 /*
                     相等的话就是存在于筛选单里，所以返回false
-                     */
+                */
                 for (Point point : editPassList)
                     if (row == point.x && column == point.y) return false;
                 return true;
@@ -149,6 +151,50 @@ public class AnTable extends JTable{
 		header.add(object);
 		tableModel.setColumnIdentifiers(header.toArray());
 	}
+
+
+	/**
+	 * 加入一个空行
+	 */
+	public void addRow(){
+		tableModel.addRow(new Vector());
+	}
+
+	/**
+	 * 加入一个指定内容的行
+	 * @param vector 向量
+	 */
+	public void addRow(Vector vector){
+		tableModel.addRow(vector);
+	}
+
+	/**
+	 * 加入一个指定内容的行
+	 * @param objects 数组
+	 */
+	public void addRow(Object[] objects){
+		tableModel.addRow(objects);
+	}
+
+	/**
+	 * 删除一行
+	 * @param index 指定行的下标
+	 */
+	public void removeRow(int index){
+		tableModel.removeRow(index);
+	}
+
+	/**
+	 * 删除选中行
+	 */
+	public void removeSelectedRow(){
+		if (selectedRow==-1)return;
+		removeRow(selectedRow);
+		selectedRow=-1;
+		selectedColumn=-1;
+	}
+
+
 
 
 
@@ -335,7 +381,7 @@ public class AnTable extends JTable{
 
 				if (!rv.equals(old)) {
 					//x是cell下标，y是行号
-					bean.addValue(new Point(row,col),old,rv);
+					bean.addValue(new Rank(row,col,this),old,rv);
 				}
 			}
 		}
@@ -378,16 +424,35 @@ public class AnTable extends JTable{
 
 		Vector cells= (Vector) getTableModel().getDataVector().get(row);
 		cells.set(column,value);
+		repaint();
 	}
 
 
+	/**
+	 * 设置下标列的宽度，之后的宽度调整都按照此比例调整
+	 * @param index 列下标
+	 * @param width 宽度
+	 */
 	public void setColumnWidth(int index,int width){
 		getColumnModel().getColumn(index).setPreferredWidth(width);
 	}
 
+	/**
+	 * 设置列名列的宽度，之后的宽度调整都按照此比例调整
+	 * @param columnName 列名
+	 * @param width 宽度
+	 */
 	public void setColumnWidth(String columnName,int width){
 		int i=getColumnModel().getColumnIndex(columnName);
 		setColumnWidth(i,width);
+	}
+
+
+	public Rank getSelectedRank(){
+		if (selectedRow==-1||selectedColumn==-1){
+			return null;
+		}
+		return new Rank(selectedRow, selectedColumn,this);
 	}
 
 

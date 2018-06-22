@@ -4,7 +4,9 @@ import animation.AnimationManager;
 import animation.Iterator;
 import application.*;
 import component.AnAnimButton;
+import component.AnTable;
 import component.AnimButton;
+import component.Rank;
 import dbManager.DBManager;
 import dbManager.User;
 import javax.swing.*;
@@ -14,8 +16,11 @@ import java.util.Random;
 
 public class Test extends JFrame{
 
-	Iterator iterator=AnimationManager.getManager().createAnimationIterator(200,100,1);
-	Iterator iterator2=AnimationManager.getManager().createAnimationIterator(100,200,1);
+
+	AnTable table=new AnTable();
+	private JTextField textField;
+	private JTextField textField_1;
+	private JTextField textField_2;
 
 	private Test() {
 		getContentPane().setBackground(Color.WHITE);
@@ -24,63 +29,58 @@ public class Test extends JFrame{
 		setSize(1049, 800);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		getContentPane().setLayout(null);
-
-		JButton button=new JButton("开始迭代器");
-		button.setBounds(6, 5, 88, 30);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(6, 6, 595, 715);
+		getContentPane().add(scrollPane);
+		scrollPane.setViewportView(table);
+		
+		JButton button = new JButton("增加一列");
+		button.setBounds(747, 11, 90, 30);
 		getContentPane().add(button);
-		button.addActionListener((e)->{
-			iterator.start();
+		button.addActionListener(e -> {
+			table.addColumn(textField.getText());
 		});
+		
+		textField = new JTextField();
+		textField.setBounds(613, 11, 122, 30);
+		getContentPane().add(textField);
+		textField.setColumns(10);
 
-		JButton button1=new JButton("停止迭代器");
-		button1.setBounds(106, 5, 88, 30);
-		getContentPane().add(button1);
-		button1.addActionListener(e -> {
-			iterator.stop();
+		
+		JButton button_1 = new JButton("删除选中行");
+		button_1.setBounds(849, 11, 90, 30);
+		getContentPane().add(button_1);
+		button_1.addActionListener(e -> {
+			table.removeSelectedRow();
 		});
 		
-		JButton button_1 = new JButton("测试");
-		button_1.setBounds(100, 360, 90, 30);
-		getContentPane().add(button_1);
+		textField_1 = new JTextField();
+		textField_1.setBounds(613, 53, 122, 30);
+		getContentPane().add(textField_1);
+		textField_1.setColumns(10);
 		
-		JButton btnNewButton = new JButton("New button");
-		btnNewButton.setBounds(100, 411, 90, 30);
-		getContentPane().add(btnNewButton);
-		
-		JButton button_2 = new JButton("开始迭代器2");
-		button_2.setBounds(6, 47, 88, 30);
+		JButton button_2 = new JButton("设置数据");
+		button_2.setBounds(747, 53, 90, 30);
 		getContentPane().add(button_2);
 		button_2.addActionListener(e -> {
-			iterator2.start();
+			Rank rank=table.getSelectedRank();
+			if (rank==null)return;
+			table.setCell(rank.getRow(),rank.getColumn(),textField_1.getText());
 		});
 		
-		JButton button_3 = new JButton("停止迭代器2");
-		button_3.setBounds(106, 47, 88, 30);
-		getContentPane().add(button_3);
-		button_3.addActionListener(e -> {
-			iterator2.reverse();
+		textField_2 = new JTextField();
+		textField_2.setBounds(613, 95, 326, 30);
+		getContentPane().add(textField_2);
+		textField_2.setColumns(10);
+		
+		JButton btnNewButton = new JButton("增加一行");
+		btnNewButton.setBounds(613, 131, 90, 30);
+		getContentPane().add(btnNewButton);
+		btnNewButton.addActionListener(e -> {
+			Object[] values=textField_2.getText().split(" ");
+			table.addRow(values);
 		});
-
-
-		iterator.setCallback((value -> {
-			button_1.setLocation(value,360);
-		}));
-
-		iterator2.setCallback(value -> {
-			btnNewButton.setLocation(value,411);
-		});
-
-		AnAnimButton anAnimButton=new AnAnimButton("asdasd");
-		anAnimButton.setBounds(100,200,401,73);
-		anAnimButton.setTextBounds(20,10);
-		anAnimButton.setFont(new Font("微软雅黑",Font.PLAIN,20));
-		getContentPane().add(anAnimButton);
-		anAnimButton.repaint();
-
-		AnimButton animButton=new AnimButton();
-		animButton.setText("asdasdas");
-		animButton.setBounds(300,300,60,30);
-		getContentPane().add(animButton);
 
 
 
@@ -112,6 +112,7 @@ public class Test extends JFrame{
 			e.printStackTrace();
 		}
 
+		//new Test().setVisible(true);
 
 		SiteInfoWindow siteInfoWindow=new SiteInfoWindow("测试工地1");
 		siteInfoWindow.setVisible(true);

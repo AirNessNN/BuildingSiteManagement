@@ -353,7 +353,7 @@ public class InfoWindow extends Window implements ComponentLoader {
 
         if (site==null)
             return;
-        site.setSelectedRow(PropertyFactory.LABEL_ID_CARD,worker.find(PropertyFactory.LABEL_ID_CARD).getValueString());
+        site.setSelectedRowValue(PropertyFactory.LABEL_ID_CARD,worker.find(PropertyFactory.LABEL_ID_CARD).getValueString());
 
         Vector rowDealSalary=new Vector<>();
         rowDealSalary.add(PropertyFactory.LABEL_DEAL_SALARY);
@@ -432,7 +432,7 @@ public class InfoWindow extends Window implements ComponentLoader {
 
         //判断身份证是否正确
         for (int i=0;i<bean.getSize();i++){
-            int row=bean.getPoint(i).x;
+            int row=bean.getRank(i).getRow();
             String pn= (String) infoTable.getCell(row,0);//获取单元格属性
             if (pn.equals(PropertyFactory.LABEL_ID_CARD)) {
                 if (!AnUtils.isIDCard(bean.getNewValue(i).toString())) {
@@ -494,8 +494,8 @@ public class InfoWindow extends Window implements ComponentLoader {
         String site=cobSite.getSelectedItem().toString();
 
         for (int i=0;i<ctb.getSize();i++){
-            int row=ctb.getPoint(i).x;
-            int col=ctb.getPoint(i).y;
+            int row=ctb.getRank(i).getRow();
+            int col=ctb.getRank(i).getColumn();
 
             //已经规列完的行就不检查
             boolean skip=false;
@@ -512,7 +512,7 @@ public class InfoWindow extends Window implements ComponentLoader {
 
             //找到一行数据并修改
             for (int j=i;j<ctb.getSize();j++){
-                int tr=ctb.getPoint(j).x,tc=ctb.getPoint(j).y;
+                int tr=ctb.getRank(j).getRow(),tc=ctb.getRank(j).getColumn();
 
                 if (tr==row){//当此元素行号和在检测的行号相同
                     if (tc==0) {
@@ -600,7 +600,7 @@ public class InfoWindow extends Window implements ComponentLoader {
         TableProperty tableProperty=siteTable.getChangedCells();
         String[] pns=new String[tableProperty.getSize()];//属性名
         for (int i=0;i<tableProperty.getSize();i++){
-            pns[i]= (String) siteTable.getCell(tableProperty.getPoint(i).x,0);
+            pns[i]= (String) siteTable.getCell(tableProperty.getRank(i).getRow(),0);
         }
         assert DBManager.getManager() != null;
         DataTable site=DBManager.getManager().getBuildingSite(siteName);
@@ -611,13 +611,13 @@ public class InfoWindow extends Window implements ComponentLoader {
         //填充
         for (int i=0;i<tableProperty.getSize();i++){
             if (pns[i].equals(PropertyFactory.LABEL_DEAL_SALARY))
-                site.setSelectedRow(pns[i],Double.valueOf((String) tableProperty.getNewValue(i)));
+                site.setSelectedRowValue(pns[i],Double.valueOf((String) tableProperty.getNewValue(i)));
             if (pns[i].equals(PropertyFactory.LABEL_ENTRY_TIME)){
                 SimpleDateFormat format=new SimpleDateFormat(Resource.DATE_FORMATE);
-                site.setSelectedRow(pns[i],format.parse((String) tableProperty.getNewValue(i)));
+                site.setSelectedRowValue(pns[i],format.parse((String) tableProperty.getNewValue(i)));
             }
             if (pns[i].equals(PropertyFactory.LABEL_WORKER_TYPE)){
-                site.setSelectedRow(PropertyFactory.LABEL_WORKER_TYPE,tableProperty.getNewValue(i));
+                site.setSelectedRowValue(PropertyFactory.LABEL_WORKER_TYPE,tableProperty.getNewValue(i));
             }
         }
     }

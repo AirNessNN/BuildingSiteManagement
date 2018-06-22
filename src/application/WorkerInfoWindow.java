@@ -512,7 +512,7 @@ public class WorkerInfoWindow extends Window {
 					DataTable site=DBManager.getManager().getBuildingSite(Objects.requireNonNull(cobSite.getSelectedItem()).toString());
 					if (site!=null){
 						site.selectRow(PropertyFactory.LABEL_ID_CARD,labIDCard.getText());
-						site.setSelectedRow(PropertyFactory.LABEL_LEAVE_TIME,null);
+						site.setSelectedRowValue(PropertyFactory.LABEL_LEAVE_TIME,null);
 						initializeData();
 						AnPopDialog.show(this,"恢复成功！",AnPopDialog.SHORT_TIME);
 					}else Application.errorWindow("在恢复离职时发生错误：无法找到该工地。");
@@ -525,11 +525,11 @@ public class WorkerInfoWindow extends Window {
 			assert DBManager.getManager() != null;
 			DataTable site=DBManager.getManager().getBuildingSite(Objects.requireNonNull(cobSite.getSelectedItem()).toString());
 			if (site!=null&&leaveDate!=null){
-				site.setSelectedRow(PropertyFactory.LABEL_ID_CARD,labIDCard.getText());
+				site.setSelectedRowValue(PropertyFactory.LABEL_ID_CARD,labIDCard.getText());
 				entryDate= (Date) site.getSelectedRowAt(PropertyFactory.LABEL_ENTRY_TIME);
 				int r=AnUtils.dateCompareInt(leaveDate,entryDate);
 				if (entryDate==null||(r==0||r==1)){
-					site.setSelectedRow(PropertyFactory.LABEL_LEAVE_TIME,leaveDate);
+					site.setSelectedRowValue(PropertyFactory.LABEL_LEAVE_TIME,leaveDate);
 					AnPopDialog.show(this,"登记离职成功。",AnPopDialog.SHORT_TIME);
 					initializeData();
 				}else

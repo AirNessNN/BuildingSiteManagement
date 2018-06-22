@@ -105,7 +105,6 @@ public class WorkerChooser extends Window implements ComponentLoader {
         tbSearch.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
-                System.out.println("asd");
                 updateTable(tbSearch.getText());
             }
 
@@ -120,9 +119,7 @@ public class WorkerChooser extends Window implements ComponentLoader {
             }
         });
 
-        btnSelect.addActionListener(e -> {
-            addToSiteList();
-        });
+        btnSelect.addActionListener(e -> addToSiteList());
 
         btnOK.addActionListener(e -> {
             String[] ids=new String[list.getItemSize()];
@@ -135,9 +132,7 @@ public class WorkerChooser extends Window implements ComponentLoader {
             dispose();
         });
 
-        btnCancel.addActionListener(e -> {
-            dispose();
-        });
+        btnCancel.addActionListener(e -> dispose());
 
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -184,12 +179,21 @@ public class WorkerChooser extends Window implements ComponentLoader {
         Vector<Vector> vectors=new Vector<>();
         for (Bean worker:manager.loadingWorkerList()){
             Vector<String> rows=new Vector<>();
+            String id=DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD);
+            if (!filtrator(id))continue;
             rows.add(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_NAME));
-            rows.add(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD));
+            rows.add(id);
             vectors.add(rows);
         }
         this.tmpList=new Vector<>(vectors);//添加到缓存
         table.getTableModel().setDataVector(vectors,AnUtils.convertToVector(AnUtils.convertObjectArray(headers)));
+
+        table.setColumnWidth(0,40);
+    }
+
+
+    public boolean filtrator(String id){
+        return true;
     }
 
 
@@ -202,7 +206,6 @@ public class WorkerChooser extends Window implements ComponentLoader {
             if (name.contains(text)||id.contains(text))tmp.add(cells);
         }
         table.getTableModel().setDataVector(tmp,AnUtils.convertToVector(AnUtils.convertObjectArray(headers)));
-        table.revalidate();
         repaint();
     }
 

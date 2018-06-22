@@ -7,28 +7,28 @@ import java.util.ArrayList;
  * AnTable的单元格更改信息的包装类，此类存放改动单元格的行列坐标、更改前的数据、更改后的数据
  */
 public class TableProperty {
-    ArrayList<Point> points;
+    ArrayList<Rank> ranks;
     ArrayList<Object> oldValues;
     ArrayList<Object> newValues;
 
     int size=0;
 
     public TableProperty(){
-        points=new ArrayList<>();
+        ranks =new ArrayList<>();
         oldValues=new ArrayList<>();
         newValues=new ArrayList<>();
     }
 
     /**
      * 添加一个更改的数据
-     * @param point
+     * @param rank
      * @param ov
      * @param nv
      */
-    void addValue(Point point, Object ov, Object nv){
-        if (point==null||ov==null||nv==null)
+    void addValue(Rank rank, Object ov, Object nv){
+        if (rank==null||ov==null||nv==null)
             return;
-        points.add(point);
+        this.ranks.add(rank);
         oldValues.add(ov);
         newValues.add(nv);
         size++;
@@ -42,8 +42,8 @@ public class TableProperty {
         return oldValues;
     }
 
-    public ArrayList<Point> getPoints() {
-        return points;
+    public ArrayList<Rank> getRanks() {
+        return ranks;
     }
 
     public void setNewValues(ArrayList<Object> newValues) {
@@ -54,17 +54,18 @@ public class TableProperty {
         this.oldValues = oldValues;
     }
 
-    public void setPoints(ArrayList<Point> points) {
-        this.points = points;
+    public void setRanks(ArrayList<Rank> ranks) {
+        this.ranks = ranks;
     }
 
     public int getSize() {
         return size;
     }
 
-    public Point getPoint(int i){
-        return points.get(i);
+    public Rank getRank(int i){
+        return ranks.get(i);
     }
+    
     public Object getOldValue(int i){
         return oldValues.get(i);
     }

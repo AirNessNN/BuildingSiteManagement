@@ -487,7 +487,7 @@ public class DataTable implements Serializable{
      * @param propertyName 属性名
      * @param value 值
      */
-    public void setSelectedRow(String propertyName, Object value){
+    public void setSelectedRowValue(String propertyName, Object value){
         if (selectedRowIndex ==-1)return;
 
         Column column= findColumn(propertyName);
