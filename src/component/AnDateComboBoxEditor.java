@@ -20,15 +20,11 @@ public class AnDateComboBoxEditor extends JButton implements AnTableCellEditor{
     private JDialog frame;
     private boolean cancelFlag=false;//取消标记
 
-    private Object value=null;
-
 
 
 
     public AnDateComboBoxEditor(){
-        addActionListener(e->{
-            frame.setVisible(true);
-        });
+        addActionListener(e-> frame.setVisible(true));
 
 
         dateComboPanel=new AnDateComboPanel();
@@ -83,7 +79,6 @@ public class AnDateComboBoxEditor extends JButton implements AnTableCellEditor{
         if (value==null)
             value="";
         setText(value.toString());
-        this.value=value;
         //设置日期格式
         Date date;
         DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");

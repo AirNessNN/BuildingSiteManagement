@@ -139,10 +139,6 @@ public class PropertyFactory {
      */
     public static DataTable createWorkerProperty(){
         DataTable tmpBean=new DataTable();
-        //设置表格属性
-        tmpBean.addInfo(new Info(LABEL_PROJECT_NAME,""));
-        tmpBean.addInfo(new Info(LAB_UNIT_OF_BULID,""));
-        tmpBean.addInfo(new Info(LAB_UNIT_OF_DEGIN,""));
         //填充表格结构
         for (Info info :PROPERTY_MODEL){
             try {
@@ -238,6 +234,10 @@ public class PropertyFactory {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //设置表格属性
+        bean.addInfo(new Info(LABEL_PROJECT_NAME,""));
+        bean.addInfo(new Info(LAB_UNIT_OF_BULID,""));
+        bean.addInfo(new Info(LAB_UNIT_OF_DEGIN,""));
         return  bean;
     }
 

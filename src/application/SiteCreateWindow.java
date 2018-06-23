@@ -10,7 +10,9 @@ import resource.Resource;
 
 import javax.swing.*;
 import java.awt.*;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Vector;
 
 public class SiteCreateWindow extends Window implements ComponentLoader {
@@ -165,19 +167,39 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
                 site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN,tbDeginUnit.getText());
 
                 if (ids!=null){
-                    SimpleDateFormat simpleDateFormat=new SimpleDateFormat(Resource.DATE_FORMATE);
+                    int i=0;
+                    for (String id : ids) {
+                        Vector<String> tmpPn=null;
+                        if (vectors.size()>0)tmpPn=vectors.get(i++);
 
-                    for (int i=0;i<ids.length;i++){
-                        String id=ids[i];
-                        Double d=0d;
-                        try{
-                            d=Double.valueOf((String) vectors.get(i).get(2));
-                        }catch (Exception ex){
-                            Application.debug(this,ex.toString());
+                        //获取协议工价
+                        double d=0d;
+                        if (tmpPn!=null){
+                            try{
+                                d=Double.valueOf(tmpPn.get(2));
+                            }catch (Exception ex){
+                                AnPopDialog.show(this,"协议工价转换错误，采用默认值：0",AnPopDialog.LONG_TIME);
+                            }
                         }
-                        DBManager.getManager().addWorkerToSite(id,siteName, d, (String) vectors.get(i).get(3),simpleDateFormat.parse((String) vectors.get(i).get(4)));
+
+                        //获取日期
+                        Date date=new Date();
+                        if (tmpPn!=null){
+                            try {
+                                date=AnUtils.getDate(tmpPn.get(4),Resource.DATE_FORMATE);
+                            } catch (ParseException e1) {
+                                AnPopDialog.show(this,"入职日期转换错误，采用默认值：今天",AnPopDialog.LONG_TIME);
+                            }
+                        }
+
+                        //获取类型
+                        String type="";
+                        if (tmpPn!=null)type=tmpPn.get(3);
+
+                        assert DBManager.getManager() != null;
+                        DBManager.getManager().addWorkerToSite(id,siteName,d,type,date);
                     }
-                    AnPopDialog.show(this,"已经添加"+ids.length+"个工人到"+siteName+"，所有工人数据为预设值，要修改请到工人详情页。",AnPopDialog.LONG_TIME);
+                    AnPopDialog.show(this,"已经添加"+ids.length+"个工人到"+siteName+"。",AnPopDialog.LONG_TIME);
                 }else
                     AnPopDialog.show(this,"工地创建完成！",AnPopDialog.SHORT_TIME);
             } catch (Exception e1) {

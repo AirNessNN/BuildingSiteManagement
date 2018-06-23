@@ -1,7 +1,9 @@
 package application;
+import dbManager.ExcelFile;
 import resource.Resource;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -585,4 +587,33 @@ public class AnUtils {
 	    if (date==null)return "";
 		return dateFormat.format(date);
 	}
+
+	/**
+	 * 打印数据到Excel中
+	 * @param filePath 文件名
+	 * @param datas 数据源
+	 */
+	public static void printToExcel(String filePath,Vector<Vector> datas){
+		ExcelFile excelFile=new ExcelFile();
+		excelFile.createWorkbook(filePath);
+		excelFile.fillData(datas);
+	}
+
+	/**
+	 * 显示文件保存窗口，并且将文件打印到Exce中
+	 * @param component 父组件
+	 * @param datas 数据源
+	 */
+	public static void showPrintWindow(Component component,Vector<Vector> datas){
+		JFileChooser chooser=new JFileChooser();
+		FileNameExtensionFilter filter=new FileNameExtensionFilter("*.xlsx","xlsx");
+		chooser.setFileFilter(filter);
+		chooser.showSaveDialog(component);
+		String selectedFile=chooser.getSelectedFile().getAbsolutePath();
+		if (!selectedFile.contains(".xls")){
+			selectedFile+=".xlsx";
+		}
+		printToExcel(selectedFile,datas);
+	}
+
 }

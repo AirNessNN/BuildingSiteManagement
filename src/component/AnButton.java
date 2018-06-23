@@ -140,12 +140,6 @@ public class AnButton  extends JLabel implements MouseListener,Runnable{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (isEnabled()){
-            ActionEvent actionEvent=new ActionEvent(this,this.getClass().hashCode(),this.getClass().getName());
-            for (ActionListener l:actionListeners){
-                l.actionPerformed(actionEvent);
-            }
-        }
     }
 
     @Override
@@ -161,6 +155,15 @@ public class AnButton  extends JLabel implements MouseListener,Runnable{
         if (isEnabled()){
             if (entered)paintBorderColor= borderEnterColor;
             else paintBorderColor=borderColor;
+
+            Dimension dimension=getSize();
+            Point point=e.getPoint();
+            if (!((point.x<0||point.y<0)||(point.x>dimension.width||point.y>dimension.height))){
+                ActionEvent actionEvent=new ActionEvent(this,this.getClass().hashCode(),this.getClass().getName());
+                for (ActionListener l:actionListeners){
+                    l.actionPerformed(actionEvent);
+                }
+            }
             repaint();
         }
     }

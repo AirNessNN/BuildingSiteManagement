@@ -203,6 +203,14 @@ public class WorkerChooser extends Window implements ComponentLoader {
         for (Vector cells:tmpList){
             String name= (String) cells.get(0);
             String id= (String) cells.get(1);
+
+            boolean found=false;
+            for (int i=0;i<list.getItemSize();i++){
+                AnListRenderModel model= (AnListRenderModel) list.getElementAt(i);
+                if (model.getInfo().equals(id))found=true;
+            }
+            if (found)continue;
+
             if (name.contains(text)||id.contains(text))tmp.add(cells);
         }
         table.getTableModel().setDataVector(tmp,AnUtils.convertToVector(AnUtils.convertObjectArray(headers)));

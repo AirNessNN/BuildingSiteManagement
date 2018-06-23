@@ -11,6 +11,8 @@ import resource.Resource;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -100,10 +102,12 @@ public class EntryWindow extends JDialog {
             }
             if (worker.find(PropertyFactory.LABEL_ID_CARD).getValueString().equals("")||worker.find(PropertyFactory.LABEL_NAME).getValueString().equals("")){
                 JOptionPane.showMessageDialog(this,"身份证和姓名缺一不可！","提示",JOptionPane.INFORMATION_MESSAGE);
+                dialogResult=DialogResult.RESULT_CANCEL;
                 return;
             }
             if (!AnUtils.isIDCard(worker.find(PropertyFactory.LABEL_ID_CARD).getValueString())){
                 JOptionPane.showMessageDialog(this,"身份证格式错误","提示",JOptionPane.INFORMATION_MESSAGE);
+                dialogResult=DialogResult.RESULT_CANCEL;
                 return;
             }
             this.dispose();
@@ -123,7 +127,16 @@ public class EntryWindow extends JDialog {
         JButton btnCancel = new JButton("取消");
         panel.add(btnCancel);
         btnCancel.addActionListener((e)->{
+            dialogResult=DialogResult.RESULT_CANCEL;
             this.dispose();
+        });
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                dialogResult=DialogResult.RESULT_CANCEL;
+                dispose();
+            }
         });
     }
 

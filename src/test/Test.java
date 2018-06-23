@@ -8,9 +8,12 @@ import component.AnTable;
 import component.AnimButton;
 import component.Rank;
 import dbManager.DBManager;
+import dbManager.DataTable;
 import dbManager.User;
 import javax.swing.*;
+import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
+import java.io.File;
 import java.util.Collection;
 import java.util.Random;
 
@@ -112,10 +115,10 @@ public class Test extends JFrame{
 			e.printStackTrace();
 		}
 
-		//new Test().setVisible(true);
+		AnUtils.showPrintWindow(null,null);
 
-		SiteInfoWindow siteInfoWindow=new SiteInfoWindow("测试工地1");
-		siteInfoWindow.setVisible(true);
+
+
 
 
 	}

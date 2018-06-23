@@ -5,5 +5,14 @@
 	<classpathentry kind="lib" path="E:/Desktop/Java项目/SwingTool.jar"/>
 	<classpathentry kind="lib" path="miglayout15-swing.jar" sourcepath="miglayout-src.zip"/>
 	<classpathentry kind="lib" path="jgoodies-forms-1.8.0.jar" sourcepath="jgoodies-forms-1.8.0-sources.jar"/>
+	<classpathentry kind="lib" path="E:/Desktop/Java项目/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="E:/Desktop/Java项目/poi-3.10-FINAL-20140208.jar"/>
+	<classpathentry kind="lib" path="E:/Desktop/Java项目/poi-examples-3.10-FINAL-20140208.jar"/>
+	<classpathentry kind="lib" path="E:/Desktop/Java项目/poi-excelant-3.10-FINAL-20140208.jar"/>
+	<classpathentry kind="lib" path="E:/Desktop/Java项目/poi-ooxml-3.10-FINAL-20140208.jar"/>
+	<classpathentry kind="lib" path="E:/Desktop/Java项目/poi-ooxml-schemas-3.10-FINAL-20140208.jar"/>
+	<classpathentry kind="lib" path="E:/Desktop/Java项目/poi-scratchpad-3.10-FINAL-20140208.jar"/>
+	<classpathentry kind="lib" path="E:/Desktop/Java项目/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="E:/Desktop/Java项目/xmlbeans-2.3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

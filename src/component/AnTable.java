@@ -2,10 +2,13 @@ package component;
 
 import resource.Resource;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
@@ -53,6 +56,26 @@ public class AnTable extends JTable{
      */
 	private ArrayList<Integer> columnEditFiltrate=null;
 
+	/**
+	 * 默认编辑器
+	 */
+	private AnGenericEditor genericEditor=null;
+
+	/**
+	 * 默认渲染器
+	 */
+	private BorderCellRenderer cellRenderer=new BorderCellRenderer();
+
+	/**
+	 * 使用时渲染器
+	 */
+	private TableCellRenderer tableCellRenderer=cellRenderer;
+
+	/**
+	 * 点击事件监听器
+	 */
+	private ArrayList<AnTableClickListener> clickListeners=new ArrayList<>();
+
 	private Object[][] oldValues=null;
 
 	private int selectedRow =-1;
@@ -96,8 +119,6 @@ public class AnTable extends JTable{
                 在循环中只return false是的意思是找到匹配的就返回false
                  */
 
-                AnTable.this.selectedRow =row;
-                AnTable.this.selectedColumn =column;
 
 				//列循环
                 for (Integer aColumnEditFiltrate : columnEditFiltrate) if (column == aColumnEditFiltrate) return false;
@@ -124,6 +145,26 @@ public class AnTable extends JTable{
 	 */
 	public AnTable(){
 		init();
+
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				AnTable.this.selectedColumn=getSelectedColumn();
+				AnTable.this.selectedRow=getSelectedRow();
+				if (selectedColumn==-1||selectedRow==-1)return;
+				AnTableClickEvent event=new AnTableClickEvent(
+						AnTable.this,
+						selectedRow,
+						selectedColumn,
+						isCellEditable(selectedRow,selectedColumn),
+						getCell(selectedRow,selectedColumn),
+						e.getClickCount()
+				);
+				for (AnTableClickListener listener:clickListeners){
+					listener.tableClicked(event);
+				}
+			}
+		});
 	}
 
 
@@ -447,7 +488,10 @@ public class AnTable extends JTable{
 		setColumnWidth(i,width);
 	}
 
-
+	/**
+	 * 获取选择的行和列标
+	 * @return 返回Rank包装类
+	 */
 	public Rank getSelectedRank(){
 		if (selectedRow==-1||selectedColumn==-1){
 			return null;
@@ -456,20 +500,67 @@ public class AnTable extends JTable{
 	}
 
 
+	/**
+	 * 获取基础单元格编辑器
+	 * @return 返回基础编辑器
+	 */
+	public AnGenericEditor getGenericEditor(){
+		return genericEditor;
+	}
+
+	public void setTableCellRenderer(TableCellRenderer cellRenderer){
+		this.tableCellRenderer=cellRenderer;
+	}
+
+	public TableCellRenderer getTableCellRenderer(){
+		return tableCellRenderer;
+	}
+
+
+
+	public void addTableClickListener(AnTableClickListener l){
+		if (l!=null){
+			clickListeners.add(l);
+		}
+	}
+
+	public void removeTableClickLisneter(AnTableClickListener l){
+		clickListeners.remove(l);
+	}
+
+	public void clearTableClickListener(){
+		clickListeners.clear();
+	}
+
+
+	public Vector<Vector> getPrintVector(){
+		Vector<Vector> rows=new Vector<>();
+		Vector<String> header=new Vector<>();
+		for (int i=0;i<getTableModel().getColumnCount();i++){
+			header.add(getTableModel().getColumnName(i));
+		}
+		rows.add(header);
+		rows.addAll(getTableModel().getDataVector());
+		return rows;
+	}
+
 
 
 	@Override
 	public TableCellEditor getCellEditor(int row, int column) {
 		// TODO Auto-generated method stub
-		if (components==null)
-			return super.getCellEditor(row,column);
+		if (genericEditor==null)genericEditor=new AnGenericEditor();
+		if (components==null){
+			return genericEditor;
+		}
+
 		for (AnTableCellEditor editor:components){
 			int r=editor.getTableCellLocation().x;
 			int c=editor.getTableCellLocation().y;
 			if (r==row&&c==column)
 				return editor;
 		}
-		return super.getCellEditor(row, column);
+		return genericEditor;
 	}
 
 
@@ -478,6 +569,52 @@ public class AnTable extends JTable{
 
 	@Override
 	public TableCellRenderer getCellRenderer(int row, int column) {
-		return super.getCellRenderer(row, column);
+		return tableCellRenderer;
+	}
+
+
+
+
+
+	/**
+	 * 自带的单元格渲染器
+	 */
+	private class BorderCellRenderer extends AnLabel implements TableCellRenderer{
+		Color editing =new Color(12, 156, 158);
+		Color focus=new Color(28, 138, 145);
+		LineBorder border=new LineBorder(new Color(249, 156, 51),2);
+
+		public BorderCellRenderer() {
+			setFont(new Font("等线",0,15));
+			setOpaque(true);
+		}
+
+		public Component getTableCellRendererComponent(JTable table, Object value,
+													   boolean isSelected, boolean hasFocus, int row, int column) {
+			if (isSelected){
+				if (hasFocus) {
+					if (isCellEditable(row,column)){
+						setBorder(border);
+						setForeground( Color.WHITE);
+						setBackground(editing);
+					}else {
+						setForeground( Color.WHITE);
+						setBackground( focus);
+						setBorder(null);
+					}
+				} else {
+					setForeground( Color.WHITE);
+					setBackground( focus);
+					setBorder(null);
+				}
+			}else {
+				setForeground( Color.BLACK);
+				setBackground( Color.WHITE);
+				setBorder(null);
+			}
+
+			setText((value == null) ? "" : value.toString());
+			return this;
+		}
 	}
 }

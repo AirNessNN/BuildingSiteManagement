@@ -1,8 +1,10 @@
 package dbManager;
 
+import application.AnUtils;
+
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * <H2>An轻量级数据容器</H2>
@@ -431,7 +433,7 @@ public class DataTable implements Serializable{
      * @return 单元格的值
      */
     public Object getCell(int row,int col){
-        if (values.size()<col||col<0)
+        if (values.size()<=col||col<0)
             return null;
         if (values.size()==0)
             return null;
@@ -767,6 +769,10 @@ public class DataTable implements Serializable{
 
     //对表格属性的操作
 
+    /**
+     * 获取表格属性集合
+     * @return 属性集合Bean
+     */
     public Bean getInfos() {
         return infos;
     }
@@ -776,21 +782,35 @@ public class DataTable implements Serializable{
      * @param info 属性节点
      * @return 成功返回true
      */
-    public boolean addInfo(Info info){
+    public void addInfo(Info info){
         int oldSize=infos.getSize();
         infos.addInfo(info);
-        return infos.getSize()>oldSize;
+        infos.getSize();
     }
 
+    /**
+     * 向表格属性中添加一个属性节点
+     * @param propertyName 节点名称
+     * @param value 节点值
+     */
     public void addInfo(String propertyName,Object value){
         Info info =new Info(propertyName,value);
         infos.addInfo(info);
     }
 
+    /**
+     * 根据属性名移除节点
+     * @param propertyName 节点名
+     */
     public void removeInfo(String propertyName){
         infos.removeInfo(infos.find(propertyName));
     }
 
+    /**
+     * 设置属性的值
+     * @param propertyName 属性名
+     * @param value 值
+     */
     public void setInfosValue(String propertyName,Object value){
         Info info =infos.find(propertyName);
         if (info !=null){
@@ -798,12 +818,21 @@ public class DataTable implements Serializable{
         }
     }
 
+    /**
+     * 获取属性的值
+     * @param propertyName 属性名
+     * @return 返回属性值
+     */
     public Object getInfosValue(String propertyName){
         Info info = infos.find(propertyName);
         if (info ==null)return null;
         return info.getValue();
     }
 
+    /**
+     * 获取所有属性名
+     * @return 属性名数组
+     */
     public String[] getInfoPropertyNames(){
         String[] names=new String[infos.getSize()];
         for (int i=0;i<infos.getSize();i++){
@@ -812,12 +841,36 @@ public class DataTable implements Serializable{
         return names;
     }
 
+    /**
+     * 获取所有属性的值
+     * @return 属性值数组
+     */
     public Object[] getInfoValues(){
         Object[] values=new Object[infos.getSize()];
         for (int i=0;i<infos.getSize();i++){
             values[i]=infos.getAt(i).getValue();
         }
         return values;
+    }
+
+
+
+    public Vector<Vector> getPrintVector(){
+        SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");
+        Vector<Vector> vectors = new Vector<>(Collections.singleton(new Vector<>(Arrays.asList(getColumnName()))));
+
+        for (int i=0;i<getColumn(0).size();i++){
+            Vector cells= new Vector<>();
+            for (int j=0;j<getColumnCount();j++){
+                Object o=getCell(i,j);
+                if (o instanceof Date){
+                    cells.add(dateFormat.format(o));
+                }else
+                    cells.add(o==null?"": o);
+            }
+            vectors.add(cells);
+        }
+        return vectors;
     }
 
 

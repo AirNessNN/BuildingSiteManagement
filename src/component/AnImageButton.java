@@ -1,5 +1,8 @@
 package component;
 
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
@@ -39,14 +42,16 @@ public class AnImageButton extends JLabel{
 			if(!isEnabled())
 				return;
 			setIcon(enter);
+			Dimension dimension=getSize();
+			Point point=e.getPoint();
+			if (!((point.x<0||point.y<0)||(point.x>dimension.width||point.y>dimension.height))){
+				if(actionListener!=null)
+					actionListener.actionPerformed(new AnActionEvent(AnImageButton.this, AnActionEvent.CILCKED, AnImageButton.this.getText()));
+			}
 		}
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			if(!isEnabled())
-				return;
-			if(actionListener!=null)
-				actionListener.actionPerformed(new AnActionEvent(AnImageButton.this, AnActionEvent.CILCKED, AnImageButton.this.getText()));
 		}
 	};
 	

@@ -13,6 +13,8 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class SitePanel extends JPanel implements Loadable, ComponentLoader {
@@ -34,7 +36,8 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
     private Color normalColor=new Color(114, 114, 114);
 
     //窗口组件
-    private SiteCreateWindow createWindow=null;
+    private SiteCreateWindow createWindow=null;//创建工地窗口
+    private SiteInfoWindow infoWindow=null;//工地详情窗口
 
 
 
@@ -91,6 +94,7 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
 
     void refash(){
         tbSearch.setText("");
+        assert DBManager.getManager() != null;
         initList(DBManager.getManager().loadingBuildingSiteList());
     }
 
@@ -145,6 +149,7 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         add(anImageLabel);
         
         JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         springLayout.putConstraint(SpringLayout.WEST, scrollPane, 10, SpringLayout.WEST, this);
         springLayout.putConstraint(SpringLayout.SOUTH, scrollPane, -10, SpringLayout.SOUTH, this);
         springLayout.putConstraint(SpringLayout.EAST, scrollPane, 294, SpringLayout.WEST, this);
@@ -369,6 +374,21 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
 
         btnRefash.addActionListener(e -> {
             refash();
+        });
+
+        list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount()>=2){
+                    if (infoWindow!=null){
+                        infoWindow.dispose();
+                    }
+                    AnListRenderModel model= (AnListRenderModel) listModel.get(list.getSelectedIndex());
+                    if (model==null)return;
+                    infoWindow=new SiteInfoWindow(model.getTitle());
+                    infoWindow.setVisible(true);
+                }
+            }
         });
 
     }

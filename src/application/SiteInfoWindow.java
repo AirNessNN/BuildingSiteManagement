@@ -32,10 +32,12 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
 
     private WorkerChooser workerChooser=null;
     private String[] ids=null;
+    private AnButton btnPrint;
 
 
     public SiteInfoWindow(String siteName){
         this.siteName=siteName;
+        assert DBManager.getManager() != null;
         site=DBManager.getManager().getBuildingSite(siteName);
 
         initializeComponent();
@@ -55,8 +57,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         setSize(1000,600);
         setMinimumSize(getSize());
         setLocationRelativeTo(null);
-        setTitle("");
-        setDefaultCloseOperation(HIDE_ON_CLOSE);
+        setTitle(siteName+" 详情");
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         SpringLayout springLayout = new SpringLayout();
         getContentPane().setLayout(springLayout);
         getContentPane().setBackground(SystemColor.window);
@@ -164,25 +166,54 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         springLayout.putConstraint(SpringLayout.SOUTH, btnAdd, 35, SpringLayout.SOUTH, scrollPane);
         springLayout.putConstraint(SpringLayout.EAST, btnAdd, 100, SpringLayout.WEST, getContentPane());
         getContentPane().add(btnAdd);
+        
+        AnButton btnDelete = new AnButton("增加工人");
+        btnDelete.setText("移除工人");
+        springLayout.putConstraint(SpringLayout.NORTH, btnDelete, 0, SpringLayout.NORTH, btnAdd);
+        springLayout.putConstraint(SpringLayout.WEST, btnDelete, 10, SpringLayout.EAST, btnAdd);
+        springLayout.putConstraint(SpringLayout.SOUTH, btnDelete, 0, SpringLayout.SOUTH, btnAdd);
+        springLayout.putConstraint(SpringLayout.EAST, btnDelete, 100, SpringLayout.EAST, btnAdd);
+        btnDelete.setBorderPressColor(new Color(219, 112, 147));
+        btnDelete.setBorderEnterColor(new Color(220, 20, 60));
+        btnDelete.setBorderColor(new Color(114, 114, 114));
+        getContentPane().add(btnDelete);
+        
+        AnButton btnContract = new AnButton("增加工人");
+        btnContract.setText("包工管理");
+        springLayout.putConstraint(SpringLayout.NORTH, btnContract, 0, SpringLayout.NORTH, btnAdd);
+        springLayout.putConstraint(SpringLayout.WEST, btnContract, 10, SpringLayout.EAST, btnDelete);
+        springLayout.putConstraint(SpringLayout.SOUTH, btnContract, 0, SpringLayout.SOUTH, btnAdd);
+        springLayout.putConstraint(SpringLayout.EAST, btnContract, 100, SpringLayout.EAST, btnDelete);
+        btnContract.setBorderPressColor(new Color(249, 156, 51));
+        btnContract.setBorderEnterColor(new Color(216, 99, 68));
+        btnContract.setBorderColor(new Color(114, 114, 114));
+        getContentPane().add(btnContract);
+        
+        btnPrint = new AnButton("增加工人");
+        springLayout.putConstraint(SpringLayout.NORTH, btnPrint, 0, SpringLayout.NORTH, btnAdd);
+        springLayout.putConstraint(SpringLayout.WEST, btnPrint, 10, SpringLayout.EAST, btnContract);
+        springLayout.putConstraint(SpringLayout.SOUTH, btnPrint, 0, SpringLayout.SOUTH, btnAdd);
+        springLayout.putConstraint(SpringLayout.EAST, btnPrint, 100, SpringLayout.EAST, btnContract);
+        btnPrint.setText("打印");
+        btnPrint.setBorderPressColor(new Color(249, 156, 51));
+        btnPrint.setBorderEnterColor(new Color(216, 99, 68));
+        btnPrint.setBorderColor(new Color(114, 114, 114));
+        getContentPane().add(btnPrint);
     }
 
     @Override
     public void initializeEvent() {
         btnSave.addActionListener(e -> {
+            table.clearSelection();
             if (tbBuildUnit.isEditable()){
                 //编辑已经打开的状态
                 if (table.getChangedCells().getSize()>0){
                     //保存
                     save();
+                    AnPopDialog.show(this,"编辑已经保存。",AnPopDialog.SHORT_TIME);
                 }
-                if (table.isEditing())
-                    table.getCellEditor().stopCellEditing();
-                //保存
-
-            }else {
-
             }
-            setEnable(!tbBuildUnit.isEditable());
+            setEnable(!tbBuildUnit.isEditable());//设置各个控件开关状态
         });
 
         btnAdd.addActionListener(e -> {
@@ -196,24 +227,61 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
                 }
             };
             workerChooser.setCallback(values -> {
+                //此处有两个值传入，如果，在工人选择器中没有填充属性的话，第二个值是无效的
                 String[] ids= (String[]) values[0];
-                Date date=new Date();
+                Vector<Vector> vectors= (Vector<Vector>) values[1];
 
+                int i=0;
                 for (String id : ids) {
-                    Vector<String> strings = new Vector<>();
-                    strings.add(id);
+                    Vector<String> tmpPn=null;
+                    if (vectors.size()>0)tmpPn=vectors.get(i++);
 
-                    /*assert DBManager.getManager() != null;
-                    Bean worker=DBManager.getManager().getWorker(id);
-                    strings.add(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_NAME));
-                    table.addRow(strings);*/
+                    //获取协议工价
+                    double d=0d;
+                    if (tmpPn!=null){
+                        try{
+                            d=Double.valueOf(tmpPn.get(2));
+                        }catch (Exception ex){
+                            AnPopDialog.show(this,"协议工价转换错误，采用默认值：0",AnPopDialog.LONG_TIME);
+                        }
+                    }
+
+                    //获取日期
+                    Date date=new Date();
+                    if (tmpPn!=null){
+                        try {
+                            date=AnUtils.getDate(tmpPn.get(4),Resource.DATE_FORMATE);
+                        } catch (ParseException e1) {
+                            AnPopDialog.show(this,"入职日期转换错误，采用默认值：今天",AnPopDialog.LONG_TIME);
+                        }
+                    }
+
+                    //获取类型
+                    String type="";
+                    if (tmpPn!=null)type=tmpPn.get(3);
+
                     assert DBManager.getManager() != null;
-                    DBManager.getManager().addWorkerToSite(id,siteName,0d,"",date);
+                    DBManager.getManager().addWorkerToSite(id,siteName,d,type,date);
                 }
                 workerChooser=null;
                 fillData();
+                updateIds();
+                AnPopDialog.show(this,"加入"+ids.length+"个工人。",AnPopDialog.SHORT_TIME);
+
             });
             workerChooser.setVisible(true);
+        });
+
+        table.addTableClickListener(e -> {
+            if (e.getClickCount()>=2){
+                String id = (String) table.getCell(e.getRow(),0);
+                WindowBuilder.showWorkWindow(id,siteName,values -> fillData());
+            }
+        });
+
+        btnPrint.addActionListener(e -> {
+            AnUtils.showPrintWindow(this,table.getPrintVector());
+            AnPopDialog.show(this,"打印完成！",AnPopDialog.SHORT_TIME);
         });
     }
 
@@ -355,6 +423,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
             site.setSelectedRowValue(PropertyFactory.LABEL_LEAVE_TIME,leave);
             site.setSelectedRowValue(PropertyFactory.LABEL_WORKER_TYPE,type);
         }
+        table.clearCheckPoint();
+        table.setCheckPoint();
     }
 
 
