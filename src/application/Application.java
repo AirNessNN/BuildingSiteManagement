@@ -112,7 +112,10 @@ public class Application {
 	static void updateUserData() {
 		if(dbManager!=null) {
 			try {
+				//保存用户配置文件
 				dbManager.updateUserListFile();
+				//保存用户数据
+				dbManager.saveData();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

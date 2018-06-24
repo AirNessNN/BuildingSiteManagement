@@ -148,8 +148,8 @@ public class DBManager {
 
 	/**
 	 * 从文件中读取用户列表
-	 * @throws IOException
-	 * @throws ClassNotFoundException
+	 * @throws IOException IO错误
+	 * @throws ClassNotFoundException 没找到文件
 	 */
 	public void readUserList() throws IOException ,ClassNotFoundException{
 		File userFile=Resource.getApplicationFile(Resource.FILE_USER);
@@ -167,7 +167,7 @@ public class DBManager {
 
 	/**
 	 * 更新用户数据到文件中
-	 * @throws IOException
+	 * @throws IOException io错误
 	 */
 	public void updateUserListFile() throws IOException{
 		File file=Resource.getApplicationFile(Resource.FILE_USER);
@@ -398,7 +398,7 @@ public class DBManager {
 	}
 
 	/**
-	 * 更新属性名
+	 * 替换属性名
 	 * @param oldName 旧名字
 	 * @param rv 新名字
 	 * @return 成功返回true
@@ -477,7 +477,7 @@ public class DBManager {
 	}
 
 	/**
-	 * 更新属性
+	 * 更新属性，替换一个属性的所有值
 	 * @param propertyName 属性名
 	 * @param values 属性值
 	 */
@@ -1550,6 +1550,34 @@ public class DBManager {
 		}
 		for(int i=0;i<sites.length;i++){
 			//addWorkerToSite(id, (String) sites[i],dealSalarys[i],types[i]);
+		}
+	}
+
+
+	/**
+	 * <h2>保存所有此用户的数据</h2>
+	 * <li>Property属性数据</li>
+	 * <li>WorkerList工人列表数据</li>
+	 * <li>BuildingSiteList工地列表数据</li>
+	 * <li>ChildrenManager两个子管理器：工资管理器，出勤管理器</li>
+	 */
+	public void saveData(){
+
+		try {
+			//Property
+			writeObject(user.getWorkerPropertyPath(),loadingWorkerProperty());
+
+			//WorkerList
+			writeObject(user.getWorkerListPath(),loadingWorkerList());
+
+			//BuildingSiteList
+			writeObject(user.getBuildingSitePath(),loadingBuildingSiteList());
+
+			//ChildrenManager
+			salaryManager.saveToFile();
+			checkInManager.saveToFile();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

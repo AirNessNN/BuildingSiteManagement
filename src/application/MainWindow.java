@@ -146,7 +146,7 @@ public class MainWindow extends Window implements ComponentLoader {
 
 
 
-		new Thread(()->{
+		Application.startService(()->{
 			while (true){
 
 				Point mouse=MouseInfo.getPointerInfo().getLocation();
@@ -160,7 +160,7 @@ public class MainWindow extends Window implements ComponentLoader {
 					e.printStackTrace();
 				}
 			}
-		}).start();
+		});
 	}
 
 	@Override

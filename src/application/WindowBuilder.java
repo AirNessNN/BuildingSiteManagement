@@ -19,6 +19,7 @@ public class WindowBuilder {
     private static WorkerInfoWindow workerWindow=null;
     private static AnDataChooser buildingSiteChooser =null;
     private static InfoWindow infoWindow=null;
+    private static SiteInfoWindow siteInfoWindow=null;
 
 
 
@@ -104,7 +105,6 @@ public class WindowBuilder {
     public static void showInfoWindow(String id, String site, CloseCallback callBack){
         if (infoWindow!=null){
             infoWindow.dispose();
-            System.gc();
         }
         infoWindow=new InfoWindow();
         infoWindow.initializeWorker(id,site);
@@ -141,6 +141,21 @@ public class WindowBuilder {
         propertyWindow.setVisible(true);
         propertyWindow.requestFocus();
     }
+
+    public static void showSiteInfoWindow(String siteName){
+        long time=System.currentTimeMillis();
+        if (siteInfoWindow!=null){
+            siteInfoWindow.dispose();
+        }
+        siteInfoWindow=new SiteInfoWindow(siteName);
+        siteInfoWindow.setVisible(true);
+        System.out.println("工地信息窗口打开耗时"+(System.currentTimeMillis()-time));
+    }
+
+    public static void closeSiteInfoWindow(){
+        if (siteInfoWindow!=null)siteInfoWindow.dispose();
+    }
+
 
 
 }

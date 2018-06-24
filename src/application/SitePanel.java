@@ -37,8 +37,6 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
 
     //窗口组件
     private SiteCreateWindow createWindow=null;//创建工地窗口
-    private SiteInfoWindow infoWindow=null;//工地详情窗口
-
 
 
 
@@ -382,13 +380,9 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount()>=2){
-                    if (infoWindow!=null){
-                        infoWindow.dispose();
-                    }
                     AnListRenderModel model= (AnListRenderModel) listModel.get(list.getSelectedIndex());
                     if (model==null)return;
-                    infoWindow=new SiteInfoWindow(model.getTitle());
-                    infoWindow.setVisible(true);
+                    WindowBuilder.showSiteInfoWindow(model.getTitle());
                 }
             }
         });

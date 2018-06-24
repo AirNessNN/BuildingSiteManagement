@@ -62,6 +62,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         SpringLayout springLayout = new SpringLayout();
         getContentPane().setLayout(springLayout);
         getContentPane().setBackground(SystemColor.window);
+        getContentPane().setBackground(Color.white);
         
         JLabel lblNewLabel = new JLabel("工人列表");
         springLayout.putConstraint(SpringLayout.NORTH, lblNewLabel, 10, SpringLayout.NORTH, getContentPane());
@@ -189,7 +190,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         btnContract.setBorderColor(new Color(114, 114, 114));
         getContentPane().add(btnContract);
         
-        btnPrint = new AnButton("增加工人");
+        btnPrint = new AnButton();
         springLayout.putConstraint(SpringLayout.NORTH, btnPrint, 0, SpringLayout.NORTH, btnAdd);
         springLayout.putConstraint(SpringLayout.WEST, btnPrint, 10, SpringLayout.EAST, btnContract);
         springLayout.putConstraint(SpringLayout.SOUTH, btnPrint, 0, SpringLayout.SOUTH, btnAdd);
@@ -199,6 +200,18 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         btnPrint.setBorderEnterColor(new Color(216, 99, 68));
         btnPrint.setBorderColor(new Color(114, 114, 114));
         getContentPane().add(btnPrint);
+
+        AnButton btnQuickCheck=new AnButton("快速考勤");
+        springLayout.putConstraint(SpringLayout.NORTH, btnQuickCheck, 0, SpringLayout.NORTH, btnAdd);
+        springLayout.putConstraint(SpringLayout.WEST, btnQuickCheck, 10, SpringLayout.EAST, btnPrint);
+        springLayout.putConstraint(SpringLayout.SOUTH, btnQuickCheck, 0, SpringLayout.SOUTH, btnAdd);
+        springLayout.putConstraint(SpringLayout.EAST, btnQuickCheck, 100, SpringLayout.EAST, btnPrint);
+        getContentPane().add(btnQuickCheck);
+        btnQuickCheck.setBorderPressColor(new Color(249, 156, 51));
+        btnQuickCheck.setBorderEnterColor(new Color(216, 99, 68));
+        btnQuickCheck.setBorderColor(new Color(114, 114, 114));
+
+
     }
 
     @Override
@@ -296,8 +309,10 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         table.setCellColumnEdited(4,false);
         table.setCellColumnEdited(5,false);
 
-        fillData();
-        updateIds();
+        Application.startService(()->{
+            fillData();
+            updateIds();
+        });
     }
 
 

@@ -38,7 +38,8 @@ class SiteWindow extends Window{
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                callback((Object) null);
+                callback();
+                WindowBuilder.closeSiteInfoWindow();
             }
         });
     }
