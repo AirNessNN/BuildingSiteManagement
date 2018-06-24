@@ -20,9 +20,9 @@ public class PropertyWindow extends JFrame implements  ComponentLoader {
 
     private DBManager manager;//管理器
     private AnList<AnListRenderModel> list;//列表
-    private MyButton btnAdd;
-    private MyButton btnDelete;
-    private MyButton btnAlert;
+    private AnButton btnAdd;
+    private AnButton btnDelete;
+    private AnButton btnAlert;
 
 
 
@@ -66,13 +66,13 @@ public class PropertyWindow extends JFrame implements  ComponentLoader {
         getContentPane().add(panel);
         panel.setLayout(new GridLayout(13, 0, 0, 5));
         
-        btnAdd = new MyButton("增加属性");
+        btnAdd = new AnButton("增加属性");
         panel.add(btnAdd);
 
-        btnDelete = new MyButton("删除属性");
+        btnDelete = new AnButton("删除属性");
         panel.add(btnDelete);
 
-        btnAlert = new MyButton("修改属性");
+        btnAlert = new AnButton("修改属性");
         panel.add(btnAlert);
         
         
@@ -99,7 +99,7 @@ public class PropertyWindow extends JFrame implements  ComponentLoader {
                 return;
             }
             String name=list.getElementAt(list.getSelectedIndex()).getTitle();
-            if (name.equals("性别")||name.equals("民族")||name.equals("所属工地")||name.equals("工种")||name.equals("工人状态")){
+            if (name.equals("性别")||name.equals("民族")||name.equals("所属工地")||name.equals("工种")||name.equals("工人状态")||name.equals("备注")){
                 Application.informationWindow("这是系统必要的属性，请不要删除。");
                 return;
             }
@@ -110,7 +110,7 @@ public class PropertyWindow extends JFrame implements  ComponentLoader {
 
         btnAlert.addActionListener((e)->{
             if (list.getSelectedIndex()==-1){
-                Application.errorWindow("先选择数据再更改！");
+                Application.informationWindow("先选择数据再更改！");
                 return;
             }
             String name=list.getElementAt(list.getSelectedIndex()).getTitle();

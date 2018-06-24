@@ -1,5 +1,6 @@
 package application;
 import dbManager.ExcelFile;
+import org.omg.SendingContext.RunTime;
 import resource.Resource;
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -593,10 +594,10 @@ public class AnUtils {
 	 * @param filePath 文件名
 	 * @param datas 数据源
 	 */
-	public static void printToExcel(String filePath,Vector<Vector> datas){
+	public static boolean printToExcel(String filePath,Vector<Vector> datas){
 		ExcelFile excelFile=new ExcelFile();
 		excelFile.createWorkbook(filePath);
-		excelFile.fillData(datas);
+		return excelFile.fillData(datas);
 	}
 
 	/**
@@ -604,16 +605,40 @@ public class AnUtils {
 	 * @param component 父组件
 	 * @param datas 数据源
 	 */
-	public static void showPrintWindow(Component component,Vector<Vector> datas){
+	public static boolean showPrintWindow(Component component,Vector<Vector> datas){
 		JFileChooser chooser=new JFileChooser();
 		FileNameExtensionFilter filter=new FileNameExtensionFilter("*.xlsx","xlsx");
 		chooser.setFileFilter(filter);
 		chooser.showSaveDialog(component);
+		if (chooser.getSelectedFile()==null)return false;
 		String selectedFile=chooser.getSelectedFile().getAbsolutePath();
+		if (selectedFile.equals(""))return false;
 		if (!selectedFile.contains(".xls")){
 			selectedFile+=".xlsx";
 		}
-		printToExcel(selectedFile,datas);
+		return printToExcel(selectedFile,datas);
+	}
+
+
+	/**
+	 * 打开一个路径，可以是文件可以是文件夹
+	 * @param cmdPath 路径URL
+	 * @return 成功返回true
+	 */
+	public static boolean open(String cmdPath){
+		String[] strings=new String[5];
+		strings[0]="cmd";
+		strings[1]="/c";
+		strings[2]="start";
+		strings[3]=" ";
+		strings[4]=cmdPath;
+		try {
+			Runtime.getRuntime().exec(strings);
+			return true;
+		} catch (IOException e) {
+			AnUtils.log(Runtime.getRuntime(),e.toString());
+			return false;
+		}
 	}
 
 }

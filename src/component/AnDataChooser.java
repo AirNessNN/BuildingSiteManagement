@@ -24,14 +24,14 @@ public class AnDataChooser extends JDialog implements BuildingSiteOperator {
 
     private JList list;
 	private DefaultListModel model=null;
-	private JButton btnOK;
-	private JButton btnCancel;
+	private AnButton btnOK;
+	private AnButton btnCancel;
 	private DialogResult dialogResult=DialogResult.RESULT_CANCEL;
 
 	private Object[] selectedValue=null;//选中的数据
-	private JButton btnNew;
-	private JButton btnAdd;
-	private JButton btnDel;
+	private AnButton btnNew;
+	private AnButton btnAdd;
+	private AnButton btnDel;
 
 	private Chooser chooser;//选择器自定义模型
 
@@ -61,27 +61,27 @@ public class AnDataChooser extends JDialog implements BuildingSiteOperator {
         model=new DefaultListModel();
         list.setModel(model);
 
-        btnCancel = new JButton("取消");
+        btnCancel = new AnButton("取消");
         btnCancel.setFont(new Font("幼圆", Font.PLAIN, 15));
         btnCancel.setBounds(113, 460, 93, 34);
         getContentPane().add(btnCancel);
 
-        btnOK = new JButton("确定");
+        btnOK = new AnButton("确定");
         btnOK.setFont(new Font("幼圆", Font.PLAIN, 15));
         btnOK.setBounds(10, 460, 93, 34);
         getContentPane().add(btnOK);
         
-        btnAdd = new JButton("加");
+        btnAdd = new AnButton("加");
         btnAdd.setFont(new Font("幼圆", Font.PLAIN, 15));
         btnAdd.setBounds(376, 98, 56, 42);
         getContentPane().add(btnAdd);
         
-        btnDel = new JButton("减");
+        btnDel = new AnButton("减");
         btnDel.setFont(new Font("幼圆", Font.PLAIN, 15));
         btnDel.setBounds(376, 150, 56, 42);
         getContentPane().add(btnDel);
         
-        btnNew = new JButton("新");
+        btnNew = new AnButton("新");
         btnNew.setFont(new Font("幼圆", Font.PLAIN, 15));
         btnNew.setBounds(376, 46, 56, 42);
         getContentPane().add(btnNew);

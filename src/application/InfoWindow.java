@@ -118,16 +118,8 @@ public class InfoWindow extends Window implements ComponentLoader {
         infoTable = new AnTable();
         scrollPane.setViewportView(infoTable);
         infoTable.setColumn(INFO_HEADER);
-
-        AnComboBoxEditor sexEdit= new AnComboBoxEditor();
-        assert DBManager.getManager() != null;
-        sexEdit.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_SEX)));
-        infoTable.addComponentCell(sexEdit,4,1);
         infoTable.setCellColumnEdited(0,false);
 
-        AnComboBoxEditor nationEditor=new AnComboBoxEditor();
-        nationEditor.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_NATION)));
-        infoTable.addComponentCell(nationEditor,5,1);
 
         JPanel panel_1 = new JPanel();
         tabbedPane.addTab("出勤表", null, panel_1, null);
@@ -258,6 +250,7 @@ public class InfoWindow extends Window implements ComponentLoader {
 	    //加载个人信息
         ArrayList tmpList=worker.getValueList();
         Vector<Vector> infoRows=new Vector<>();
+        int index=0;
         for (Object o:tmpList){
             Info info = (Info) o;
 
@@ -291,7 +284,16 @@ public class InfoWindow extends Window implements ComponentLoader {
             cells.add(info.getName());
             cells.add(info.getValue());
             infoRows.add(cells);
+
+            Column column=DBManager.getManager().getWorkerProperty(info.getName());
+            if (column!=null){
+                AnComboBoxEditor editor=new AnComboBoxEditor();
+                editor.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(info.getName())));
+                infoTable.addComponentCell(editor,index,1);
+            }
+            index++;
         }
+        infoTable.clearCheckPoint();
         infoTable.getTableModel().setDataVector(infoRows,AnUtils.convertToVector(INFO_HEADER));
         infoTable.setCheckPoint();
 
@@ -313,6 +315,9 @@ public class InfoWindow extends Window implements ComponentLoader {
             cells.add(item.getValue().toString());
             cells.add(item.getTag());
             checkInRows.add(cells);
+
+            AnDateComboBoxEditor editor=new AnDateComboBoxEditor();
+            checkInTable.addComponentCell(editor,checkInRows.size()-1,0);
         }
         checkInTable.clearCheckPoint();
         checkInTable.getTableModel().setDataVector(checkInRows,AnUtils.convertToVector(CHECK_IN_HEADER));
@@ -331,6 +336,9 @@ public class InfoWindow extends Window implements ComponentLoader {
             cells.add(item.getValue().toString());
             cells.add(item.getTag());
             salaryRows.add(cells);
+
+            AnDateComboBoxEditor editor=new AnDateComboBoxEditor();
+            salaryTable.addComponentCell(editor,salaryRows.size()-1,0);
         }
         salaryTable.clearCheckPoint();
         salaryTable.getTableModel().setDataVector(salaryRows,AnUtils.convertToVector(SALARY_HEADER));
@@ -365,7 +373,11 @@ public class InfoWindow extends Window implements ComponentLoader {
 
         Vector rowEntry=new Vector();
         rowEntry.add(PropertyFactory.LABEL_ENTRY_TIME);
-        rowEntry.add(new SimpleDateFormat(Resource.DATE_FORMATE).format(site.getSelectedRowAt(PropertyFactory.LABEL_ENTRY_TIME)));
+        try {
+            rowEntry.add(new SimpleDateFormat(Resource.DATE_FORMATE).format(site.getSelectedRowAt(PropertyFactory.LABEL_ENTRY_TIME)));
+        }catch (Exception e){
+            rowEntry.add("");
+        }
 
         vectors.add(rowDealSalary);
         vectors.add(rowType);
@@ -448,6 +460,11 @@ public class InfoWindow extends Window implements ComponentLoader {
                     Info info =worker.find(pn);
                     Object object=bean.getNewValue(i);
                     info.setValue(object);
+                    //加入属性
+                    Column column=DBManager.getManager().getWorkerProperty(info.getName());
+                    if (column!=null&&!info.getValueString().equals("")){
+                        DBManager.getManager().addPropertyValue(info.getName(),info.getValueString());
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

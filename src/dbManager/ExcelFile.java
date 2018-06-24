@@ -69,12 +69,21 @@ public class ExcelFile {
                 Cell cell=row.createCell(columnIndex++);
                 if (o instanceof Double||o instanceof Integer)
                     cell.setCellType(Cell.CELL_TYPE_NUMERIC);
-            if (o==null)cell.setCellValue("");
-            else cell.setCellValue(o.toString());
+                if (o==null)cell.setCellValue("");
+                else cell.setCellValue(o.toString());
+            }
         }
-    }
         return writeFile(filePath);
-}
+    }
+
+    public void fillDatas(boolean isLoaded,Workbook workbook,Vector<Vector> datas){
+
+    }
+
+    public boolean doFill(Vector<Vector> datas){
+        fillDatas(isLoaded,workbook,datas);
+        return writeFile(filePath);
+    }
 
 
     public boolean writeFile(String path){

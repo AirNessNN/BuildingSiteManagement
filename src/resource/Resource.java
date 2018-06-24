@@ -32,20 +32,37 @@ public class Resource {
 	 */
 	public final static int FILE_SETTING=2;//设置文件
 
+	/**
+	 * 系统文件默认目录
+	 */
+	private static final FileSystemView fileSystemView=FileSystemView.getFileSystemView();
+	private static final String userFilePath=fileSystemView.getDefaultDirectory().getAbsolutePath()+"\\AnBuildingSiteMgr";
+
+
 
 
 
 	
 	//路径
 	public static String getApplicationDirectoryPath() {
-		FileSystemView fileSystemView=FileSystemView.getFileSystemView();
-		return fileSystemView.getDefaultDirectory().getAbsolutePath()+"\\AnBuildingSiteMgr";
+		return userFilePath;
 	}
 
+	/**
+	 * 存放每一个用户的数据文件，一个用户一个文件夹
+	 * @return 路径
+	 */
 	public static String getDataDirectoryPath(){
-        FileSystemView fileSystemView=FileSystemView.getFileSystemView();
-        return fileSystemView.getDefaultDirectory().getAbsolutePath()+"\\AnBuildingSiteMgr\\Data";
+        return userFilePath+"\\Data";
     }
+
+	/**
+	 * 存放工人个人数据的文件夹，一个工人一个文件夹
+	 * @return 路径
+	 */
+	public static String getWorkerDirectoryPath(){
+		return userFilePath+"\\WorkerFiles";
+	}
 
     /**
      * 获取数据文件夹实例

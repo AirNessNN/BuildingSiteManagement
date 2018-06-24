@@ -112,6 +112,10 @@ public class WindowBuilder {
         infoWindow.setVisible(true);
     }
 
+    public static void closeInfoWindow(){
+        if (infoWindow!=null)infoWindow.dispose();
+    }
+
 
     public static void showWorkWindow(String id , String site, CloseCallback callBack){
         if (workerWindow!=null)
@@ -123,6 +127,10 @@ public class WindowBuilder {
         workerWindow.setCallback(callBack);
         workerWindow.setVisible(true);
         System.out.println("工人信息窗口打开耗时"+(System.currentTimeMillis()-time));
+    }
+
+    public static void closeWorkWindow(){
+        if (workerWindow!=null)workerWindow.dispose();
     }
 
 

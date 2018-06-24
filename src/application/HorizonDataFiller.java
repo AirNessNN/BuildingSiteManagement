@@ -1,5 +1,6 @@
 package application;
 
+import component.AnButton;
 import component.AnDateChooser;
 import component.MyButton;
 
@@ -34,8 +35,8 @@ public class HorizonDataFiller extends JDialog{
         }
     };
     private Callback callback=null;
-	private JButton btnCancel;
-	private JButton btnNext;
+	private AnButton btnCancel;
+	private AnButton btnNext;
 
 	private String[] keys;
 	private ArrayList<String[]> values=new ArrayList<>();
@@ -61,13 +62,13 @@ public class HorizonDataFiller extends JDialog{
         setTitle(title);
         getContentPane().setLayout(null);
 
-        btnNext = new JButton("下一步");
+        btnNext = new AnButton("下一步");
         btnNext.setFont(new Font("等线", Font.PLAIN, 15));
         btnNext.addActionListener(e -> next());
         btnNext.setBounds(221, 105, 93, 28);
         getContentPane().add(btnNext);
 
-        btnCancel = new JButton("取消");
+        btnCancel = new AnButton("取消");
         btnCancel.setFont(new Font("等线", Font.PLAIN, 15));
         btnCancel.addActionListener(e -> dispose());
         btnCancel.setBounds(118, 105, 93, 28);

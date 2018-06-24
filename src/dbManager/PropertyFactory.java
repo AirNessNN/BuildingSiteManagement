@@ -67,7 +67,8 @@ public class PropertyFactory {
             new Info<String>(Info.TYPE_STRING,LABEL_NATION),//民族
             new Info<>(Info.TYPE_STRING,LABEL_SITE),//工地
             new Info<>(Info.TYPE_STRING,LABEL_WORKER_TYPE),//工种
-            new Info<>(Info.TYPE_STRING,LABEL_WORKER_STATE)//状态
+            new Info<>(Info.TYPE_STRING,LABEL_WORKER_STATE),//状态
+            new Info<String>(Info.TYPE_STRING,LABEL_TAG)//备注
     };
 
     /**
@@ -126,7 +127,7 @@ public class PropertyFactory {
         }
         if(userData!=null){
             for(Info info :userData){
-                Info tmp=new Info(info.getName());
+                Info tmp=new Info(Info.TYPE_STRING,info.getName());
                 worker.addInfo(tmp);
             }
         }
@@ -144,27 +145,27 @@ public class PropertyFactory {
             try {
                 switch (info.getType()){
                     case Info.TYPE_ARRAY_LIST:{
-                        Column tmp=new Column(true, info.getName());
+                        Column tmp=new Column(false, info.getName());
                         tmpBean.addColumn(tmp);
                         break;
                     }
                     case Info.TYPE_DATE:{
-                        Column tmp=new Column(true, info.getName());
+                        Column tmp=new Column(false, info.getName());
                         tmpBean.addColumn(tmp);
                         break;
                     }
                     case Info.TYPE_DOUBLE:{
-                        Column tmp=new Column(true, info.getName());
+                        Column tmp=new Column(false, info.getName());
                         tmpBean.addColumn(tmp);
                         break;
                     }
                     case Info.TYPE_INTEGER:{
-                        Column tmp=new Column(true, info.getName());
+                        Column tmp=new Column(false, info.getName());
                         tmpBean.addColumn(tmp);
                         break;
                     }
                     default:
-                        Column tmp=new Column(true, info.getName());
+                        Column tmp=new Column(false, info.getName());
                         tmpBean.addColumn(tmp);
                         if (info.getName().equals(PropertyFactory.LABEL_SEX)){
                             tmp.addValue("男");

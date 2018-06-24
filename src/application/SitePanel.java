@@ -47,6 +47,7 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
 
 
     public SitePanel(){
+    	setBackground(Color.WHITE);
         initializeComponent();
         initializeEvent();
         initializeData();
@@ -196,6 +197,7 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         btnCreate.setBorderPressColor(pressColor);
         
         JPanel panel = new JPanel();
+        panel.setBackground(Color.WHITE);
         panel.setBorder(
                 new TitledBorder(
                         new LineBorder(

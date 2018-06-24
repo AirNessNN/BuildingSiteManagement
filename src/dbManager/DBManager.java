@@ -2,9 +2,7 @@ package dbManager;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Random;
+import java.util.*;
 import javax.swing.*;
 
 import application.AnUtils;
@@ -309,7 +307,7 @@ public class DBManager {
 		try {
 			manager.createBuildingSite("测试工地1");
 			manager.createBuildingSite("测试工地2");
-			manager.createWorkerProperty(true,"测试属性");
+			manager.createWorkerProperty(false,"测试属性");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -371,7 +369,8 @@ public class DBManager {
 	public void addWorkerProperty(Column info) throws Exception {
 		if(workerProperty !=null){
 			workerProperty.addColumn(info);
-			PropertyFactory.addUserData(new Info(info.getName(),""));
+			Info info1=new Info(Info.TYPE_STRING,info.getName());
+			PropertyFactory.addUserData(info1);
 		}
 	}
 
@@ -398,6 +397,12 @@ public class DBManager {
 		}
 	}
 
+	/**
+	 * 更新属性名
+	 * @param oldName 旧名字
+	 * @param rv 新名字
+	 * @return 成功返回true
+	 */
 	public boolean updateWorkerProperty(String oldName,String rv){
 
 		String oldV=oldName;
@@ -469,6 +474,25 @@ public class DBManager {
 			workerProperty =table;
 			PropertyFactory.setUserDatas(workerProperty);
 		}
+	}
+
+	/**
+	 * 更新属性
+	 * @param propertyName 属性名
+	 * @param values 属性值
+	 */
+	public void updateProperty(String propertyName,String[] values){
+		Column column=getWorkerProperty(propertyName);
+		if (column==null)return;
+
+		ArrayList<String> list = new ArrayList<>(Arrays.asList(values));
+		column.setValues(list);
+	}
+
+	public void addPropertyValue(String propertyName,String value){
+		Column column=getWorkerProperty(propertyName);
+		if (column==null)return;
+		column.addValue(value);
 	}
 
 	/**
@@ -558,6 +582,8 @@ public class DBManager {
 				return false;
 		}
 		loadingWorkerList().add(bean);
+		bean.find(PropertyFactory.LABEL_AGE).setValue(AnUtils.convertAge(id));
+		bean.find(PropertyFactory.LABEL_BIRTH).setValue(AnUtils.convertBornDate(id));
 		return true;
 	}
 
@@ -1422,16 +1448,15 @@ public class DBManager {
 	 * 将该工人添加到工人列表中，并收集该工人的其他属性，
 	 * <br/>
 	 * <P>创建的时候不需要注意工人旧属性的问题</P>
-	 * @return
 	 */
-	public boolean createWorker(){
+	public void createWorker(){
 		if (!workerListLoaded)
-			return false;
+			return;
 
 		Bean worker=EntryWindow.showWindow();
 		boolean createFlag=addWorker(worker);//创建完成之后就添加
 		if (worker==null)
-			return false;
+			return;
 		worker.find(PropertyFactory.LABEL_NUMBER).setValue(workerList.size());
 		if (createFlag){
 			//工人选择工地
@@ -1469,11 +1494,10 @@ public class DBManager {
 					AnPopDialog.show(null,"工人的工地设置完成，一共设置"+sites.length+"个。",AnPopDialog.SHORT_TIME);
 				});
 			}else
-				AnPopDialog.show(null,"创建完成，要查看未选择工地的员工请选中【显示离职】",AnPopDialog.SHORT_TIME);
+				AnPopDialog.show(null,"创建完成，请刷新一遍，要查看未选择工地的员工请选中【显示离职】",AnPopDialog.SHORT_TIME);
 		}else {
 			Application.errorWindow("工人创建失败，可能原因：重复的身份证。");
 		}
-		return createFlag;
 	}
 
 

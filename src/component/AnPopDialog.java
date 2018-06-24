@@ -4,8 +4,12 @@ import application.AnUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Vector;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
 /**
@@ -17,11 +21,48 @@ public class AnPopDialog extends JFrame{
     private static int x=0;
     private static int y=0;
 
-    private static Queue<String> texts=new SynchronousQueue<>();
-    private static Queue<Component> components=new SynchronousQueue<>();
-    private static Queue<Integer> integers=new SynchronousQueue<>();
+    private static LinkedBlockingQueue<String> texts=new LinkedBlockingQueue<>();
+    private static LinkedBlockingQueue<Component> components=new LinkedBlockingQueue<>();
+    private static LinkedBlockingQueue<Integer> integers=new LinkedBlockingQueue<>();
 
-    volatile private boolean running=false;
+
+    private static Thread thread=null;
+
+    private static Runnable runnable= () -> {
+        try {
+            while(true){
+
+                String tmpText=texts.take();
+                Component tmpCom=components.take();
+                Integer tmpTime= integers.take();
+
+                AnPopDialog dialog;
+                dialog=new AnPopDialog();
+                dialog.setText(tmpText);
+                dialog.setOpacity(0);
+                dialog.setVisible(true);
+                dialog.setFocusable(false);
+                dialog.setLocation(x,y-150);
+                if (tmpCom!=null) tmpCom.requestFocus();
+                for (float i=0;i<=1;i+=0.1f){
+                    if (!dialog.isVisible())break;
+                    dialog.setOpacity(i);
+                    Thread.sleep(25);
+                }
+                if (!dialog.isVisible())continue;
+                Thread.sleep((long) tmpTime);
+                for (float i=1;i>0;i-=0.1f){
+                    if (!dialog.isVisible())break;
+                    dialog.setOpacity(i);
+                    Thread.sleep(25);
+                }
+                if (!dialog.isVisible())continue;
+                dialog.dispose();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    };
 
     /**
      * 显示Dialog信息
@@ -30,32 +71,20 @@ public class AnPopDialog extends JFrame{
      * @param showTimeEnum 显示时长的枚举值
      */
     public static void show(Component component,String text,int showTimeEnum){
-        new Thread(()->{
-            try {
-                AnPopDialog dialog;
-                dialog=new AnPopDialog();
-                dialog.setText(text);
-                dialog.setOpacity(0);
-                dialog.setVisible(true);
-                dialog.setFocusable(false);
-                dialog.setLocation(x,y-150);
-                if (component!=null) component.requestFocus();
-                for (float i=0;i<=1;i+=0.1f){
-                    dialog.setOpacity(i);
-                    //dialog.setLocation(x,y-(int)(i*10*15));
-                    Thread.sleep(25);
-                }
-                Thread.sleep(showTimeEnum);
-                for (float i=1;i>0;i-=0.1f){
-                    dialog.setOpacity(i);
-                    //dialog.setLocation(x,y-(int)(i*10*15));
-                    Thread.sleep(25);
-                }
-                dialog.dispose();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        try {
+            texts.put(text);
+            if (component==null)components.offer(new Container());
+            else components.offer(component);
+            integers.offer(showTimeEnum);
+
+            if (thread==null){
+                thread=new Thread(runnable);
+                thread.start();
             }
-        }).start();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -72,6 +101,12 @@ public class AnPopDialog extends JFrame{
         setType(Type.UTILITY);
         getContentPane().setBackground(new Color(0, 146, 128));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        labText.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                dispose();
+            }
+        });
     }
 
     private void setText(String text){

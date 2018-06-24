@@ -3,13 +3,13 @@ package test;
 import animation.AnimationManager;
 import animation.Iterator;
 import application.*;
-import component.AnAnimButton;
-import component.AnTable;
-import component.AnimButton;
-import component.Rank;
+import component.*;
 import dbManager.DBManager;
 import dbManager.DataTable;
+import dbManager.Info;
 import dbManager.User;
+import resource.Resource;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
@@ -55,7 +55,7 @@ public class Test extends JFrame{
 		button_1.setBounds(849, 11, 90, 30);
 		getContentPane().add(button_1);
 		button_1.addActionListener(e -> {
-			table.removeSelectedRow();
+			AnPopDialog.show(null,"sadasd",AnPopDialog.SHORT_TIME);
 		});
 		
 		textField_1 = new JTextField();
@@ -115,8 +115,12 @@ public class Test extends JFrame{
 			e.printStackTrace();
 		}
 
-		AnUtils.showPrintWindow(null,null);
-
+		new Test().setVisible(true);
+		new Thread(()->{
+			JFrame frame=new JFrame();
+			frame.dispose();
+			System.out.println("关闭");
+		}).start();
 
 
 

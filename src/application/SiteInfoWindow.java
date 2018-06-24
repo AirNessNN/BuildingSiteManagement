@@ -280,8 +280,9 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         });
 
         btnPrint.addActionListener(e -> {
-            AnUtils.showPrintWindow(this,table.getPrintVector());
-            AnPopDialog.show(this,"打印完成！",AnPopDialog.SHORT_TIME);
+            if (AnUtils.showPrintWindow(this,table.getPrintVector()))
+                AnPopDialog.show(this,"打印完成！",AnPopDialog.SHORT_TIME);
+            else AnPopDialog.show(this,"打印取消或失败！",AnPopDialog.SHORT_TIME);
         });
     }
 

@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Vector;
 
 
 public class WorkerPanel extends JPanel implements Loadable{
@@ -625,6 +626,30 @@ public class WorkerPanel extends JPanel implements Loadable{
 
         btnPropertyAlert.addActionListener(e->{
             WindowBuilder.showPropertyWindow();
+        });
+
+        btnPrint.addActionListener(e -> {
+            Vector<Vector> vectors=new Vector<>();
+            Vector<String> header=new Vector<>();
+            ArrayList<Bean> beans=DBManager.getManager().loadingWorkerList();
+            if (beans==null)return;
+            for (Bean bean:beans){
+                Vector<String> cells=new Vector<>();
+                for (Info info:bean.getArray()){
+                    if (vectors.size()==0){
+                        //录入表头
+                        header.add(info.getName());
+                    }
+                    //数据录入
+                    if (info.getName().equals(PropertyFactory.LABEL_BIRTH)) cells.add(AnUtils.formateDate((Date) info.getValue()));
+                    else cells.add(info.getValueString());
+                }
+                if (vectors.size()==0) vectors.add(header);
+                vectors.add(cells);
+            }
+            //传入打印
+            AnUtils.showPrintWindow(this,vectors);
+            AnPopDialog.show(this,"打印完成！",AnPopDialog.SHORT_TIME);
         });
     }
 

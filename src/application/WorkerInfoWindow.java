@@ -2,6 +2,8 @@ package application;
 
 import component.*;
 import dbManager.*;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import resource.Resource;
 
 import javax.swing.*;
@@ -10,10 +12,12 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Vector;
 
 /**
  * 详细的工人数据，支持保存
@@ -50,7 +54,6 @@ public class WorkerInfoWindow extends Window {
 	private AnButton btnCheck;
 	private AnButton btnDelete;
 	private AnButton btnLeave;
-	private AnButton btnPrint;
 	private AnButton btnFile;
 
 
@@ -230,11 +233,11 @@ public class WorkerInfoWindow extends Window {
 								btnInfo.setBounds(11, 296, 120, 30);
 								panel_1.add(btnInfo);
 								
-								btnPrint = new AnButton("导出到Excel");
+								/*btnPrint = new AnButton("导出到Excel");
 								btnPrint.setFont(new Font("等线", Font.PLAIN, 14));
 								btnPrint.setToolTipText("将工人的信息打印到Excel中持久储存");
 								btnPrint.setBounds(11, 254, 120, 30);
-								panel_1.add(btnPrint);
+								panel_1.add(btnPrint);*/
 								
 								JPanel panel_2 = new JPanel();
 								panel_2.setBounds(10, 332, 420, 390);
@@ -538,14 +541,27 @@ public class WorkerInfoWindow extends Window {
 				AnPopDialog.show(this,"取消登记离职。",AnPopDialog.LONG_TIME);
 		});
 
-		btnPrint.addActionListener((e)->{
-			Application.informationWindow("还没写");
-		});
-
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosed(WindowEvent e) {
-				callback(null);
+				callback();
+				WindowBuilder.closeInfoWindow();
+			}
+		});
+
+		btnFile.addActionListener(e -> {
+			File dir=new File(Resource.getWorkerDirectoryPath()+"\\"+labIDCard.getText());
+			if (!dir.exists()){
+				//创建文件夹
+				try {
+					dir.mkdirs();
+				}catch (Exception ex){
+					Application.errorWindow("文件系统错误："+ex.getMessage());
+				}
+			}
+			//打开文件夹
+			if (AnUtils.open(dir.getAbsolutePath())){
+				AnPopDialog.show(this,"打开文件夹",AnPopDialog.SHORT_TIME);
 			}
 		});
 	}
@@ -710,7 +726,10 @@ public class WorkerInfoWindow extends Window {
 		btnCheck.setEnabled(true);
 		labDealSalary.setText(String.valueOf(site.getSelectedRowAt(PropertyFactory.LABEL_DEAL_SALARY)));
 		labType.setText((String) site.getSelectedRowAt(PropertyFactory.LABEL_WORKER_TYPE));
-		labEntry.setText(new SimpleDateFormat("yyyy年MM月dd日").format(site.getSelectedRowAt(PropertyFactory.LABEL_ENTRY_TIME)));
+		if (site.getSelectedRowAt(PropertyFactory.LABEL_ENTRY_TIME)!=null){
+			labEntry.setText(new SimpleDateFormat("yyyy年MM月dd日").format(site.getSelectedRowAt(PropertyFactory.LABEL_ENTRY_TIME)));
+		}else labEntry.setText("入职信息错误");
+
 		if (site.getSelectedRowAt(PropertyFactory.LABEL_LEAVE_TIME)==null){
 			labelState.setText("在职");
 			labelState.setForeground(Color.GRAY);
@@ -764,5 +783,30 @@ public class WorkerInfoWindow extends Window {
 
     public void update(){
 		initializeData();
+	}
+
+	@Deprecated
+	public void print(){
+    	ExcelFile excelFile=new ExcelFile(){
+			@Override
+			public void fillDatas(boolean isLoaded, Workbook workbook, Vector<Vector> datas) {
+				if (!isLoaded)return;
+				Sheet info=workbook.getSheet("Sheet1");
+				workbook.setSheetName(0,"工人基本信息");
+
+
+			}
+		};
+    	String dir=Resource.getWorkerDirectoryPath()+"\\"+labIDCard.getText();
+    	File file=new File(dir);
+    	if (!file.exists()){
+    		try {
+				file.mkdirs();
+			}catch (Exception ex){
+    			ex.printStackTrace();
+			}
+		}
+
+    	excelFile.createWorkbook(file.getAbsolutePath());
 	}
 }

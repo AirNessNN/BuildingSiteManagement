@@ -16,7 +16,8 @@ public class WorkerWindow extends Window{
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                callback((Object) null);
+                callback( );
+                WindowBuilder.closeWorkWindow();
             }
         });
     }
@@ -24,7 +25,7 @@ public class WorkerWindow extends Window{
 
 class SiteWindow extends Window{
 
-    SitePanel sitePanel=null;
+    SitePanel sitePanel;
 
     public SiteWindow(){
         setTitle("工地管理");

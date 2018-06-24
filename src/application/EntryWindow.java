@@ -1,12 +1,10 @@
 package application;
 
+import component.AnButton;
 import component.AnComboBoxEditor;
 import component.AnTable;
 import component.DialogResult;
-import dbManager.Bean;
-import dbManager.DBManager;
-import dbManager.Info;
-import dbManager.PropertyFactory;
+import dbManager.*;
 import resource.Resource;
 
 import javax.swing.*;
@@ -69,7 +67,8 @@ public class EntryWindow extends JDialog {
         getContentPane().add(panel);
         panel.setLayout(new GridLayout(1, 0, 0, 0));
 
-        JButton btnOK = new JButton("确定");
+        AnButton btnOK = new AnButton("确定");
+        btnOK.setRound(35);
         panel.add(btnOK);
         btnOK.addActionListener((e)->{
             setModal(false);
@@ -93,12 +92,17 @@ public class EntryWindow extends JDialog {
                         Application.debug(info,e1.toString());
                     }
                 }
-                if (info.getType()==Info.TYPE_INTEGER)
+                if (info.getType()==Info.TYPE_INTEGER){
                     try{
                         info.setValue(Integer.valueOf(value));
                     }catch (Exception ex){
                         Application.debug(info,ex.toString());
                     }
+                }
+                Column column=DBManager.getManager().getWorkerProperty(info.getName());
+                if (column!=null&&!info.getValueString().equals("")){
+                    DBManager.getManager().addPropertyValue(info.getName(),info.getValueString());
+                }
             }
             if (worker.find(PropertyFactory.LABEL_ID_CARD).getValueString().equals("")||worker.find(PropertyFactory.LABEL_NAME).getValueString().equals("")){
                 JOptionPane.showMessageDialog(this,"身份证和姓名缺一不可！","提示",JOptionPane.INFORMATION_MESSAGE);
@@ -121,10 +125,8 @@ public class EntryWindow extends JDialog {
         nationEditor.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(PropertyFactory.LABEL_NATION)));
         table.addComponentCell(nationEditor,5,1);
 
-
-
-
-        JButton btnCancel = new JButton("取消");
+        AnButton btnCancel = new AnButton("取消");
+        btnCancel.setRound(35);
         panel.add(btnCancel);
         btnCancel.addActionListener((e)->{
             dialogResult=DialogResult.RESULT_CANCEL;
@@ -144,6 +146,7 @@ public class EntryWindow extends JDialog {
         worker=PropertyFactory.createWorker();
         ArrayList tmpList=worker.getValueList();
         Vector<Vector> rows=new Vector<>();
+        int index=0;
         for (Object o:tmpList){
             Info info = (Info) o;
 
@@ -172,6 +175,14 @@ public class EntryWindow extends JDialog {
             cells.add(info.getName());
             cells.add("");
             rows.add(cells);
+
+            Column column=DBManager.getManager().getWorkerProperty(info.getName());
+            if (column!=null){
+                AnComboBoxEditor editor=new AnComboBoxEditor();
+                editor.setModel(new DefaultComboBoxModel<>(DBManager.getManager().getWorkerPropertyArray(info.getName())));
+                table.addComponentCell(editor,index,1);
+            }
+            index++;
         }
         table.getTableModel().setDataVector(rows,AnUtils.convertToVector(HEADER));
     }

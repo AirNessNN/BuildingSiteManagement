@@ -25,15 +25,15 @@ public class AnDateChooser extends JDialog {
         comboPanel.setBounds(0, 0, 322, 61);
         getContentPane().add(comboPanel);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        
-        JButton button = new JButton("取消");
+
+        AnButton button = new AnButton("取消");
         button.setBounds(172, 71, 93, 25);
         getContentPane().add(button);
         button.addActionListener((e)->{
             dispose();
         });
-        
-        JButton button_1 = new JButton("确定");
+
+        AnButton button_1 = new AnButton("确定");
         button_1.setBounds(69, 71, 93, 25);
         getContentPane().add(button_1);
         button_1.addActionListener((e)->{
