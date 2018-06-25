@@ -384,10 +384,10 @@ public class DataTable implements Serializable{
      * @return 成功返回true
      */
     public boolean removeRow(int rowIndex){
-        if (values.get(0).size()<rowIndex)
+        if (values.get(0).size()<rowIndex||rowIndex==-1)
             return false;
-        for (int i=0;i<values.size();i++){
-            values.get(i).removeValue(values.get(i).get(rowIndex));
+        for (Column value : values) {
+            value.removeValue(value.get(rowIndex));
         }
         return true;
     }
@@ -902,17 +902,18 @@ public class DataTable implements Serializable{
         if (!(obj instanceof DataTable))
             return false;
         DataTable bean= (DataTable) obj;
-        if (bean.getSize()!=this.getSize())
-            return false;
-        for (Column column :bean.getValues()){
+
+        if (!getName().equals(bean.getName()))return false;
+        if (getSize()!=bean.getSize())return false;
+        for (Column column:getValues()){
             boolean found=false;
-            for (Column tmp:this.getValues()){
-                if (column.getName().equals(tmp.getName())){
+            for (Column beanCol:bean.getValues()){
+                if (beanCol.equals(column)){
                     found=true;
+                    break;
                 }
             }
-            if (!found)
-                return false;
+            if (!found)return false;
         }
         return true;
     }

@@ -39,6 +39,19 @@ public class DBManager {
 	interface IRunStateCallback{
 		void runningState(boolean b);
 	}
+
+	/**
+	 * 工人的包装类
+	 */
+	public class Worker{
+		public String id;
+		public String name;
+
+		public Worker(String id ,String name){
+			this.id=id;
+			this.name=name;
+		}
+	}
 	
 
 
@@ -70,9 +83,10 @@ public class DBManager {
     //工人数据
 	private boolean workerListLoaded=false;
     private ArrayList<Bean> workerList=null;
+    private ArrayList<Worker> tmpWorkerList=null;
     //工地数据
 	private boolean buildingSiteLoaded=false;
-	private ArrayList<DataTable> buildingSiteLIst=null;
+	private ArrayList<DataTable> siteList =null;
     //资产数据
 	private boolean assetsArrayListLoaded=false;
     private ArrayList<Assets> assetsArrayList=null;
@@ -186,6 +200,7 @@ public class DBManager {
     /**
      * 更新装载的用户数据到文件
      */
+    @Deprecated
 	public void updateUserData(){
         if(user!=null){
 
@@ -284,7 +299,7 @@ public class DBManager {
 
 		workerProperty=loadingWorkerProperty();
 		workerList=loadingWorkerList();
-		buildingSiteLIst=loadingBuildingSiteList();
+		siteList =loadingBuildingSiteList();
 		assetsArrayList=null;
 
 
@@ -304,7 +319,7 @@ public class DBManager {
 
 		//Debug：装载测试列表工人
 
-		try {
+		/*try {
 			manager.createBuildingSite("测试工地1");
 			manager.createBuildingSite("测试工地2");
 			manager.createWorkerProperty(false,"测试属性");
@@ -329,7 +344,7 @@ public class DBManager {
 			int ind=r.nextInt(workerProperty.findColumn(PropertyFactory.LABEL_WORKER_TYPE).size());
 			addWorkerToSite(
 					w.find(PropertyFactory.LABEL_ID_CARD).getValueString(),
-					buildingSiteLIst.get(r.nextInt(buildingSiteLIst.size())).getName(),
+					siteList.get(r.nextInt(siteList.size())).getName(),
 					(double) r.nextInt(300),
 					(String) workerProperty.findColumn(PropertyFactory.LABEL_WORKER_TYPE).get(ind),
 					new Date()
@@ -347,7 +362,7 @@ public class DBManager {
 		addWorker(wk);
 		//添加到工地
 		addWorkerToSite(wk.find(PropertyFactory.LABEL_ID_CARD).getValueString(),"测试工地1",200d,"包工",AnUtils.getDate(2016,11,20));
-		addWorkerToSite(wk.find(PropertyFactory.LABEL_ID_CARD).getValueString(),"测试工地2",150d,"包工",AnUtils.getDate(2016,10,20));
+		addWorkerToSite(wk.find(PropertyFactory.LABEL_ID_CARD).getValueString(),"测试工地2",150d,"包工",AnUtils.getDate(2016,10,20));*/
 	}
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -544,7 +559,7 @@ public class DBManager {
 
 	/**
 	 * 从文件中装载工人对象
-	 * @return
+	 * @return 返回工人列表
 	 */
 	public ArrayList<Bean> loadingWorkerList() {
 
@@ -555,6 +570,9 @@ public class DBManager {
 
 				if(workerList==null){
 					workerList=new ArrayList<>();
+				}else {
+					//加载缓存数据
+					updateTmpWorkerList();
 				}
 			}catch (IOException | ClassNotFoundException e){
 				//Application.errorWindow(e.toString());
@@ -564,13 +582,37 @@ public class DBManager {
 			}
 		}
 		//多次加载
+		if (tmpWorkerList==null)tmpWorkerList=new ArrayList<>();
 		return workerList;
 	}
 
+
+
+
+
+	/**
+	 * 更新工人的信息缓存
+	 */
+	public void updateTmpWorkerList(){
+		tmpWorkerList=new ArrayList<>();
+		for (Bean wk:workerList){
+			tmpWorkerList.add(
+					new Worker(
+							wk.find(PropertyFactory.LABEL_ID_CARD).getValueString(),
+							wk.find(PropertyFactory.LABEL_NAME).getValueString()
+					)
+			);
+		}
+	}
+
+
+
+
+
 	/**
 	 * 添加工人，如果存在返回false
-	 * @param bean
-	 * @return
+	 * @param bean 已经装载数据的工人
+	 * @return 成功返回true
 	 */
 	public boolean addWorker(Bean bean){
 		if (bean==null)
@@ -584,13 +626,43 @@ public class DBManager {
 		loadingWorkerList().add(bean);
 		bean.find(PropertyFactory.LABEL_AGE).setValue(AnUtils.convertAge(id));
 		bean.find(PropertyFactory.LABEL_BIRTH).setValue(AnUtils.convertBornDate(id));
+		updateTmpWorkerList();
 		return true;
 	}
 
+	/**
+	 * 获取工人列表中所有工人的数量，包括离职的员工
+	 * @return 返回数量
+	 */
 	public int getWorkerListSize(){
 		if(workerListLoaded)
 			return workerList.size();
 		return 0;
+	}
+
+
+	/**
+	 *快速获取工人名字
+	 * @param id 身份证
+	 * @return 名字
+	 */
+	public String getWorkerName(String id){
+		for (Worker wk:tmpWorkerList){
+			if (wk.id.equals(id))return wk.name;
+		}
+		return null;
+	}
+
+	/**
+	 * 快速获取工人ID
+	 * @param name 名字
+	 * @return id
+	 */
+	public String getWorkerId(String name){
+		for (Worker wk:tmpWorkerList){
+			if (wk.name.equals(name))return wk.id;
+		}
+		return null;
 	}
 
 	/**
@@ -653,6 +725,39 @@ public class DBManager {
 		return tmpList;
 	}
 
+	public void deleteWorker(String id){
+		ArrayList<String> list=getWorkerAt(id);
+		if (list.size()==0){
+			Bean delete=null;
+			for (Bean worker:loadingWorkerList()){
+				if (worker.find(PropertyFactory.LABEL_ID_CARD).getValue().equals(id)){
+					delete=worker;
+				}
+			}
+			workerList.remove(delete);
+		}else {
+			int r=JOptionPane.showConfirmDialog(null,"此工人在"+ list.size()+"个工地上班，将删除工地中的记录，是否继续？","提示",JOptionPane.YES_NO_OPTION);
+			if (r==JOptionPane.OK_OPTION){
+				Bean delete=null;
+				for (Bean worker:loadingWorkerList()){
+					if (worker.find(PropertyFactory.LABEL_ID_CARD).getValue().equals(id)){
+						delete=worker;
+					}
+				}
+				workerList.remove(delete);
+				for (String siteName:list){
+					removeWorkerFrom(id,siteName);
+				}
+			}
+			try {
+				updateChildrenManager();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		updateTmpWorkerList();
+	}
+
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -697,18 +802,18 @@ public class DBManager {
 			return null;
 
 		if (buildingSiteLoaded)
-			return buildingSiteLIst;
+			return siteList;
 		try{
-			buildingSiteLIst= (ArrayList<DataTable>) readObject(user.getBuildingSitePath());
-			if (buildingSiteLIst!=null)
+			siteList = (ArrayList<DataTable>) readObject(user.getBuildingSitePath());
+			if (siteList !=null)
 				buildingSiteLoaded=true;
-			return buildingSiteLIst;
+			return siteList;
 		} catch (IOException | ClassNotFoundException e) {
-			buildingSiteLIst=new ArrayList<>();
+			siteList =new ArrayList<>();
 		}finally {
 			buildingSiteLoaded=true;
 		}
-		return buildingSiteLIst;
+		return siteList;
 	}
 
 	/**
@@ -719,15 +824,11 @@ public class DBManager {
 		if (!buildingSiteLoaded)
 			return;
 
-		for (DataTable bean:buildingSiteLIst){
+		for (DataTable bean: siteList){
 			if (bean.getName().equals(buildingSite.getName()))
 				throw new Exception("工地重名，无法添加到列表中！");
 		}
-		buildingSiteLIst.add(buildingSite);
-		//下面的步骤是用户创建工地之后，一定要将工地添加到属性中去
-		if (workerPropertyLoaded){
-			workerProperty.findColumn(PropertyFactory.LABEL_SITE).addValue(buildingSite.getName());
-		}
+		siteList.add(buildingSite);
 	}
 
 	/**
@@ -751,7 +852,7 @@ public class DBManager {
 	public DataTable getBuildingSite(String siteName){
 		if (!buildingSiteLoaded)
 			return null;
-		for (DataTable bean:buildingSiteLIst)
+		for (DataTable bean: siteList)
 			if (bean.getName().equals(siteName))
 				return bean;
 		return null;
@@ -794,7 +895,7 @@ public class DBManager {
 		if (!buildingSiteLoaded)
 			return null;
 		ArrayList<String> tmpList=new ArrayList<>();
-		for (DataTable site:buildingSiteLIst){
+		for (DataTable site: siteList){
 			if (site.findColumn(PropertyFactory.LABEL_ID_CARD).contains(id)){
 				tmpList.add(site.getName());
 			}
@@ -805,19 +906,15 @@ public class DBManager {
 	public void deleteBulidingSite(DataTable site){
 		if (!buildingSiteLoaded)
 			return;
-		buildingSiteLIst.remove(site);
-
-		//更新属性中的数据
-		if (workerPropertyLoaded){
-			workerProperty.findColumn(PropertyFactory.LABEL_SITE).getValues().remove(site.getName());
-		}
-		//更新所有工人中的数据
-		if (workerListLoaded){
-			for (Bean bean:workerList){
-				ArrayList<String> siteTamp= (ArrayList<String>) bean.find(PropertyFactory.LABEL_SITE).getValue();
-				siteTamp.remove(site.getName());
+		DataTable delete=null;
+		for (DataTable tmpSite:siteList){
+			if (tmpSite.getName().equals(site.getName())){
+				delete=tmpSite;
+				break;
 			}
 		}
+		if (delete!=null)siteList.remove(delete);
+		Test.printList(this,siteList," ");
 	}
 
 	/**
@@ -846,6 +943,28 @@ public class DBManager {
 		}
 		return true;
 	}
+
+
+	/**
+	 * <h2>移除工地中的工人，以及所附带的数据</h2>
+	 * @param id 身份证
+	 * @param siteName 工地名称
+	 * @return 成功返回true
+	 */
+	public boolean removeWorkerFrom(String id, String siteName){
+		DataTable site=getBuildingSite(siteName);
+		if (site==null)return false;
+		boolean r=site.removeRow(site.selectRow(PropertyFactory.LABEL_ID_CARD,id));
+		if (r) {
+			try {
+				updateChildrenManager();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return r;
+	}
+
 
 	/**
 	 * 获取现存所有工地的名称数组
@@ -911,6 +1030,10 @@ public class DBManager {
 		}
 		return AnUtils.toStringArray(leaving.toArray());
 	}
+
+
+
+
 
 	/**
 	 * 获取在职员工的人数
@@ -1196,8 +1319,11 @@ public class DBManager {
 	 * @throws IOException
 	 */
 	public static void writeObject(String path,Object object) throws IOException {
+		System.out.println(path);
 	    File file=new File(path);
 	    if(!file.exists()){
+	    	File dir=new File(file.getParent());
+	        if (!dir.exists())dir.mkdirs();
 	        file.createNewFile();
         }
         FileOutputStream fos=new FileOutputStream(file);

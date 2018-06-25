@@ -37,6 +37,8 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
 
     //窗口组件
     private SiteCreateWindow createWindow=null;//创建工地窗口
+    private AnButton btnPrint;
+    private AnButton btnDelete;
 
 
 
@@ -305,7 +307,7 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         label_13.setBounds(451, 97, 159, 23);
         panel.add(label_13);
         
-        AnButton btnPrint = new AnButton("创建工地");
+        btnPrint = new AnButton("创建工地");
         btnPrint.setToolTipText("打印所选择的数据");
         btnPrint.setText("打印数据");
         springLayout.putConstraint(SpringLayout.NORTH, btnPrint, 0, SpringLayout.NORTH, tbSearch);
@@ -316,6 +318,18 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         btnPrint.setBorderEnterColor(new Color(216, 99, 68));
         btnPrint.setBorderColor(new Color(114, 114, 114));
         add(btnPrint);
+        
+        btnDelete = new AnButton("创建工地");
+        springLayout.putConstraint(SpringLayout.NORTH, btnDelete, 0, SpringLayout.NORTH, tbSearch);
+        springLayout.putConstraint(SpringLayout.WEST, btnDelete, 10, SpringLayout.EAST, btnPrint);
+        springLayout.putConstraint(SpringLayout.SOUTH, btnDelete, 0, SpringLayout.SOUTH, tbSearch);
+        springLayout.putConstraint(SpringLayout.EAST, btnDelete, 100, SpringLayout.EAST, btnPrint);
+        btnDelete.setToolTipText("删除选择的工地");
+        btnDelete.setText("删除工地");
+        btnDelete.setBorderPressColor(new Color(219, 112, 147));
+        btnDelete.setBorderEnterColor(new Color(220, 20, 60));
+        btnDelete.setBorderColor(new Color(114, 114, 114));
+        add(btnDelete);
         
         
 
@@ -382,11 +396,38 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
                 if (e.getClickCount()>=2){
                     AnListRenderModel model= (AnListRenderModel) listModel.get(list.getSelectedIndex());
                     if (model==null)return;
-                    WindowBuilder.showSiteInfoWindow(model.getTitle());
+                    WindowBuilder.showSiteInfoWindow(model.getTitle(),values -> {
+                        refash();
+                    });
                 }
             }
         });
+        
+        btnDelete.addActionListener(e -> {
+            if (list.getSelectedIndex()==-1)AnPopDialog.show(this,"先选择一个工地。",1000);
+            AnListRenderModel model= (AnListRenderModel) listModel.elementAt(list.getSelectedIndex());
+            String siteName=model.getTitle();
 
+            int r=JOptionPane.showConfirmDialog(this,"即将删除此工地，包括工人信息，是否继续？","操作提示",JOptionPane.YES_NO_OPTION);
+            if (r==JOptionPane.OK_OPTION){
+
+                DataTable site=DBManager.getManager().getBuildingSite(siteName);
+                if (site==null)return;
+                System.out.println(site.getName());
+
+                String[] ids=DBManager.getManager().getBuildingSiteWorkers(siteName);
+                for (String id:ids){
+                    DBManager.getManager().getCheckInManager().removeSite(id,siteName);
+                    DBManager.getManager().getCheckInManager().removeSite(id,siteName);
+                }
+
+                DBManager.getManager().deleteBulidingSite(site);
+                //删除子管理器信息
+
+                AnPopDialog.show(this,siteName+" 删除完成！",2000);
+                refash();
+            }
+        });
     }
 
     @Override

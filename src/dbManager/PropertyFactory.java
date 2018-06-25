@@ -65,7 +65,6 @@ public class PropertyFactory {
     private static final Info<?>[] PROPERTY_MODEL={
             new Info<String>(Info.TYPE_STRING,LABEL_SEX),//性别
             new Info<String>(Info.TYPE_STRING,LABEL_NATION),//民族
-            new Info<>(Info.TYPE_STRING,LABEL_SITE),//工地
             new Info<>(Info.TYPE_STRING,LABEL_WORKER_TYPE),//工种
             new Info<>(Info.TYPE_STRING,LABEL_WORKER_STATE),//状态
             new Info<String>(Info.TYPE_STRING,LABEL_TAG)//备注
@@ -258,12 +257,14 @@ public class PropertyFactory {
     }
 
     public static void addUserData(Info info){
-        if(userData!=null){
-            userData.add(info);
-        }else{
-            userData=new ArrayList<>();
-            userData.add(info);
-        }
+        if (userData==null)userData=new ArrayList<>();
+        boolean found=false;
+        for (Info info1:PROPERTY_MODEL)
+            if (info1.getName().equals(info.getName())){
+                found=true;
+                break;
+            }
+        if (!found)userData.add(info);
     }
 
     public static void removeUserDate(Info info){
@@ -290,7 +291,11 @@ public class PropertyFactory {
         if (table!=null){
             userData.clear();
             for (Column column:table.getValues()){
-                userData.add(new Info(column.getName(),""));
+                boolean found=false;
+                for (Info info:PROPERTY_MODEL){
+                    if (info.getName().equals(column.getName()))found=true;
+                }
+                if (!found)userData.add(new Info(column.getName(),""));
             }
         }
     }

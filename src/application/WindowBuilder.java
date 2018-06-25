@@ -41,7 +41,8 @@ public class WindowBuilder {
                     DBManager.getManager().createBuildingSite(newValue);
                     return true;
                 } catch (Exception e) {
-                    Application.informationWindow(e.getMessage());
+                    Application.informationWindow(e.toString());
+                    e.printStackTrace();
                     return false;
                 }
             }
@@ -142,12 +143,13 @@ public class WindowBuilder {
         propertyWindow.requestFocus();
     }
 
-    public static void showSiteInfoWindow(String siteName){
+    public static void showSiteInfoWindow(String siteName,CloseCallback callback){
         long time=System.currentTimeMillis();
         if (siteInfoWindow!=null){
             siteInfoWindow.dispose();
         }
         siteInfoWindow=new SiteInfoWindow(siteName);
+        siteInfoWindow.setCallback(callback);
         siteInfoWindow.setVisible(true);
         System.out.println("工地信息窗口打开耗时"+(System.currentTimeMillis()-time));
     }

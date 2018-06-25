@@ -564,6 +564,12 @@ public class WorkerInfoWindow extends Window {
 				AnPopDialog.show(this,"打开文件夹",AnPopDialog.SHORT_TIME);
 			}
 		});
+
+		btnDelete.addActionListener(e -> {
+			DBManager.getManager().deleteWorker(labIDCard.getText());
+			AnPopDialog.show(this,"删除完成！",AnPopDialog.SHORT_TIME);
+			dispose();
+		});
 	}
 
 	/**

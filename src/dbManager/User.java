@@ -47,7 +47,7 @@ public class User implements Serializable{
 	 */
     //AnBean数据
 	public String getWorkerPropertyPath(){
-		return Resource.getDataDirectoryPath()+"\\"+userName+"workerproperty.ab";
+		return Resource.getDataDirectoryPath()+"\\"+userName+"_workerproperty.ab";
 	}
 
 	//ArrayList数据

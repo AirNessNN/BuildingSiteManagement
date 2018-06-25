@@ -33,6 +33,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
     private WorkerChooser workerChooser=null;
     private String[] ids=null;
     private AnButton btnPrint;
+    private AnButton btnDelete;
 
 
     public SiteInfoWindow(String siteName){
@@ -168,7 +169,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         springLayout.putConstraint(SpringLayout.EAST, btnAdd, 100, SpringLayout.WEST, getContentPane());
         getContentPane().add(btnAdd);
         
-        AnButton btnDelete = new AnButton("增加工人");
+        btnDelete = new AnButton("增加工人");
         btnDelete.setText("移除工人");
         springLayout.putConstraint(SpringLayout.NORTH, btnDelete, 0, SpringLayout.NORTH, btnAdd);
         springLayout.putConstraint(SpringLayout.WEST, btnDelete, 10, SpringLayout.EAST, btnAdd);
@@ -297,6 +298,25 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
                 AnPopDialog.show(this,"打印完成！",AnPopDialog.SHORT_TIME);
             else AnPopDialog.show(this,"打印取消或失败！",AnPopDialog.SHORT_TIME);
         });
+
+        btnDelete.addActionListener(e -> {
+            int seletedIndex=table.getSelectedRow();
+            if (seletedIndex!=-1){
+                if (JOptionPane.showConfirmDialog(
+                        this,
+                        "移除该工人将删除所有相关的数据，是否删除？",
+                        "操作提示",
+                        JOptionPane.YES_NO_OPTION
+                )==JOptionPane.OK_OPTION){
+                    String id = (String) table.getCell(table.getSelectedRow(),0);
+                    DBManager.getManager().removeWorkerFrom(id,siteName);//删除工地
+                    table.removeSelectedRow();
+                    AnPopDialog.show(this,"删除完成。",2000);
+                    callback();
+                }
+            }else AnPopDialog.show(this,"请先选择",2000);
+        });
+        
     }
 
     @Override
@@ -346,12 +366,14 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         Object[] names=new Object[ids.length];
         for (int i=0;i<ids.length;i++){
             Bean worker=DBManager.getManager().getWorker((String) ids[i]);
+            if (worker==null)continue;
             names[i]=worker.find(PropertyFactory.LABEL_NAME).getValueString();
         }
 
 
 
         for (int i=0;i<site.findColumn(PropertyFactory.LABEL_ID_CARD).size();i++){
+            if (names[i]==null)continue;
             Vector<String> cells=new Vector<>();
             site.selectRow(i);
             cells.add((String) site.getSelectedRowAt(PropertyFactory.LABEL_ID_CARD));

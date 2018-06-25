@@ -493,6 +493,7 @@ public class InfoWindow extends Window implements ComponentLoader {
                     DBManager.getManager().getCheckInManager().getWorker(oldID).setName(newID);
                 }
             }
+            DBManager.getManager().updateTmpWorkerList();//更新了ID之后要更新DB中的缓存数据
         }
         return true;
     }

@@ -29,7 +29,6 @@ public class ChildrenManager implements Loadable {
     public static final int MOD_DEL=2;
 
 
-    private User user;
     private boolean prepared;
     private String path;
 
@@ -163,7 +162,6 @@ public class ChildrenManager implements Loadable {
 
             String[] siteNames=manager.getFullBuildingSiteName();
 
-
             for (String siteName : siteNames){
                 DataTable site=manager.getBuildingSite(siteName);
                 for (int i=0;i<site.findColumn(PropertyFactory.LABEL_ID_CARD).size();i++){
@@ -185,6 +183,7 @@ public class ChildrenManager implements Loadable {
                         Column column=new Column(false,false,siteName,new ArrayList());
                         dt.addColumn(column);
                         workList.add(dt);
+                        Application.debug(this,id+"添加进管理器");
                         continue;
                     }
                     //判断工人的工地是否存在
@@ -192,6 +191,7 @@ public class ChildrenManager implements Loadable {
                     if (child.findColumn(siteName)==null){
                         //这里在子管理器中没找到这个工地
                         child.addColumn(new Column(false,false,siteName,new ArrayList()));
+                        Application.debug(this,siteName+"工地添加");
                     }
                 }
             }
@@ -232,6 +232,24 @@ public class ChildrenManager implements Loadable {
         }
     }
 
+
+    /**
+     * <h2>移除该工地</h2>
+     * @param id 身份证
+     * @param siteName 工地名称
+     */
+    public void removeSite(String id ,String siteName){
+        DataTable worker=null;
+        for (DataTable tmpWorker:workList){
+            if (tmpWorker.getName().equals(id)){
+                worker=tmpWorker;
+                break;
+            }
+        }
+        if (worker!=null)
+            worker.removeRow(worker.selectRow(PropertyFactory.LABEL_SITE,siteName));
+    }
+
     /**
      * 更新到文件中持久储存
      * @return
@@ -252,7 +270,7 @@ public class ChildrenManager implements Loadable {
     @Override
     public void loading(Object data) {
         if (data instanceof User) {
-            user = (User) data;
+            User user = (User) data;
 
             try {
                 if (path==null)

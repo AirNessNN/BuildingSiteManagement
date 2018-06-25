@@ -15,6 +15,7 @@ import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Random;
 
 public class Test extends JFrame{
@@ -115,12 +116,9 @@ public class Test extends JFrame{
 			e.printStackTrace();
 		}
 
-		new Test().setVisible(true);
-		new Thread(()->{
-			JFrame frame=new JFrame();
-			frame.dispose();
-			System.out.println("关闭");
-		}).start();
+		HashMap<String,String> map=new HashMap<>();
+		map.put("123","asd");
+		System.out.println(map.get("asd"));
 
 
 

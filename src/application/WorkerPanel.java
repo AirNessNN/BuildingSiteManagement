@@ -821,8 +821,9 @@ public class WorkerPanel extends JPanel implements Loadable{
         cobSite.removeAllItems();
         cobSite.addItem("全部");
         Column column =property.findColumn(PropertyFactory.LABEL_SITE);
-        for (Object value: column.getValues()){
-            cobSite.addItem((String) value);
+        String[] siteNames=DBManager.getManager().getFullBuildingSiteName();
+        for (String  value: siteNames){
+            cobSite.addItem(value);
         }
         cobSite.setSelectedIndex(0);
 
