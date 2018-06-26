@@ -867,6 +867,7 @@ public class DBManager {
 		String[] tmpWorker;
 
 		DataTable site=getBuildingSite(siteName);
+		if (site==null)return null;
 		Column column=site.findColumn(PropertyFactory.LABEL_ID_CARD);
 		if (column!=null){
 			int size=column.size();

@@ -164,7 +164,7 @@ public class MainWindow extends Window implements ComponentLoader {
 	}
 
 	@Override
-	public void initializeData() {
+	public void initializeData(Object... args) {
 		btnWorker.setImage(
 				AnUtils.getImageIcon(Resource.getResource("btn_worker_normal.png")),
 				AnUtils.getImageIcon(Resource.getResource("btn_worker_press.png")),

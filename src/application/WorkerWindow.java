@@ -18,6 +18,7 @@ public class WorkerWindow extends Window{
             public void windowClosed(WindowEvent e) {
                 callback( );
                 WindowBuilder.closeWorkWindow();
+
             }
         });
     }
@@ -40,6 +41,7 @@ class SiteWindow extends Window{
             public void windowClosed(WindowEvent e) {
                 callback();
                 WindowBuilder.closeSiteInfoWindow();
+                WindowBuilder.closeQuickCheckWindow();
             }
         });
     }

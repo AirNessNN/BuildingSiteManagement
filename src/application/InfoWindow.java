@@ -641,6 +641,6 @@ public class InfoWindow extends Window implements ComponentLoader {
     }
 
     @Override @Deprecated
-    public void initializeData() {
+    public void initializeData(Object... args) {
     }
 }

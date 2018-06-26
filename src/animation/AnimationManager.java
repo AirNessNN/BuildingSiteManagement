@@ -146,8 +146,8 @@ public class AnimationManager {
             disposed=true;
         }
 
-
-        private void addNode(long startTime,long duringTime){
+        @Override
+        public void addNode(long startTime,long duringTime){
             TimeNode node=new TimeNode(startTime,duringTime);
             node.setNodeInndex(timeNodes.size());
             timeNodes.add(node);
@@ -157,7 +157,7 @@ public class AnimationManager {
             allTimes+=duringTime;
         }
 
-        private void addNode(long duringTime){
+        public void addNode(long duringTime){
             if (timeNodes.size()==0){
                 addNode(0,duringTime);
                 return;
@@ -243,19 +243,6 @@ public class AnimationManager {
 
     public Iterator createAnimationIterator(int beginValue,int endValue,int mod){
         AnimItor animItor=new AnimItor(beginValue,endValue);
-
-        animItor.addNode(16);
-        animItor.addNode(30);
-        animItor.addNode(50);
-        animItor.addNode(60);
-        animItor.addNode(70);
-        animItor.addNode(80);
-        animItor.addNode(90);
-        animItor.addNode(100);
-        animItor.addNode(130);
-        animItor.addNode(180);
-
-
         //设置状态回调
         animItor.stateCallback= isRunning -> {
             if (!isRunning){

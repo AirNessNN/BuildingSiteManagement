@@ -167,7 +167,7 @@ public class WorkerChooser extends Window implements ComponentLoader {
     }
 
     @Override
-    public void initializeData() {
+    public void initializeData(Object... args) {
         table.setColumn(headers);
         table.setCellColumnEdited(0,false);
         table.setCellColumnEdited(1,false);

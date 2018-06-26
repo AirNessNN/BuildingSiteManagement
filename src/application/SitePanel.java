@@ -404,7 +404,10 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         });
         
         btnDelete.addActionListener(e -> {
-            if (list.getSelectedIndex()==-1)AnPopDialog.show(this,"先选择一个工地。",1000);
+            if (list.getSelectedIndex()==-1){
+                AnPopDialog.show(this,"先选择一个工地。",1000);
+                return;
+            }
             AnListRenderModel model= (AnListRenderModel) listModel.elementAt(list.getSelectedIndex());
             String siteName=model.getTitle();
 
@@ -431,7 +434,7 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
     }
 
     @Override
-    public void initializeData() {
+    public void initializeData(Object... args) {
         listModel=new DefaultListModel();
         list.setModel(listModel);
     }

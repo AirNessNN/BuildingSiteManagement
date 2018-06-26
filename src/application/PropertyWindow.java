@@ -178,7 +178,7 @@ public class PropertyWindow extends JFrame implements  ComponentLoader {
     }
 
     @Override
-    public void initializeData() {
+    public void initializeData(Object... args) {
         if (list!=null)
             list.clear();
         manager=DBManager.getManager();

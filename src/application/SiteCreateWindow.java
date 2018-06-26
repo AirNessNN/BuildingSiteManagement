@@ -230,7 +230,7 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
     }
 
     @Override
-    public void initializeData() {
+    public void initializeData(Object... args) {
 
     }
 }

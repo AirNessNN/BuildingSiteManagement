@@ -10,10 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * An工具包
@@ -556,7 +553,7 @@ public class AnUtils {
 			if (cd1.get(Calendar.MONTH)==cd2.get(Calendar.MONTH)){
 				if (cd1.get(Calendar.DATE)==cd2.get(Calendar.DATE))
 					return 0;
-				else return cd1.get(Calendar.DATE)==cd2.get(Calendar.DATE)? 1:2;
+				else return cd1.get(Calendar.DATE)>cd2.get(Calendar.DATE)? 1:2;
 			}else
 				return cd1.get(Calendar.MONTH)>cd2.get(Calendar.MONTH)? 1:2;
 		}else
@@ -639,6 +636,34 @@ public class AnUtils {
 			AnUtils.log(Runtime.getRuntime(),e.toString());
 			return false;
 		}
+	}
+
+
+	/**
+	 * 获取两个日期之间的所有日期，不包括此区间的开始结束两个日期
+	 * @param start 开始日期
+	 * @param end 结束日期
+	 * @return 日期数组
+	 */
+	public static Date[] getSectionDates(Date start,Date end){
+		if (start==null||end==null)return null;
+
+		ArrayList<Date> result=new ArrayList<>();
+		Calendar tempStart = Calendar.getInstance();
+		tempStart.setTime(start);
+		tempStart.add(Calendar.DAY_OF_YEAR, 1);
+
+		Calendar tempEnd = Calendar.getInstance();
+		tempEnd.setTime(end);
+		while (tempStart.before(tempEnd)) {
+			result.add(tempStart.getTime());
+			tempStart.add(Calendar.DAY_OF_YEAR, 1);
+		}
+		Date[] dates=new Date[result.size()];
+		for (int i=0;i<dates.length;i++){
+			dates[i]=result.get(i);
+		}
+		return dates;
 	}
 
 }

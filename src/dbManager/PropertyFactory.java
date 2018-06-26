@@ -39,6 +39,7 @@ public class PropertyFactory {
 
     //设置属性
     public static final String SETTING_WORKER_INDEX="工人编号";
+    public static final String SETTING_SALARY_SEND="工资发放";
 
 
     /**

@@ -50,7 +50,10 @@ public class AnPopDialog extends JFrame{
                     Thread.sleep(25);
                 }
                 if (!dialog.isVisible())continue;
-                Thread.sleep((long) tmpTime);
+                for (long time=System.currentTimeMillis(), endTime=0L;(endTime-time)<tmpTime;endTime=System.currentTimeMillis()){
+                    //阻塞该线程，除非窗口停止
+                    if (dialog.isDispose)break;
+                }
                 for (float i=1;i>0;i-=0.1f){
                     if (!dialog.isVisible())break;
                     dialog.setOpacity(i);
@@ -89,6 +92,7 @@ public class AnPopDialog extends JFrame{
 
 
     private JLabel labText;
+    private boolean isDispose=false;
     private AnPopDialog(){
         setUndecorated(true);
         labText =new JLabel();
@@ -105,6 +109,7 @@ public class AnPopDialog extends JFrame{
             @Override
             public void mouseClicked(MouseEvent e) {
                 dispose();
+                isDispose=true;
             }
         });
     }

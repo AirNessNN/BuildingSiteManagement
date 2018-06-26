@@ -1,13 +1,18 @@
 package application;
 
 import component.AnDataChooser;
+import component.AnPopDialog;
 import component.Chooser;
+import dbManager.CheckMgr;
 import dbManager.DBManager;
 import dbManager.PropertyFactory;
-import dbManager.User;
+import resource.Resource;
 
 import java.awt.*;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * 窗口工厂
@@ -20,6 +25,7 @@ public class WindowBuilder {
     private static AnDataChooser buildingSiteChooser =null;
     private static InfoWindow infoWindow=null;
     private static SiteInfoWindow siteInfoWindow=null;
+    private static QuickCheckWindow quickCheckWindow=null;
 
 
 
@@ -103,7 +109,7 @@ public class WindowBuilder {
     }
 
 
-    public static void showInfoWindow(String id, String site, CloseCallback callBack){
+    static void showInfoWindow(String id, String site, CloseCallback callBack){
         if (infoWindow!=null){
             infoWindow.dispose();
         }
@@ -113,12 +119,12 @@ public class WindowBuilder {
         infoWindow.setVisible(true);
     }
 
-    public static void closeInfoWindow(){
+    static void closeInfoWindow(){
         if (infoWindow!=null)infoWindow.dispose();
     }
 
 
-    public static void showWorkWindow(String id , String site, CloseCallback callBack){
+    static void showWorkWindow(String id, String site, CloseCallback callBack){
         if (workerWindow!=null)
             if (workerWindow.isVisible())
                 workerWindow.setVisible(false);
@@ -130,20 +136,20 @@ public class WindowBuilder {
         System.out.println("工人信息窗口打开耗时"+(System.currentTimeMillis()-time));
     }
 
-    public static void closeWorkWindow(){
+    static void closeWorkWindow(){
         if (workerWindow!=null)workerWindow.dispose();
     }
 
 
     private static PropertyWindow propertyWindow=null;
-    public static void showPropertyWindow(){
+    static void showPropertyWindow(){
         if (propertyWindow==null||!propertyWindow.isVisible())
             propertyWindow=new PropertyWindow();
         propertyWindow.setVisible(true);
         propertyWindow.requestFocus();
     }
 
-    public static void showSiteInfoWindow(String siteName,CloseCallback callback){
+    static void showSiteInfoWindow(String siteName, CloseCallback callback){
         long time=System.currentTimeMillis();
         if (siteInfoWindow!=null){
             siteInfoWindow.dispose();
@@ -154,10 +160,23 @@ public class WindowBuilder {
         System.out.println("工地信息窗口打开耗时"+(System.currentTimeMillis()-time));
     }
 
-    public static void closeSiteInfoWindow(){
+    static void closeSiteInfoWindow(){
         if (siteInfoWindow!=null)siteInfoWindow.dispose();
     }
 
 
+    public static void showQuickCheckWindow(String siteName){
+        CheckMgr mgr=new CheckMgr(siteName);
+        if (quickCheckWindow!=null){
+            quickCheckWindow.dispose();
+        }
+        quickCheckWindow=new QuickCheckWindow(mgr);
+        quickCheckWindow.setTitle("快速考勤");
+        quickCheckWindow.setVisible(true);
+    }
+
+    static void closeQuickCheckWindow(){
+        if (quickCheckWindow!=null)quickCheckWindow.dispose();
+    }
 
 }

@@ -6,24 +6,21 @@ import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+import animation.AnimationManager;
+import animation.Iterator;
 import component.*;
 import resource.Resource;
 
 import java.awt.Font;
 
 public class LoginWindow extends JFrame{
+
+	private AnImageButton anImageButton;
 	
-	//组件
-	private JPanel panel=null;
-	private AnImageButton anImageButton=null;
-	
-	private JLabel labRodingMessage =null;
-	
-	private AnTextButton btnRegister=null;
-	private AnTextButton btnFindPassword=null;
-	
+	private JLabel labRodingMessage;
+
 	//登录结果回调
-	public ILoginResultCallback resultCallback=null;
+	ILoginResultCallback resultCallback=null;
 	interface ILoginResultCallback{
 		void loginResult(String user, String password);
 	}
@@ -74,9 +71,10 @@ public class LoginWindow extends JFrame{
 		setResizable(false);
 		setLocationRelativeTo(null);
 		getContentPane().setLayout(null);
-		
-		
-		panel = new JPanel();
+
+
+		//组件
+		JPanel panel = new JPanel();
 		panel.setBounds(0, 0, 494, 310);
 		getContentPane().add(panel);
 		panel.setLayout(null);
@@ -131,7 +129,7 @@ public class LoginWindow extends JFrame{
 		user.setColumns(10);
 		
 		//注册
-		btnRegister=new AnTextButton("注册");
+		AnTextButton btnRegister = new AnTextButton("注册");
 		btnRegister.setSize(30, 30);
 		btnRegister.setLocation(35, 226);
 		panel.add(btnRegister);
@@ -151,7 +149,7 @@ public class LoginWindow extends JFrame{
 			}
         });
 		//忘记密码
-		btnFindPassword=new AnTextButton("忘记密码");
+		AnTextButton btnFindPassword = new AnTextButton("忘记密码");
 		btnFindPassword.setSize(100, 30);
 		btnFindPassword.setLocation(88, 226);
 		panel.add(btnFindPassword);
@@ -166,24 +164,21 @@ public class LoginWindow extends JFrame{
 		imageLabel.setSize(494, 262);
 		imageLabel.setLocation(0, 289/2);
 		panel.add(imageLabel);
-		new Thread(() -> {
-            // TODO Auto-generated method stub
-            try {
-                Thread.sleep(500);
-                for(int i=289/2;i>0;i-=Math.log(i*10)) {
-                    imageLabel.setLocation(0, i);
-                    Thread.sleep(16);
-                }
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
 
-
-        }).start();
-		
-		
-		
+		AnimationManager animationManager=AnimationManager.getManager();
+		Iterator iterator=animationManager.createAnimationIterator(289/2,10,0);
+		iterator.addNode(16);
+		iterator.addNode(30);
+		iterator.addNode(50);
+		iterator.addNode(60);
+		iterator.addNode(70);
+		iterator.addNode(80);
+		iterator.addNode(90);
+		iterator.addNode(100);
+		iterator.addNode(130);
+		iterator.addNode(180);
+		iterator.setCallback(value -> imageLabel.setLocation(0, value+(289/2)));
+		iterator.start();
 		//找回密码
 		
 		

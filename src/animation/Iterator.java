@@ -35,4 +35,21 @@ public interface Iterator {
     void setCallback(ValueCallback callback);
 
     void dispose();
+
+    void addNode(long startTime,long duringTime);
+
+    void addNode(long duringTime);
+
+        /*
+        animItor.addNode(16);
+        animItor.addNode(30);
+        animItor.addNode(50);
+        animItor.addNode(60);
+        animItor.addNode(70);
+        animItor.addNode(80);
+        animItor.addNode(90);
+        animItor.addNode(100);
+        animItor.addNode(130);
+        animItor.addNode(180);
+         */
 }

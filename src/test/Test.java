@@ -1,21 +1,13 @@
 package test;
 
-import animation.AnimationManager;
-import animation.Iterator;
 import application.*;
 import component.*;
 import dbManager.DBManager;
-import dbManager.DataTable;
-import dbManager.Info;
 import dbManager.User;
-import resource.Resource;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
-import java.io.File;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Random;
 
 public class Test extends JFrame{
@@ -95,7 +87,7 @@ public class Test extends JFrame{
 	
 	public static void main(String[] args) {
 		User user=new User();
-		user.userName="hahaha";
+		user.userName="test";
 		user.password="123456";
 		
 		AnUtils.setLookAndFeel(AnUtils.LOOK_AND_FEEL_DEFAULT);
@@ -103,8 +95,6 @@ public class Test extends JFrame{
 		try {
 			DBManager.prepareDataBase();//准备DB
 			DBManager.getManager().loadUser(user);
-			DBManager.getManager().createBuildingSite("测试工地");
-			//DBManager.getManager().createBuildingSite("测试工地");
 
 
 
@@ -116,9 +106,7 @@ public class Test extends JFrame{
 			e.printStackTrace();
 		}
 
-		HashMap<String,String> map=new HashMap<>();
-		map.put("123","asd");
-		System.out.println(map.get("asd"));
+
 
 
 

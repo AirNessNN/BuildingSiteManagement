@@ -99,6 +99,7 @@ public class Application {
 	static void addUser(User user) {
 		if(dbManager!=null) {
 			dbManager.addUser(user);
+			dbManager.loadUser(user);
 		}
 	}
 
@@ -181,10 +182,10 @@ public class Application {
             e.printStackTrace();
         }
 
-		//Debug
+		/*//Debug
 		assert DBManager.getManager() != null;
 		DBManager.getManager().loadUser(new User("test","123456","",""));
-		MainWindow.getMainWindow().setVisible(true);
+		MainWindow.getMainWindow().setVisible(true);*/
 		//
 
         //确认用户信息
@@ -194,7 +195,7 @@ public class Application {
             // TODO Auto-generated method stub
             if(user==null||user.equals("")||password==null||password.equals("")){
                 Application.errorWindow("请输入用户名或密码！");
-            }else {
+			}else {
                 boolean loginFlag=false;
                 User loginUser=null;
                 ArrayList<User>tmp=dbManager.getUserList();

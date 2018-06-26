@@ -34,6 +34,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
     private String[] ids=null;
     private AnButton btnPrint;
     private AnButton btnDelete;
+    private AnButton btnQuickCheck;
 
 
     public SiteInfoWindow(String siteName){
@@ -202,7 +203,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         btnPrint.setBorderColor(new Color(114, 114, 114));
         getContentPane().add(btnPrint);
 
-        AnButton btnQuickCheck=new AnButton("快速考勤");
+        btnQuickCheck=new AnButton("快速考勤");
         springLayout.putConstraint(SpringLayout.NORTH, btnQuickCheck, 0, SpringLayout.NORTH, btnAdd);
         springLayout.putConstraint(SpringLayout.WEST, btnQuickCheck, 10, SpringLayout.EAST, btnPrint);
         springLayout.putConstraint(SpringLayout.SOUTH, btnQuickCheck, 0, SpringLayout.SOUTH, btnAdd);
@@ -316,11 +317,15 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
                 }
             }else AnPopDialog.show(this,"请先选择",2000);
         });
+
+        btnQuickCheck.addActionListener(e -> {
+            WindowBuilder.showQuickCheckWindow(siteName);
+        });
         
     }
 
     @Override
-    public void initializeData() {
+    public void initializeData(Object... args) {
         table.setColumn(headers);
         table.setCellColumnEdited(0,false);
         table.setCellColumnEdited(1,false);

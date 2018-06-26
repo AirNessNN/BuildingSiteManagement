@@ -6,5 +6,5 @@ package component;
 public interface ComponentLoader {
     void initializeComponent();
     void initializeEvent();
-    void initializeData();
+    void initializeData(Object... args);
 }
