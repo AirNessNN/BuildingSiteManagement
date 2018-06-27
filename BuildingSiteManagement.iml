@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
   <component name="EclipseModuleManager">
-    <libelement value="file://$MODULE_DIR$/../SwingTool.jar" />
+    <libelement value="file://E:/Desktop/Java项目/SwingTool.jar" />
     <libelement value="jar://$MODULE_DIR$/miglayout15-swing.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/jgoodies-forms-1.8.0.jar!/" />
+    <libelement value="file://E:/Desktop/Java项目/dom4j-1.6.1.jar" />
+    <libelement value="file://E:/Desktop/Java项目/poi-3.10-FINAL-20140208.jar" />
+    <libelement value="file://E:/Desktop/Java项目/poi-examples-3.10-FINAL-20140208.jar" />
+    <libelement value="file://E:/Desktop/Java项目/poi-excelant-3.10-FINAL-20140208.jar" />
+    <libelement value="file://E:/Desktop/Java项目/poi-ooxml-3.10-FINAL-20140208.jar" />
+    <libelement value="file://E:/Desktop/Java项目/poi-ooxml-schemas-3.10-FINAL-20140208.jar" />
+    <libelement value="file://E:/Desktop/Java项目/poi-scratchpad-3.10-FINAL-20140208.jar" />
+    <libelement value="file://E:/Desktop/Java项目/stax-api-1.0.1.jar" />
+    <libelement value="file://E:/Desktop/Java项目/xmlbeans-2.3.0.jar" />
     <src_description expected_position="1">
       <src_folder value="file://$MODULE_DIR$/src" expected_position="1" />
     </src_description>
@@ -16,6 +26,15 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
+      <library name="SwingTool.jar">
+        <CLASSES>
+          <root url="file://E:/Desktop/Java项目/SwingTool.jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="miglayout15-swing.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/miglayout15-swing.jar!/" />
@@ -26,86 +45,98 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
+    <orderEntry type="module-library">
+      <library name="jgoodies-forms-1.8.0.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../poi-3.10-FINAL-20140208.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../poi-examples-3.10-FINAL-20140208.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../poi-excelant-3.10-FINAL-20140208.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../poi-ooxml-3.10-FINAL-20140208.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../poi-ooxml-schemas-3.10-FINAL-20140208.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../poi-scratchpad-3.10-FINAL-20140208.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../xmlbeans-2.3.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/../stax-api-1.0.1.jar!/" />
-          <root url="file://$MODULE_DIR$" />
+          <root url="jar://$MODULE_DIR$/jgoodies-forms-1.8.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="file://$MODULE_DIR$" />
-          <root url="file://$MODULE_DIR$/src" />
+          <root url="jar://$MODULE_DIR$/jgoodies-forms-1.8.0-sources.jar!/" />
         </SOURCES>
-        <jarDirectory url="file://$MODULE_DIR$" recursive="false" />
-        <jarDirectory url="file://$MODULE_DIR$" recursive="false" type="SOURCES" />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
+    <orderEntry type="module-library">
+      <library name="dom4j-1.6.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../dom4j-1.6.1.jar!/" />
+          <root url="file://E:/Desktop/Java项目/dom4j-1.6.1.jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="poi-3.10-FINAL-20140208.jar">
+        <CLASSES>
+          <root url="file://E:/Desktop/Java项目/poi-3.10-FINAL-20140208.jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="poi-examples-3.10-FINAL-20140208.jar">
+        <CLASSES>
+          <root url="file://E:/Desktop/Java项目/poi-examples-3.10-FINAL-20140208.jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="poi-excelant-3.10-FINAL-20140208.jar">
+        <CLASSES>
+          <root url="file://E:/Desktop/Java项目/poi-excelant-3.10-FINAL-20140208.jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="poi-ooxml-3.10-FINAL-20140208.jar">
+        <CLASSES>
+          <root url="file://E:/Desktop/Java项目/poi-ooxml-3.10-FINAL-20140208.jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="poi-ooxml-schemas-3.10-FINAL-20140208.jar">
+        <CLASSES>
+          <root url="file://E:/Desktop/Java项目/poi-ooxml-schemas-3.10-FINAL-20140208.jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="poi-scratchpad-3.10-FINAL-20140208.jar">
+        <CLASSES>
+          <root url="file://E:/Desktop/Java项目/poi-scratchpad-3.10-FINAL-20140208.jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="stax-api-1.0.1.jar">
+        <CLASSES>
+          <root url="file://E:/Desktop/Java项目/stax-api-1.0.1.jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="xmlbeans-2.3.0.jar">
+        <CLASSES>
+          <root url="file://E:/Desktop/Java项目/xmlbeans-2.3.0.jar" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="library" name="poi-3.10-FINAL-20140208" level="project" />
-    <orderEntry type="library" name="poi-scratchpad-3.10-FINAL-20140208" level="project" />
   </component>
 </module>
