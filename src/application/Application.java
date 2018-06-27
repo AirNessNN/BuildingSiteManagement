@@ -213,7 +213,7 @@ public class Application {
                 	DBManager.getManager().loadUser(loginUser);
 					MainWindow.getMainWindow().setVisible(true);
                 }else {
-                    Application.informationWindow("未找到用户，请注册。");
+                    Application.informationWindow("用户名或密码错误，请重试");
                 }
             }
         };
