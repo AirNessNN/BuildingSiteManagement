@@ -7,6 +7,7 @@ import dbManager.User;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.*;
 import java.util.Collection;
 import java.util.Random;
 
@@ -84,6 +85,42 @@ public class Test extends JFrame{
 		setVisible(true);
 	}
 
+
+	final String JDBC_DRIVE="com.mysql.cj.jdbc.Driver";
+	final String DB_URL="jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Hongkong";
+	final String NAME="root";
+
+
+	private Connection getCon(String user,String password) throws ClassNotFoundException, SQLException {
+		Class.forName(JDBC_DRIVE);
+
+		System.out.println("连接数据库");
+		Connection connection=DriverManager.getConnection(DB_URL,user,password);
+		return connection;
+	}
+
+	private int insert(DBUser user){
+		try {
+			String sql="insert into user(user_account,password,user_name,limits,sex) values(?,?,?,?,?)";
+			Connection connection=getCon(NAME,"");
+			PreparedStatement statement=connection.prepareStatement(sql);
+			statement.setString(1,user.id);
+			statement.setString(2,user.ps);
+			statement.setString(3,user.name);
+			statement.setInt(4,user.limits);
+			statement.setString(5,user.sex);
+			int i= statement.executeUpdate();
+			statement.close();
+			connection.close();
+			return i;
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+
+
 	
 	public static void main(String[] args) {
 		User user=new User();
@@ -95,19 +132,9 @@ public class Test extends JFrame{
 		try {
 			DBManager.prepareDataBase();//准备DB
 			DBManager.getManager().loadUser(user);
-
-
-
-
-
-
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-
-
 
 
 
@@ -169,4 +196,20 @@ public class Test extends JFrame{
 				System.out.println(index+o.toString());
 		}
 	}
+}
+
+class DBUser{
+		String id;
+		String ps;
+		String name;
+		int limits;
+		String sex;
+
+		public DBUser(String id,String ps,String name,int limits,String sex){
+			this.id=id;
+			this.ps=ps;
+			this.name=name;
+			this.limits=limits;
+			this.sex=sex;
+		}
 }

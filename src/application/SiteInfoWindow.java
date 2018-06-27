@@ -35,6 +35,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
     private AnButton btnPrint;
     private AnButton btnDelete;
     private AnButton btnQuickCheck;
+    private AnButton anButton;
 
 
     public SiteInfoWindow(String siteName){
@@ -212,6 +213,16 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         btnQuickCheck.setBorderPressColor(new Color(249, 156, 51));
         btnQuickCheck.setBorderEnterColor(new Color(216, 99, 68));
         btnQuickCheck.setBorderColor(new Color(114, 114, 114));
+        
+        anButton = new AnButton("快速考勤");
+        springLayout.putConstraint(SpringLayout.NORTH, anButton, 0, SpringLayout.NORTH, btnAdd);
+        springLayout.putConstraint(SpringLayout.WEST, anButton, 10, SpringLayout.EAST, btnQuickCheck);
+        springLayout.putConstraint(SpringLayout.SOUTH, anButton, 0, SpringLayout.SOUTH, btnAdd);
+        springLayout.putConstraint(SpringLayout.EAST, anButton, 100, SpringLayout.EAST, btnQuickCheck);
+        anButton.setBorderPressColor(new Color(249, 156, 51));
+        anButton.setBorderEnterColor(new Color(216, 99, 68));
+        anButton.setBorderColor(new Color(114, 114, 114));
+        getContentPane().add(anButton);
 
 
     }

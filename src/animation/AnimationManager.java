@@ -322,7 +322,9 @@ public class AnimationManager {
                 long timeEnd=System.currentTimeMillis();
 
                 try {//线程休眠
-                    Thread.sleep(sleepTime-(timeEnd-timeStart));
+                    long time=sleepTime-(timeEnd-timeStart);
+                    if (time<0)time=1;
+                    Thread.sleep(time);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
