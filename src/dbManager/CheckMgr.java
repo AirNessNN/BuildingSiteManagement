@@ -7,6 +7,7 @@ import resource.Resource;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class CheckMgr implements QuickCheckWindow.QuickOpaControl {
@@ -20,7 +21,18 @@ public class CheckMgr implements QuickCheckWindow.QuickOpaControl {
 
     public CheckMgr(String siteName){
         this.siteName=siteName;
-        sourceNames=DBManager.getManager().getBuildingSiteWorkers(siteName);//获取ID
+        ArrayList<String> tmpList=new ArrayList<>();
+        DataTable site=DBManager.getManager().getBuildingSite(siteName);
+        if (site==null)return;
+        for (int i=0;i<site.getColumn(0).size();i++){
+            Object  obj=site.getCellAt(PropertyFactory.LABEL_LEAVE_TIME,i);//离职是空的情况下，工人是在职的
+            if (obj==null){
+                tmpList.add((String) site.getCellAt(PropertyFactory.LABEL_ID_CARD,i));
+            }
+        }
+        sourceNames=AnUtils.toStringArray(tmpList.toArray());
+        if (sourceNames==null)sourceNames=new String[0];
+
         //将ID转换为名字
         for (int i=0;i<sourceNames.length;i++){
             sourceNames[i]=DBManager.getManager().getWorkerName(sourceNames[i]);
@@ -39,13 +51,13 @@ public class CheckMgr implements QuickCheckWindow.QuickOpaControl {
 
 
     @Override
-    public Object getSourceDatas() {
+    public Object getSourceData() {
         return sourceNames;
     }
 
     @Override
-    public void setSourceDatas(Object datas) {
-        String[] tmp= (String[]) datas;
+    public void setSourceData(Object data) {
+        String[] tmp= (String[]) data;
         sourceNames=tmp;
     }
 
@@ -62,6 +74,12 @@ public class CheckMgr implements QuickCheckWindow.QuickOpaControl {
 
         for (String selectedName : selectedNames) {
             for (Date date : dates) {
+                DataTable site=DBManager.getManager().getBuildingSite(siteName);
+                site.selectRow(PropertyFactory.LABEL_ID_CARD,selectedName);
+                Date entry= (Date) site.getSelectedRowAt(PropertyFactory.LABEL_ENTRY_TIME);
+                if (entry==null)continue;
+                if (AnUtils.dateAfter(entry,date))continue;
+
                 DBManager.getManager().getCheckInManager().updateData(
                         selectedName,
                         siteName,
@@ -88,5 +106,15 @@ public class CheckMgr implements QuickCheckWindow.QuickOpaControl {
     @Override
     public void selectedCallback(String[] arrays) {
         selectedNames=arrays;
+    }
+
+    @Override
+    public boolean onStartDateSet(String dateFormat) {
+        return true;
+    }
+
+    @Override
+    public boolean onEndDateSet(String dateFormat) {
+        return true;
     }
 }

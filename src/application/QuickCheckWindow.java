@@ -143,7 +143,8 @@ public class QuickCheckWindow extends Window implements ComponentLoader {
         btnStartDate.addActionListener(e -> {
             chooser=new AnDateChooser();
             if (chooser.getDateFormate()==null)return;
-            btnStartDate.setText(chooser.getDateFormate());
+            if (defaultControl!=null&&defaultControl.onStartDateSet(chooser.getDateFormate()))
+                btnStartDate.setText(chooser.getDateFormate());
         });
 
         btnEndDate.addActionListener(e -> {
@@ -161,24 +162,13 @@ public class QuickCheckWindow extends Window implements ComponentLoader {
                 Application.informationWindow("请先选择起始日期！");
                 return;
             }
-            btnEndDate.setText(chooser.getDateFormate());
+            if (defaultControl!=null&&defaultControl.onEndDateSet(chooser.getDateFormate()))
+                btnEndDate.setText(chooser.getDateFormate());
         });
 
-        btnAllCheck.addActionListener(e -> {
-            for (int i=0;i<listModel.size();i++){
-                checkModel.addElement(listModel.get(i));
-            }
-            listModel.clear();
-            checkSelectedList();
-        });
+        btnAllCheck.addActionListener(e -> moveList(listModel,checkModel));
 
-        btnAllCancel.addActionListener(e -> {
-            for (int i=0;i<checkModel.size();i++){
-                listModel.addElement(checkModel.get(i));
-            }
-            checkModel.clear();
-            checkSelectedList();
-        });
+        btnAllCancel.addActionListener(e -> moveList(checkModel,listModel));
 
         btnOK.addActionListener(e -> {
             try {
@@ -197,26 +187,14 @@ public class QuickCheckWindow extends Window implements ComponentLoader {
         list.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount()>=2){
-                    if (list.getSelectedIndex()==-1)return;
-                    checkModel.addElement(listModel.get(list.getSelectedIndex()));
-                    listModel.removeElement(listModel.get(list.getSelectedIndex()));
-                    list.revalidate();
-                    checkSelectedList();
-                }
+                if (e.getClickCount()>=2) moveListItem(list, listModel, checkModel);
             }
         });
 
         checkList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount()>=2){
-                    if (checkList.getSelectedIndex()==-1)return;
-                    listModel.addElement(checkModel.get(checkList.getSelectedIndex()));
-                    checkModel.removeElement(checkModel.get(checkList.getSelectedIndex()));
-                    checkList.revalidate();
-                    checkSelectedList();
-                }
+                if (e.getClickCount()>=2) moveListItem(checkList, checkModel, listModel);
             }
         });
 
@@ -243,7 +221,7 @@ public class QuickCheckWindow extends Window implements ComponentLoader {
     public void initializeData(Object... args) {
 
         listModel=new DefaultListModel();
-        for (String name:(String[]) defaultControl.getSourceDatas()){
+        for (String name:(String[]) defaultControl.getSourceData()){
             listModel.addElement(name);
         }
         list.setModel(listModel);
@@ -252,6 +230,24 @@ public class QuickCheckWindow extends Window implements ComponentLoader {
         checkList.setModel(checkModel);
     }
 
+    //迁移一个列表模型到目标列表模型
+    private void moveList(DefaultListModel sourceModel,DefaultListModel targetModel){
+        for (int i=0;i<sourceModel.size();i++){
+            targetModel.addElement(sourceModel.get(i));
+        }
+        sourceModel.clear();
+        checkSelectedList();
+    }
+
+
+    //迁移一个列表数据到目标列表
+    private void moveListItem(JList clickList, DefaultListModel clickModel, DefaultListModel targetModel){
+        if (clickList.getSelectedIndex()==-1)return;
+        targetModel.addElement(clickModel.get(clickList.getSelectedIndex()));
+        clickModel.removeElement(clickModel.get(clickList.getSelectedIndex()));
+        clickList.revalidate();
+        checkSelectedList();
+    }
 
 
 
@@ -261,15 +257,19 @@ public class QuickCheckWindow extends Window implements ComponentLoader {
      */
     public interface QuickOpaControl{
 
-        Object getSourceDatas();
+        Object getSourceData();
 
-        void setSourceDatas(Object datas);
+        void setSourceData(Object data);
 
         void fillData(Date d1,Date d2);
 
         void setValue(Object value);
 
         void selectedCallback(String[] arrays);
+
+        boolean onStartDateSet(String dateFormat);
+
+        boolean onEndDateSet(String dateFormat);
 
     }
 }

@@ -24,6 +24,7 @@ import java.util.Vector;
 public class WorkerPanel extends JPanel implements Loadable{
 
 	private volatile boolean isSearching=false;//搜索线程运行标记
+    private boolean isPropertyRunning =false;//属性正在初始化
     private volatile int textChanged=0;//文字是否发生改变  -1是删除   0是未改变   1增加
     private Runnable searchTask=null;//动态搜索Runnable
     private Runnable searchStateChangeTask=null;//动态搜索监听线程
@@ -619,6 +620,7 @@ public class WorkerPanel extends JPanel implements Loadable{
         //工地筛选事件
         cobSite.addItemListener(e -> {
             searchBox.setText("输入名字或身份证信息查找");
+            if (isPropertyRunning)return;
             loadingList();
         });
 
@@ -703,7 +705,7 @@ public class WorkerPanel extends JPanel implements Loadable{
         if(list!=null)
             list.clear();
         //读取工人列表
-        ArrayList<Bean> beans;
+        /*ArrayList<Bean> beans;
        if (cobSite ==null){
            assert DBManager.getManager() != null;
            beans=DBManager.getManager().loadingWorkerList();
@@ -739,7 +741,22 @@ public class WorkerPanel extends JPanel implements Loadable{
             //添加到列表
             list.addElement(model);
         }
-        repaint();
+        repaint();*/
+
+       //新逻辑
+        /*
+        显示离职，所选的工地
+         */
+        String siteName=(cobSite.getSelectedItem()!=null)&&!cobSite.getSelectedItem().equals("全部")?cobSite.getSelectedItem().toString() :"";
+        String[] ids=DBManager.getManager().getWorkerIdAt(siteName,cbShowLeave.isSelected());
+        if (ids!=null){
+            //已经筛选出
+            for (String id:ids){
+                AnListRenderModel model=new AnListRenderModel(DBManager.getManager().getWorkerName(id),id);
+                list.addElement(model);
+            }
+            repaint();
+        }
     }
 
     /**
@@ -813,14 +830,17 @@ public class WorkerPanel extends JPanel implements Loadable{
      */
     private void loadingProperty(){
         //读取工人属性
+        isPropertyRunning=true;
         assert DBManager.getManager() != null;
         DataTable property=DBManager.getManager().loadingWorkerProperty();//在这里装载属性
-        if (property==null)
+        if (property==null){
+            isPropertyRunning=false;
             return;
+        }
+
 
         cobSite.removeAllItems();
         cobSite.addItem("全部");
-        Column column =property.findColumn(PropertyFactory.LABEL_SITE);
         String[] siteNames=DBManager.getManager().getFullBuildingSiteName();
         for (String  value: siteNames){
             cobSite.addItem(value);
@@ -838,6 +858,7 @@ public class WorkerPanel extends JPanel implements Loadable{
         labBirthdayToday.setText(String.valueOf(birthdayCount));
         labLeaveToday.setText(String.valueOf(DBManager.getManager().getLeaveToday()));
         labSumLeave.setText(String.valueOf(DBManager.getManager().getLeaveCount()));
+        isPropertyRunning=false;
     }
 
     @Override

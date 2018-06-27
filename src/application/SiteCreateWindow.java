@@ -167,7 +167,8 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
                 site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN,tbDeginUnit.getText());
 
                 if (ids!=null){
-                    int i=0;
+                    Application.fillWorkers(this,ids,vectors,siteName);
+                    /*int i=0;
                     for (String id : ids) {
                         Vector<String> tmpPn=null;
                         if (vectors.size()>0)tmpPn=vectors.get(i++);
@@ -198,7 +199,7 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
 
                         assert DBManager.getManager() != null;
                         DBManager.getManager().addWorkerToSite(id,siteName,d,type,date);
-                    }
+                    }*/
                     AnPopDialog.show(this,"已经添加"+ids.length+"个工人到"+siteName+"。",AnPopDialog.LONG_TIME);
                 }else
                     AnPopDialog.show(this,"工地创建完成！",AnPopDialog.SHORT_TIME);

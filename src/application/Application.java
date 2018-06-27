@@ -2,14 +2,19 @@ package application;
 import java.awt.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.swing.JOptionPane;
 
+import component.AnPopDialog;
 import dbManager.DBManager;
 import dbManager.User;
+import resource.Resource;
 
 /**
  * 主程序类，控制程序各种组件运行
@@ -158,6 +163,49 @@ public class Application {
 			return;
 		}
 		executorService.execute(run);
+	}
+
+
+	/**
+	 * 填充工人到工地中去
+	 * @param component 窗口
+	 * @param ids 工人id
+	 * @param vectors 数据源
+	 * @param siteName 工地名称
+	 */
+	static void fillWorkers(Component component, String[] ids, Vector<Vector> vectors, String siteName){
+		int i=0;
+		for (String id : ids) {
+			Vector tmpPn=null;
+			if (vectors.size()>0)tmpPn=vectors.get(i++);
+
+			//获取协议工价
+			double d=0d;
+			if (tmpPn!=null){
+				try{
+					d=Double.valueOf((String) tmpPn.get(2));
+				}catch (Exception ex){
+					AnPopDialog.show(component,"协议工价转换错误，采用默认值：0",AnPopDialog.LONG_TIME);
+				}
+			}
+
+			//获取日期
+			Date date=new Date();
+			if (tmpPn!=null){
+				try {
+					date=AnUtils.getDate((String) tmpPn.get(4),Resource.DATE_FORMATE);
+				} catch (ParseException e1) {
+					AnPopDialog.show(component,"入职日期转换错误，采用默认值：今天",AnPopDialog.LONG_TIME);
+				}
+			}
+
+			//获取类型
+			String type="";
+			if (tmpPn!=null)type= (String) tmpPn.get(3);
+
+			assert DBManager.getManager() != null;
+			DBManager.getManager().addWorkerToSite(id,siteName,d,type,date);
+		}
 	}
 
 

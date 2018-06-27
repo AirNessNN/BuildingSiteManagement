@@ -24,8 +24,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
     private DataTable site;
 
     private AnTable table=null;
-    private JTextField tbPorjectName;
-    private JTextField tbDeginUnit;
+    private JTextField tbProjectName;
+    private JTextField tbDeignUnit;
     private JTextField tbBuildUnit;
     private AnButton btnSave;
     private AnButton btnAdd;
@@ -130,19 +130,19 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         label_2.setBounds(10, 91, 75, 20);
         panel.add(label_2);
         
-        tbPorjectName = new JTextField();
-        tbPorjectName.setEditable(false);
-        tbPorjectName.setFont(new Font("等线", Font.PLAIN, 15));
-        tbPorjectName.setBounds(95, 31, 140, 20);
-        panel.add(tbPorjectName);
-        tbPorjectName.setColumns(10);
+        tbProjectName = new JTextField();
+        tbProjectName.setEditable(false);
+        tbProjectName.setFont(new Font("等线", Font.PLAIN, 15));
+        tbProjectName.setBounds(95, 31, 140, 20);
+        panel.add(tbProjectName);
+        tbProjectName.setColumns(10);
         
-        tbDeginUnit = new JTextField();
-        tbDeginUnit.setEditable(false);
-        tbDeginUnit.setFont(new Font("等线", Font.PLAIN, 15));
-        tbDeginUnit.setColumns(10);
-        tbDeginUnit.setBounds(95, 61, 140, 20);
-        panel.add(tbDeginUnit);
+        tbDeignUnit = new JTextField();
+        tbDeignUnit.setEditable(false);
+        tbDeignUnit.setFont(new Font("等线", Font.PLAIN, 15));
+        tbDeignUnit.setColumns(10);
+        tbDeignUnit.setBounds(95, 61, 140, 20);
+        panel.add(tbDeignUnit);
         
         tbBuildUnit = new JTextField();
         tbBuildUnit.setEditable(false);
@@ -238,6 +238,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
                     save();
                     AnPopDialog.show(this,"编辑已经保存。",AnPopDialog.SHORT_TIME);
                 }
+                saveProperty();
             }
             setEnable(!tbBuildUnit.isEditable());//设置各个控件开关状态
         });
@@ -255,40 +256,11 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
             workerChooser.setCallback(values -> {
                 //此处有两个值传入，如果，在工人选择器中没有填充属性的话，第二个值是无效的
                 String[] ids= (String[]) values[0];
+
                 Vector<Vector> vectors= (Vector<Vector>) values[1];
 
-                int i=0;
-                for (String id : ids) {
-                    Vector<String> tmpPn=null;
-                    if (vectors.size()>0)tmpPn=vectors.get(i++);
+                Application.fillWorkers(this,ids,vectors,siteName);
 
-                    //获取协议工价
-                    double d=0d;
-                    if (tmpPn!=null){
-                        try{
-                            d=Double.valueOf(tmpPn.get(2));
-                        }catch (Exception ex){
-                            AnPopDialog.show(this,"协议工价转换错误，采用默认值：0",AnPopDialog.LONG_TIME);
-                        }
-                    }
-
-                    //获取日期
-                    Date date=new Date();
-                    if (tmpPn!=null){
-                        try {
-                            date=AnUtils.getDate(tmpPn.get(4),Resource.DATE_FORMATE);
-                        } catch (ParseException e1) {
-                            AnPopDialog.show(this,"入职日期转换错误，采用默认值：今天",AnPopDialog.LONG_TIME);
-                        }
-                    }
-
-                    //获取类型
-                    String type="";
-                    if (tmpPn!=null)type=tmpPn.get(3);
-
-                    assert DBManager.getManager() != null;
-                    DBManager.getManager().addWorkerToSite(id,siteName,d,type,date);
-                }
                 workerChooser=null;
                 fillData();
                 updateIds();
@@ -312,8 +284,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         });
 
         btnDelete.addActionListener(e -> {
-            int seletedIndex=table.getSelectedRow();
-            if (seletedIndex!=-1){
+            int selectedIndex=table.getSelectedRow();
+            if (selectedIndex!=-1){
                 if (JOptionPane.showConfirmDialog(
                         this,
                         "移除该工人将删除所有相关的数据，是否删除？",
@@ -354,8 +326,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
 
     private void setEnable(boolean b){
         tbBuildUnit.setEditable(b);
-        tbDeginUnit.setEditable(b);
-        tbPorjectName.setEditable(b);
+        tbDeignUnit.setEditable(b);
+        tbProjectName.setEditable(b);
 
         table.setCellColumnEdited(2,b);
         table.setCellColumnEdited(3,b);
@@ -374,7 +346,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         DataTable site=DBManager.getManager().getBuildingSite(siteName);
         if (site==null)return;
 
-        Vector<Vector> vectors=new Vector<>();
+        Vector<Vector<String>> vectors=new Vector<>();
         Column idc=site.findColumn(PropertyFactory.LABEL_ID_CARD);
         if (idc==null)return;
 
@@ -412,8 +384,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         }
         table.getTableModel().setDataVector(vectors,AnUtils.convertToVector(headers));
 
-        tbPorjectName.setText((String) site.getInfosValue(PropertyFactory.LABEL_PROJECT_NAME));
-        tbDeginUnit.setText((String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN));
+        tbProjectName.setText((String) site.getInfosValue(PropertyFactory.LABEL_PROJECT_NAME));
+        tbDeignUnit.setText((String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN));
         tbBuildUnit.setText((String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_BULID));
 
         table.clearCheckPoint();
@@ -427,7 +399,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         table.setColumnWidth(5,60);
     }
 
-
+    //保存工人的属性
     private void save(){
         ArrayList<Integer> rows=new ArrayList<>();
         for (int i=0;i<table.getChangedCells().getSize();i++){
@@ -460,16 +432,12 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
 
             Date leave=null;
             try {
-                String dateFormate=table.getCell(row,5).toString();
-                if (dateFormate!=null&&!dateFormate.equals(""))
-                    leave=AnUtils.getDate(dateFormate,Resource.DATE_FORMATE);
+                String dateFormat=table.getCell(row,5).toString();
+                if (dateFormat!=null&&!dateFormat.equals(""))
+                    leave=AnUtils.getDate(dateFormat,Resource.DATE_FORMATE);
             } catch (ParseException e) {
                 Application.errorWindow("离职日期转换错误："+e.getMessage());
             }
-
-            site.setInfosValue(PropertyFactory.LAB_UNIT_OF_BULID,tbBuildUnit.getText());
-            site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN,tbDeginUnit.getText());
-            site.setInfosValue(PropertyFactory.LABEL_PROJECT_NAME,tbPorjectName.getText());
 
             site.selectRow(PropertyFactory.LABEL_ID_CARD,id);
             site.setSelectedRowValue(PropertyFactory.LABEL_DEAL_SALARY,dealSalary);
@@ -479,6 +447,30 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         }
         table.clearCheckPoint();
         table.setCheckPoint();
+    }
+
+    /**
+     * 储存工地的三个属性
+     */
+    private void saveProperty(){
+        boolean changed=false;
+        String oldB= (String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_BULID);
+        String oldD= (String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN);
+        String oldP= (String) site.getInfosValue(PropertyFactory.LABEL_PROJECT_NAME);
+
+        String newB=tbBuildUnit.getText();
+        String newD=tbDeignUnit.getText();
+        String newP=tbProjectName.getText();
+
+        if (!oldB.equals(newB)||!oldD.equals(newD)||!oldP.equals(newP))changed=true;
+
+        if (changed){
+            site.setInfosValue(PropertyFactory.LAB_UNIT_OF_BULID,tbBuildUnit.getText());
+            site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN, tbDeignUnit.getText());
+            site.setInfosValue(PropertyFactory.LABEL_PROJECT_NAME, tbProjectName.getText());
+
+            AnPopDialog.show(this,"工地属性已经保存！",2000);
+        }
     }
 
 

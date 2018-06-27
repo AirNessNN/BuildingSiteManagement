@@ -606,6 +606,37 @@ public class DBManager {
 	}
 
 
+	public String[] getWorkerIdAt(String siteName,boolean showLeaved){
+		ArrayList<String> tmpList=new ArrayList<>();
+		if (siteName==null||siteName.equals("")){//没有选择工地
+			for (Bean w:loadingWorkerList()){
+				//获取Info属性
+				Info id= w.find("身份证");
+				//获取值
+				String strId=(String)id.getValue();
+
+				if (!showLeaved){//不显示离职
+					if (isWorkerLeaveAllSite(strId))continue;//如果工人在所有工地离职，就跳过
+					tmpList.add(strId);
+				}else tmpList.add(strId);
+			}
+		}else {//选择了工地
+			String[] ids=getBuildingSiteWorkers(siteName);
+			DataTable site=getBuildingSite(siteName);
+			for (String id :ids){
+				if (showLeaved){
+					tmpList.add(id);
+				}else {
+					if (!isWorkerLeave(id,siteName)){//工人没有离职
+						tmpList.add(id);
+					}
+				}
+			}
+		}
+		return AnUtils.toStringArray(tmpList.toArray());
+	}
+
+
 
 
 
