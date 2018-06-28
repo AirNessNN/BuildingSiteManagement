@@ -6,13 +6,9 @@ import component.ComponentLoader;
 import dbManager.DataTable;
 import dbManager.DBManager;
 import dbManager.PropertyFactory;
-import resource.Resource;
 
 import javax.swing.*;
 import java.awt.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Vector;
 
 public class SiteCreateWindow extends Window implements ComponentLoader {
@@ -163,8 +159,8 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
             try {
                 DataTable site=DBManager.getManager().createBuildingSite(siteName);
                 site.setInfosValue(PropertyFactory.LABEL_PROJECT_NAME,tbProjectName.getText());
-                site.setInfosValue(PropertyFactory.LAB_UNIT_OF_BULID,tbBuidUnit.getText());
-                site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN,tbDeginUnit.getText());
+                site.setInfosValue(PropertyFactory.LAB_UNIT_OF_BUILD,tbBuidUnit.getText());
+                site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DEIGN,tbDeginUnit.getText());
 
                 if (ids!=null){
                     Application.fillWorkers(this,ids,vectors,siteName);

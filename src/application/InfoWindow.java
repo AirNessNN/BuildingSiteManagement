@@ -299,59 +299,61 @@ public class InfoWindow extends Window implements ComponentLoader {
 
         //以下的所有数据加载都需要SiteName，所以SiteName要判空
         //加载出勤
+        SimpleDateFormat dateFormat=new SimpleDateFormat(Resource.DATE_FORMATE);
         if (siteName ==null)
             return;
         assert DBManager.getManager() != null;
         ArrayList<IDateValueItem> tmpCheckIn=DBManager.getManager().getCheckInManager()
                 .getWorkerDateValueList(
-                        DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD),
+                        id,
+                        siteName
+                );
+        //加载工资
+        ArrayList<IDateValueItem> tmpSalary=DBManager.getManager().getSalaryManager()
+                .getWorkerDateValueList(
+                        id,
                         siteName
                 );
         Vector<Vector> checkInRows=new Vector<>();
+        Vector<Vector> salaryRows=new Vector<>();
 
-        for (IDateValueItem item:tmpCheckIn){
-            Vector<String> cells=new Vector<>();
-            cells.add(new SimpleDateFormat(Resource.DATE_FORMATE).format(item.getDate()));
-            cells.add(item.getValue().toString());
-            cells.add(item.getTag());
-            checkInRows.add(cells);
+        int maxSize=tmpCheckIn.size()>tmpSalary.size()?tmpCheckIn.size():tmpSalary.size();
 
-            AnDateComboBoxEditor editor=new AnDateComboBoxEditor();
-            checkInTable.addComponentCell(editor,checkInRows.size()-1,0);
+        for (int i=0;i<maxSize;i++){
+            if (i<tmpCheckIn.size()){
+                IDateValueItem item=tmpCheckIn.get(i);
+                Vector<String> cells=new Vector<>();
+                cells.add(dateFormat.format(item.getDate()));
+                cells.add(item.getValue().toString());
+                cells.add(item.getTag());
+                checkInRows.add(cells);
+
+                AnDateComboBoxEditor editor=new AnDateComboBoxEditor();
+                checkInTable.addComponentCell(editor,checkInRows.size()-1,0);
+            }
+            if (i<tmpSalary.size()){
+                IDateValueItem item=tmpSalary.get(i);
+                Vector<String> cells=new Vector<>();
+                cells.add(dateFormat.format(item.getDate()));
+                cells.add(item.getValue().toString());
+                cells.add(item.getTag());
+                salaryRows.add(cells);
+
+                AnDateComboBoxEditor editor=new AnDateComboBoxEditor();
+                salaryTable.addComponentCell(editor,salaryRows.size()-1,0);
+            }
         }
         checkInTable.clearCheckPoint();
         checkInTable.getTableModel().setDataVector(checkInRows,AnUtils.convertToVector(CHECK_IN_HEADER));
         checkInTable.setCheckPoint();
 
-        //加载工资
-        ArrayList<IDateValueItem> tmpSalary=DBManager.getManager().getSalaryManager()
-                .getWorkerDateValueList(
-                        DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD),
-                        siteName
-                );
-        Vector<Vector> salaryRows=new Vector<>();
-        for (IDateValueItem item:tmpSalary){
-            Vector<String> cells=new Vector<>();
-            cells.add(new SimpleDateFormat(Resource.DATE_FORMATE).format(item.getDate()));
-            cells.add(item.getValue().toString());
-            cells.add(item.getTag());
-            salaryRows.add(cells);
-
-            AnDateComboBoxEditor editor=new AnDateComboBoxEditor();
-            salaryTable.addComponentCell(editor,salaryRows.size()-1,0);
-        }
         salaryTable.clearCheckPoint();
         salaryTable.getTableModel().setDataVector(salaryRows,AnUtils.convertToVector(SALARY_HEADER));
         salaryTable.setCheckPoint();
 
         //加载工地选择器
         cobSite.setModel(
-                new DefaultComboBoxModel(
-                AnUtils.toArray(
-                        DBManager.getManager().
-                                getWorkerAt(
-                                        worker.find(PropertyFactory.LABEL_ID_CARD).getValueString())
-                ))
+                new DefaultComboBoxModel(AnUtils.toArray(DBManager.getManager().getWorkerAt(id)))
         );
         cobSite.setSelectedItem(siteName);
 

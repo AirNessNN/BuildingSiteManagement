@@ -47,6 +47,6 @@ class SiteWindow extends Window{
     }
 
     public void refash(){
-        sitePanel.refash();
+        sitePanel.refresh();
     }
 }

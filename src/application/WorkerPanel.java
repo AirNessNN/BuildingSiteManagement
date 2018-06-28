@@ -744,9 +744,6 @@ public class WorkerPanel extends JPanel implements Loadable{
         repaint();*/
 
        //新逻辑
-        /*
-        显示离职，所选的工地
-         */
         String siteName=(cobSite.getSelectedItem()!=null)&&!cobSite.getSelectedItem().equals("全部")?cobSite.getSelectedItem().toString() :"";
         String[] ids=DBManager.getManager().getWorkerIdAt(siteName,cbShowLeave.isSelected());
         if (ids!=null){

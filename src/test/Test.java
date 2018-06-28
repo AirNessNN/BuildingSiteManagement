@@ -1,94 +1,75 @@
 package test;
 
-import application.*;
-import component.*;
+import application.AnUtils;
+import application.ProgressbarDialog;
+import application.StartWindow;
 import dbManager.DBManager;
 import dbManager.User;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Random;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class Test extends JFrame{
 
-
-	AnTable table=new AnTable();
-	private JTextField textField;
-	private JTextField textField_1;
-	private JTextField textField_2;
+	private StartWindow startWindow=new StartWindow();
 
 	private Test() {
 		getContentPane().setBackground(Color.WHITE);
 		getContentPane().setFont(new Font("微软雅黑 Light", Font.PLAIN, 14));
 		
-		setSize(1049, 800);
+		setSize(500, 500);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		getContentPane().setLayout(null);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(6, 6, 595, 715);
-		getContentPane().add(scrollPane);
-		scrollPane.setViewportView(table);
-		
-		JButton button = new JButton("增加一列");
-		button.setBounds(747, 11, 90, 30);
-		getContentPane().add(button);
-		button.addActionListener(e -> {
-			table.addColumn(textField.getText());
-		});
+		JButton btnNewButton = new JButton("切换文字");
+		btnNewButton.setBounds(6, 6, 90, 30);
+		getContentPane().add(btnNewButton);
+		btnNewButton.addActionListener(e -> setDialogText());
 		
 		textField = new JTextField();
-		textField.setBounds(613, 11, 122, 30);
+		textField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				if(e.getKeyCode()==KeyEvent.VK_ENTER)setDialogText();
+			}
+		});
+		textField.setBounds(6, 48, 122, 30);
 		getContentPane().add(textField);
 		textField.setColumns(10);
+		
+		JButton button = new JButton("获取身份");
+		button.addActionListener(e -> System.out.println(Test.IDRandom()));
+		button.setBounds(6, 90, 90, 30);
+		getContentPane().add(button);
 
-		
-		JButton button_1 = new JButton("删除选中行");
-		button_1.setBounds(849, 11, 90, 30);
-		getContentPane().add(button_1);
-		button_1.addActionListener(e -> {
-			AnPopDialog.show(null,"sadasd",AnPopDialog.SHORT_TIME);
-		});
-		
-		textField_1 = new JTextField();
-		textField_1.setBounds(613, 53, 122, 30);
-		getContentPane().add(textField_1);
-		textField_1.setColumns(10);
-		
-		JButton button_2 = new JButton("设置数据");
-		button_2.setBounds(747, 53, 90, 30);
-		getContentPane().add(button_2);
-		button_2.addActionListener(e -> {
-			Rank rank=table.getSelectedRank();
-			if (rank==null)return;
-			table.setCell(rank.getRow(),rank.getColumn(),textField_1.getText());
-		});
-		
-		textField_2 = new JTextField();
-		textField_2.setBounds(613, 95, 326, 30);
-		getContentPane().add(textField_2);
-		textField_2.setColumns(10);
-		
-		JButton btnNewButton = new JButton("增加一行");
-		btnNewButton.setBounds(613, 131, 90, 30);
-		getContentPane().add(btnNewButton);
-		btnNewButton.addActionListener(e -> {
-			Object[] values=textField_2.getText().split(" ");
-			table.addRow(values);
-		});
+
+		//startWindow.setVisible(true);
 
 
 
 		
 		setVisible(true);
 	}
+	
+	private void setDialogText() {
+		startWindow.setText(textField.getText());
+	}
 
 
 	final String JDBC_DRIVE="com.mysql.cj.jdbc.Driver";
 	final String DB_URL="jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Hongkong";
 	final String NAME="root";
+	private JTextField textField;
 
 
 	private Connection getCon(String user,String password) throws ClassNotFoundException, SQLException {
@@ -136,6 +117,8 @@ public class Test extends JFrame{
 			e.printStackTrace();
 		}
 
+		ProgressbarDialog.showDialog("测试",0,100);
+		ProgressbarDialog.setState("haha",10);
 
 
 	}
@@ -152,7 +135,7 @@ public class Test extends JFrame{
 
 		StringBuilder sb=new StringBuilder();
 		sb.append((v1+r.nextInt(99999)));
-		sb.append((v2+r.nextInt(50)));
+		sb.append((v2+r.nextInt(40)));
 		v3=r.nextInt(13);
 		if (v3<10)
 			sb.append(0);
@@ -161,11 +144,10 @@ public class Test extends JFrame{
 		if (v4<10)
 			sb.append(0);
 		sb.append(v4);
-		for (int i=0;i<4;i++)
+		for (int i=0;i<3;i++)
 			sb.append(r.nextInt(10));
-
-
-		return sb.toString();
+		
+		return AnUtils.getID(sb.toString());
 	}
 
 	private void createUIComponents() {

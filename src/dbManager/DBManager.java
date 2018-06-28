@@ -935,7 +935,7 @@ public class DBManager {
 		return  tmpList;
 	}
 
-	public void deleteBulidingSite(DataTable site){
+	public void deleteBuildingSite(DataTable site){
 		if (!buildingSiteLoaded)
 			return;
 		DataTable delete=null;
@@ -1165,6 +1165,10 @@ public class DBManager {
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	//CheckInManager
+	private double monthCheckIn=0;
+	private double gotLivingSalary=0;
+
+
 	public ChildrenManager getCheckInManager(){
 		if (checkInManagerLoaded)
 			return checkInManager;
@@ -1195,6 +1199,47 @@ public class DBManager {
 	@Deprecated
 	public void updateCheckInManagerData(){
 
+	}
+
+	public void updateChildManagerDataForMonth(Date month,String id,String siteName){
+		monthCheckIn=0;
+		gotLivingSalary=0;
+		Calendar calendar=Calendar.getInstance();
+		calendar.setTime(month);
+		int monthValue=calendar.get(Calendar.MONTH);
+		ArrayList<IDateValueItem> tmpItems=getCheckInManager().getWorkerDateValueList(id,siteName);//出勤
+		ArrayList<IDateValueItem> tmpSalary=getSalaryManager().getWorkerDateValueList(id,siteName);//工资
+
+		int maxLength=tmpItems.size()>tmpSalary.size()?tmpItems.size():tmpSalary.size();
+
+		for (int i=0;i<maxLength;i++){
+			if (i<tmpItems.size()){
+				IDateValueItem item=tmpItems.get(i);
+				Calendar tmpC=Calendar.getInstance();
+				tmpC.setTime(item.getDate());
+				if (tmpC.get(Calendar.MONTH)==monthValue){//月份相等
+					double d= (double) item.getValue();
+					monthCheckIn+=d;
+				}
+			}
+			if (i<tmpSalary.size()){
+				IDateValueItem item=tmpSalary.get(i);
+				Calendar tmpC=Calendar.getInstance();
+				tmpC.setTime(item.getDate());
+				if (tmpC.get(Calendar.MONTH)==monthValue){
+					double d= (double) item.getValue();
+					gotLivingSalary+=d;
+				}
+			}
+		}
+	}
+
+	public double getCheckInDataForMonth(){
+		return monthCheckIn;
+	}
+
+	public double getGotLivingSalary(){
+		return gotLivingSalary;
 	}
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

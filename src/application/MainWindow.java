@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Random;
 
 import component.*;
 import dbManager.DBManager;
@@ -81,6 +82,7 @@ public class MainWindow extends Window implements ComponentLoader {
 		btnAcess.setFont(new Font("等线", Font.PLAIN, 40));
 		btnAcess.setBounds(53, 265, 464, 82);
 		getContentPane().add(btnAcess);
+		btnAcess.setVisible(false);
 		
 		label = new JLabel("工地管理系统");
 		label.setForeground(SystemColor.textHighlight);
@@ -93,6 +95,7 @@ public class MainWindow extends Window implements ComponentLoader {
 		btnSetting.setFont(new Font("等线", Font.PLAIN, 40));
 		btnSetting.setBounds(53, 357, 464, 82);
 		getContentPane().add(btnSetting);
+		btnSetting.setVisible(false);
 		
 	}
 
@@ -150,12 +153,12 @@ public class MainWindow extends Window implements ComponentLoader {
 			while (true){
 
 				Point mouse=MouseInfo.getPointerInfo().getLocation();
-				float pensentX=mouse.x/20;
-				float pensentY=mouse.y/20;
+				float peasantX=mouse.x/20;
+				float peasantY=mouse.y/20;
 
-				label.setLocation(rectangle.x+Math.round(pensentX),rectangle.y+Math.round(pensentY));
+				label.setLocation(rectangle.x+Math.round(peasantX),rectangle.y+Math.round(peasantY));
 				try {
-					Thread.sleep(16);
+					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

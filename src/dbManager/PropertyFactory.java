@@ -34,8 +34,9 @@ public class PropertyFactory {
     public static final String LABEL_SITE="所属工地";
     public static final String LABEL_PHONE="电话号码";
     public static final String LABEL_PROJECT_NAME="项目名称";
-    public static final String LAB_UNIT_OF_DEGIN ="建设单位";
-    public static final String LAB_UNIT_OF_BULID ="施工单位";
+    public static final String LAB_UNIT_OF_DEIGN ="建设单位";
+    public static final String LAB_UNIT_OF_BUILD ="施工单位";
+    public static final String LABEL_CREATE_DATE ="创建日期";
 
     //设置属性
     public static final String SETTING_WORKER_INDEX="工人编号";
@@ -237,15 +238,16 @@ public class PropertyFactory {
         }
         //设置表格属性
         bean.addInfo(new Info(LABEL_PROJECT_NAME,""));
-        bean.addInfo(new Info(LAB_UNIT_OF_BULID,""));
-        bean.addInfo(new Info(LAB_UNIT_OF_DEGIN,""));
+        bean.addInfo(new Info(LAB_UNIT_OF_BUILD,""));
+        bean.addInfo(new Info(LAB_UNIT_OF_DEIGN,""));
+        bean.addInfo(new Info(LABEL_CREATE_DATE,new Date()));//创建时就设置日期
         return  bean;
     }
 
     /**
      *     获取工人所有自带属性
      */
-    public static int getPreinstallSize(){
+    public static int getPerinatalSize(){
         return WORKER_MODEL.length;
     }
 
@@ -253,7 +255,7 @@ public class PropertyFactory {
      * 获取自带属性的数组
      * @return
      */
-    public static Info[] getPreinstall(){
+    public static Info[] getPerinatal(){
         return WORKER_MODEL;
     }
 

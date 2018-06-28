@@ -24,6 +24,7 @@ import resource.Resource;
 public class Application {
 	
 	static final String VERSION="工程版";
+	public static final Date TODAY=new Date();
 
 	private static ExecutorService executorService=null;
 	
@@ -230,10 +231,10 @@ public class Application {
             e.printStackTrace();
         }
 
-		/*//Debug
+		//Debug
 		assert DBManager.getManager() != null;
-		DBManager.getManager().loadUser(new User("test","123456","",""));
-		MainWindow.getMainWindow().setVisible(true);*/
+		DBManager.getManager().loadUser(new User("test","951753","",""));
+		MainWindow.getMainWindow().setVisible(true);
 		//
 
         //确认用户信息
@@ -266,8 +267,10 @@ public class Application {
             }
         };
         login.setVisible(true);
-        //开始载入数据
-
+        //Debug
+        closeStartWindow();
+        login.setVisible(false);
+        //
 	}
 
 

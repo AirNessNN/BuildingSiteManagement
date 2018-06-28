@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import javax.swing.*;
 
 import component.AnLabel;
@@ -16,7 +17,7 @@ import resource.Resource;
  */
 public class StartWindow extends JDialog{
 
-    private AnLabel label=null;
+    private AnLabel label;
     private static final long serialVersionUID = 1L;
 
     public StartWindow() {
@@ -45,6 +46,15 @@ public class StartWindow extends JDialog{
 
     public void closeWindow() {
         this.dispose();
+    }
+
+    @Override
+    public void update(Graphics g) {
+        BufferedImage image=new BufferedImage(getWidth(),getHeight(),BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d=image.createGraphics();
+        paint(g2d);
+        g2d.dispose();
+        g.drawImage(image,0,0,null);
     }
 
     @Override

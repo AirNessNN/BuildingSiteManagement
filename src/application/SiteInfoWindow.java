@@ -6,6 +6,9 @@ import javax.swing.*;
 import java.awt.SystemColor;
 import java.awt.Font;
 import java.awt.Color;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,7 +21,7 @@ import resource.Resource;
 
 public class SiteInfoWindow extends Window implements ComponentLoader {
 
-    private static final Object[] headers=new Object[]{"身份证号","姓名","协议工价","工种","入职日期","离职日期"};
+    private static final Object[] headers=new Object[]{"身份证号","姓名","协议工价","工种","入职日期","离职日期","月出勤","月领取生活费"};
 
     private String siteName;//工地定位名称
     private DataTable site;
@@ -35,7 +38,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
     private AnButton btnPrint;
     private AnButton btnDelete;
     private AnButton btnQuickCheck;
-    private AnButton anButton;
+    private AnButton btnLeavingSalary;
+    private JLabel labDate;
 
 
     public SiteInfoWindow(String siteName){
@@ -150,6 +154,18 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         tbBuildUnit.setColumns(10);
         tbBuildUnit.setBounds(95, 91, 140, 20);
         panel.add(tbBuildUnit);
+        
+        JLabel label_3 = new JLabel("创建日期：");
+        label_3.setForeground(Color.GRAY);
+        label_3.setFont(new Font("等线", Font.PLAIN, 15));
+        label_3.setBounds(10, 121, 75, 20);
+        panel.add(label_3);
+        
+        labDate = new JLabel("未知");
+        labDate.setForeground(Color.GRAY);
+        labDate.setFont(new Font("等线", Font.PLAIN, 15));
+        labDate.setBounds(95, 121, 140, 20);
+        panel.add(labDate);
         springLayout.putConstraint(SpringLayout.NORTH, btnSave, 10, SpringLayout.NORTH, getContentPane());
         springLayout.putConstraint(SpringLayout.WEST, btnSave, -100, SpringLayout.EAST, getContentPane());
         springLayout.putConstraint(SpringLayout.SOUTH, btnSave, 35, SpringLayout.NORTH, getContentPane());
@@ -162,6 +178,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         getContentPane().add(btnSave);
         
         btnAdd = new AnButton("增加工人");
+        btnAdd.setText("入职登记");
+        btnAdd.setToolTipText("从现有的工人列表中增加一个工人，并且记录为在职状态");
         btnAdd.setBorderPressColor(new Color(249, 156, 51));
         btnAdd.setBorderEnterColor(new Color(216, 99, 68));
         btnAdd.setBorderColor(new Color(114, 114, 114));
@@ -172,30 +190,33 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         getContentPane().add(btnAdd);
         
         btnDelete = new AnButton("增加工人");
-        btnDelete.setText("移除工人");
         springLayout.putConstraint(SpringLayout.NORTH, btnDelete, 0, SpringLayout.NORTH, btnAdd);
-        springLayout.putConstraint(SpringLayout.WEST, btnDelete, 10, SpringLayout.EAST, btnAdd);
+        springLayout.putConstraint(SpringLayout.WEST, btnDelete, -100, SpringLayout.EAST, getContentPane());
         springLayout.putConstraint(SpringLayout.SOUTH, btnDelete, 0, SpringLayout.SOUTH, btnAdd);
-        springLayout.putConstraint(SpringLayout.EAST, btnDelete, 100, SpringLayout.EAST, btnAdd);
-        btnDelete.setBorderPressColor(new Color(219, 112, 147));
+        springLayout.putConstraint(SpringLayout.EAST, btnDelete, -10, SpringLayout.EAST, getContentPane());
+        btnDelete.setToolTipText("从此工地移除工人，不论离职或在职，删除工人在此工地存在的所有数据");
+        btnDelete.setText("移除工人");
+        btnDelete.setBorderPressColor(new Color(220, 20, 60));
         btnDelete.setBorderEnterColor(new Color(220, 20, 60));
-        btnDelete.setBorderColor(new Color(114, 114, 114));
+        btnDelete.setBorderColor(Color.GRAY);
         getContentPane().add(btnDelete);
         
         AnButton btnContract = new AnButton("增加工人");
+        springLayout.putConstraint(SpringLayout.WEST, btnContract, 110, SpringLayout.EAST, btnAdd);
+        springLayout.putConstraint(SpringLayout.EAST, btnContract, 200, SpringLayout.EAST, btnAdd);
+        btnContract.setEnabled(false);
         btnContract.setText("包工管理");
         springLayout.putConstraint(SpringLayout.NORTH, btnContract, 0, SpringLayout.NORTH, btnAdd);
-        springLayout.putConstraint(SpringLayout.WEST, btnContract, 10, SpringLayout.EAST, btnDelete);
         springLayout.putConstraint(SpringLayout.SOUTH, btnContract, 0, SpringLayout.SOUTH, btnAdd);
-        springLayout.putConstraint(SpringLayout.EAST, btnContract, 100, SpringLayout.EAST, btnDelete);
         btnContract.setBorderPressColor(new Color(249, 156, 51));
         btnContract.setBorderEnterColor(new Color(216, 99, 68));
         btnContract.setBorderColor(new Color(114, 114, 114));
         getContentPane().add(btnContract);
         
         btnPrint = new AnButton();
+        springLayout.putConstraint(SpringLayout.WEST, btnPrint, 310, SpringLayout.WEST, getContentPane());
+        btnPrint.setToolTipText("将列表中的所有数据打印成Excel表格");
         springLayout.putConstraint(SpringLayout.NORTH, btnPrint, 0, SpringLayout.NORTH, btnAdd);
-        springLayout.putConstraint(SpringLayout.WEST, btnPrint, 10, SpringLayout.EAST, btnContract);
         springLayout.putConstraint(SpringLayout.SOUTH, btnPrint, 0, SpringLayout.SOUTH, btnAdd);
         springLayout.putConstraint(SpringLayout.EAST, btnPrint, 100, SpringLayout.EAST, btnContract);
         btnPrint.setText("打印");
@@ -205,6 +226,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         getContentPane().add(btnPrint);
 
         btnQuickCheck=new AnButton("快速考勤");
+        btnQuickCheck.setToolTipText("开始快速考勤");
         springLayout.putConstraint(SpringLayout.NORTH, btnQuickCheck, 0, SpringLayout.NORTH, btnAdd);
         springLayout.putConstraint(SpringLayout.WEST, btnQuickCheck, 10, SpringLayout.EAST, btnPrint);
         springLayout.putConstraint(SpringLayout.SOUTH, btnQuickCheck, 0, SpringLayout.SOUTH, btnAdd);
@@ -214,21 +236,30 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         btnQuickCheck.setBorderEnterColor(new Color(216, 99, 68));
         btnQuickCheck.setBorderColor(new Color(114, 114, 114));
         
-        anButton = new AnButton("快速考勤");
-        springLayout.putConstraint(SpringLayout.NORTH, anButton, 0, SpringLayout.NORTH, btnAdd);
-        springLayout.putConstraint(SpringLayout.WEST, anButton, 10, SpringLayout.EAST, btnQuickCheck);
-        springLayout.putConstraint(SpringLayout.SOUTH, anButton, 0, SpringLayout.SOUTH, btnAdd);
-        springLayout.putConstraint(SpringLayout.EAST, anButton, 100, SpringLayout.EAST, btnQuickCheck);
-        anButton.setBorderPressColor(new Color(249, 156, 51));
-        anButton.setBorderEnterColor(new Color(216, 99, 68));
-        anButton.setBorderColor(new Color(114, 114, 114));
-        getContentPane().add(anButton);
+        btnLeavingSalary = new AnButton("快速考勤");
+        btnLeavingSalary.setEnabled(false);
+        btnLeavingSalary.setText("生活费发放");
+        springLayout.putConstraint(SpringLayout.NORTH, btnLeavingSalary, 0, SpringLayout.NORTH, btnAdd);
+        springLayout.putConstraint(SpringLayout.WEST, btnLeavingSalary, 10, SpringLayout.EAST, btnQuickCheck);
+        springLayout.putConstraint(SpringLayout.SOUTH, btnLeavingSalary, 0, SpringLayout.SOUTH, btnAdd);
+        springLayout.putConstraint(SpringLayout.EAST, btnLeavingSalary, 100, SpringLayout.EAST, btnQuickCheck);
+        btnLeavingSalary.setBorderPressColor(new Color(249, 156, 51));
+        btnLeavingSalary.setBorderEnterColor(new Color(216, 99, 68));
+        btnLeavingSalary.setBorderColor(new Color(114, 114, 114));
+        getContentPane().add(btnLeavingSalary);
 
 
     }
 
     @Override
     public void initializeEvent() {
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                callback();
+            }
+        });
+
         btnSave.addActionListener(e -> {
             table.clearSelection();
             if (tbBuildUnit.isEditable()){
@@ -301,9 +332,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
             }else AnPopDialog.show(this,"请先选择",2000);
         });
 
-        btnQuickCheck.addActionListener(e -> {
-            WindowBuilder.showQuickCheckWindow(siteName);
-        });
+        btnQuickCheck.addActionListener(e -> WindowBuilder.showQuickCheckWindow(siteName));
         
     }
 
@@ -316,6 +345,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         table.setCellColumnEdited(3,false);
         table.setCellColumnEdited(4,false);
         table.setCellColumnEdited(5,false);
+        table.setCellColumnEdited(6,false);
+        table.setCellColumnEdited(7,false);
 
         Application.startService(()->{
             fillData();
@@ -362,14 +393,29 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
 
         for (int i=0;i<site.findColumn(PropertyFactory.LABEL_ID_CARD).size();i++){
             if (names[i]==null)continue;
+            String id=(String) site.getSelectedRowAt(PropertyFactory.LABEL_ID_CARD);
             Vector<String> cells=new Vector<>();
             site.selectRow(i);
-            cells.add((String) site.getSelectedRowAt(PropertyFactory.LABEL_ID_CARD));
+            cells.add(id);
             cells.add(names[i].toString());
             cells.add(site.getSelectedRowAt(PropertyFactory.LABEL_DEAL_SALARY).toString());
             cells.add(site.getSelectedRowAt(PropertyFactory.LABEL_WORKER_TYPE).toString());
             cells.add(AnUtils.formateDate((Date) site.getSelectedRowAt(PropertyFactory.LABEL_ENTRY_TIME)));
             cells.add(AnUtils.formateDate((Date) site.getSelectedRowAt(PropertyFactory.LABEL_LEAVE_TIME)));
+            //最后两个参数
+            DBManager.getManager().updateChildManagerDataForMonth(Application.TODAY,id,siteName);
+            String v0=new DecimalFormat("#.0").format(
+                    DBManager.getManager().getCheckInDataForMonth()
+            );
+            v0=v0.equals(".0")?"0":v0;
+            cells.add(v0);
+
+            String v1=new DecimalFormat("#.0").format(
+                    DBManager.getManager().getGotLivingSalary()
+            );
+            v1=v1.equals(".0")?"0":v1;
+            cells.add(v1);
+            //放置整行
             vectors.add(cells);
 
             AnDateComboBoxEditor dateComboBoxEditor=new AnDateComboBoxEditor();
@@ -385,8 +431,10 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         table.getTableModel().setDataVector(vectors,AnUtils.convertToVector(headers));
 
         tbProjectName.setText((String) site.getInfosValue(PropertyFactory.LABEL_PROJECT_NAME));
-        tbDeignUnit.setText((String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN));
-        tbBuildUnit.setText((String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_BULID));
+        tbDeignUnit.setText((String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_DEIGN));
+        tbBuildUnit.setText((String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_BUILD));
+        String dateFormat=AnUtils.formateDate((Date) site.getInfosValue(PropertyFactory.LABEL_CREATE_DATE));
+        labDate.setText(dateFormat.equals("")?"未知":dateFormat);
 
         table.clearCheckPoint();
         table.setCheckPoint();
@@ -397,6 +445,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         table.setColumnWidth(3,40);
         table.setColumnWidth(4,60);
         table.setColumnWidth(5,60);
+        table.setColumnWidth(6,40);
+        table.setColumnWidth(7,70);
     }
 
     //保存工人的属性
@@ -454,8 +504,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
      */
     private void saveProperty(){
         boolean changed=false;
-        String oldB= (String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_BULID);
-        String oldD= (String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN);
+        String oldB= (String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_BUILD);
+        String oldD= (String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_DEIGN);
         String oldP= (String) site.getInfosValue(PropertyFactory.LABEL_PROJECT_NAME);
 
         String newB=tbBuildUnit.getText();
@@ -465,8 +515,8 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
         if (!oldB.equals(newB)||!oldD.equals(newD)||!oldP.equals(newP))changed=true;
 
         if (changed){
-            site.setInfosValue(PropertyFactory.LAB_UNIT_OF_BULID,tbBuildUnit.getText());
-            site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DEGIN, tbDeignUnit.getText());
+            site.setInfosValue(PropertyFactory.LAB_UNIT_OF_BUILD,tbBuildUnit.getText());
+            site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DEIGN, tbDeignUnit.getText());
             site.setInfosValue(PropertyFactory.LABEL_PROJECT_NAME, tbProjectName.getText());
 
             AnPopDialog.show(this,"工地属性已经保存！",2000);

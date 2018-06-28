@@ -16,19 +16,20 @@ import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class SitePanel extends JPanel implements Loadable, ComponentLoader {
 
-    private final String searchText="输入您要搜索的内容";
+    private final String SEARCH_TEXT ="输入您要搜索的内容";
 
     private AnImageLabel anImageLabel;
     private JTextField tbSearch;
     private DefaultListModel listModel;
     private AnList list;
-    private AnButton btnRefash;
+    private AnButton btnRefresh;
     private AnButton btnCreate;
     private JLabel label;
-    private JLabel label_2;
+    private JLabel labCreateDate;
 
     //color
     private Color pressColor=new Color(249, 156, 51);
@@ -39,6 +40,12 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
     private SiteCreateWindow createWindow=null;//创建工地窗口
     private AnButton btnPrint;
     private AnButton btnDelete;
+    private JLabel labBn;
+    private JLabel labDn;
+    private JLabel labPn;
+    private JLabel labCheckToday;
+    private JLabel labCheckRatio;
+    private JLabel labLeaveCount;
 
 
 
@@ -93,13 +100,44 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         list.validate();
     }
 
-    void refash(){
-        tbSearch.setText("");
+    void refresh(){
+        tbSearch.setText(SEARCH_TEXT);
         assert DBManager.getManager() != null;
         initList(DBManager.getManager().loadingBuildingSiteList());
     }
 
 
+    private void showSiteInfo(String siteName){
+        DataTable site=DBManager.getManager().getBuildingSite(siteName);
+        if (site==null)return;
+        labCreateDate.setText(AnUtils.formateDate((Date) site.getInfosValue(PropertyFactory.LABEL_CREATE_DATE)));
+        //今日出勤人数
+        String[] ids=AnUtils.toStringArray(site.findColumn(PropertyFactory.LABEL_ID_CARD).toArray());
+        int checkCount=0;
+        int leaveCount=0;
+        if (ids!=null){
+            for (int i=0;i<ids.length;i++){
+                Double d= (Double) DBManager.getManager().getCheckInManager().getValueAt(ids[i],site.getName(),Application.TODAY);
+                if (site.getCellAt(PropertyFactory.LABEL_LEAVE_TIME,i)!=null)leaveCount++;
+                if (d==null)continue;
+                if (d>0)checkCount++;
+            }
+        }
+        labCheckToday.setText(String.valueOf(checkCount)+"人");
+        //出勤比
+        try{
+            assert ids != null;
+            labCheckRatio.setText(((checkCount/ids.length)*100)+"%");
+        }catch (Exception e){
+            labCheckRatio.setText("0%");
+        }
+        //离职工人数量
+        labLeaveCount.setText(leaveCount+"人");
+        //工地属性
+        labBn.setText((String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_BUILD));
+        labDn.setText((String) site.getInfosValue(PropertyFactory.LAB_UNIT_OF_DEIGN));
+        labPn.setText((String) site.getInfosValue(PropertyFactory.LABEL_PROJECT_NAME));
+    }
 
 
 
@@ -158,7 +196,7 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         
         tbSearch = new JTextField();
         tbSearch.setForeground(Color.GRAY);
-        tbSearch.setText(searchText);
+        tbSearch.setText(SEARCH_TEXT);
         tbSearch.setFont(new Font("等线", Font.PLAIN, 15));
         springLayout.putConstraint(SpringLayout.NORTH, scrollPane, 10, SpringLayout.SOUTH, tbSearch);
         springLayout.putConstraint(SpringLayout.NORTH, tbSearch, 10, SpringLayout.SOUTH, anImageLabel);
@@ -173,21 +211,21 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         tbSearch.setColumns(10);
         list.setFixedCellHeight(60);
         
-        btnRefash = new AnButton("刷新");
-        btnRefash.setToolTipText("刷新列表");
-        springLayout.putConstraint(SpringLayout.NORTH, btnRefash, 0, SpringLayout.NORTH, tbSearch);
-        springLayout.putConstraint(SpringLayout.WEST, btnRefash, -85, SpringLayout.EAST, this);
-        springLayout.putConstraint(SpringLayout.SOUTH, btnRefash, 0, SpringLayout.SOUTH, tbSearch);
-        springLayout.putConstraint(SpringLayout.EAST, btnRefash, -10, SpringLayout.EAST, this);
-        btnRefash.setFont(new Font("等线", Font.PLAIN, 15));
-        add(btnRefash);
-        btnRefash.setBorderColor(normalColor);
-        btnRefash.setBorderEnterColor(enterColor);
-        btnRefash.setBorderPressColor(pressColor);
+        btnRefresh = new AnButton("刷新");
+        btnRefresh.setToolTipText("刷新列表");
+        springLayout.putConstraint(SpringLayout.NORTH, btnRefresh, 0, SpringLayout.NORTH, tbSearch);
+        springLayout.putConstraint(SpringLayout.WEST, btnRefresh, -85, SpringLayout.EAST, this);
+        springLayout.putConstraint(SpringLayout.SOUTH, btnRefresh, 0, SpringLayout.SOUTH, tbSearch);
+        springLayout.putConstraint(SpringLayout.EAST, btnRefresh, -10, SpringLayout.EAST, this);
+        btnRefresh.setFont(new Font("等线", Font.PLAIN, 15));
+        add(btnRefresh);
+        btnRefresh.setBorderColor(normalColor);
+        btnRefresh.setBorderEnterColor(enterColor);
+        btnRefresh.setBorderPressColor(pressColor);
         
         btnCreate = new AnButton("创建工地");
         btnCreate.setToolTipText("创建一个新的工地");
-        springLayout.putConstraint(SpringLayout.NORTH, btnCreate, 0, SpringLayout.NORTH, btnRefash);
+        springLayout.putConstraint(SpringLayout.NORTH, btnCreate, 0, SpringLayout.NORTH, btnRefresh);
         springLayout.putConstraint(SpringLayout.WEST, btnCreate, 10, SpringLayout.EAST, tbSearch);
         springLayout.putConstraint(SpringLayout.SOUTH, btnCreate, 0, SpringLayout.SOUTH, tbSearch);
         springLayout.putConstraint(SpringLayout.EAST, btnCreate, 100, SpringLayout.EAST, tbSearch);
@@ -223,11 +261,11 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         label.setBounds(10, 31, 123, 23);
         panel.add(label);
         
-        label_2 = new JLabel("未知");
-        label_2.setForeground(enterColor);
-        label_2.setFont(new Font("等线", Font.PLAIN, 15));
-        label_2.setBounds(143, 31, 159, 23);
-        panel.add(label_2);
+        labCreateDate = new JLabel("未知");
+        labCreateDate.setForeground(enterColor);
+        labCreateDate.setFont(new Font("等线", Font.PLAIN, 15));
+        labCreateDate.setBounds(143, 31, 159, 23);
+        panel.add(labCreateDate);
         
         JLabel label_4 = new JLabel("今日出勤：");
         label_4.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -236,11 +274,11 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         label_4.setBounds(10, 97, 123, 23);
         panel.add(label_4);
         
-        JLabel label_5 = new JLabel("未知");
-        label_5.setForeground(new Color(216, 99, 68));
-        label_5.setFont(new Font("等线", Font.PLAIN, 15));
-        label_5.setBounds(143, 97, 159, 23);
-        panel.add(label_5);
+        labCheckToday = new JLabel("未知");
+        labCheckToday.setForeground(new Color(216, 99, 68));
+        labCheckToday.setFont(new Font("等线", Font.PLAIN, 15));
+        labCheckToday.setBounds(143, 97, 159, 23);
+        panel.add(labCheckToday);
         
         JLabel label_6 = new JLabel("出勤比：");
         label_6.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -249,24 +287,24 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         label_6.setBounds(10, 130, 123, 23);
         panel.add(label_6);
         
-        JLabel label_7 = new JLabel("未知");
-        label_7.setForeground(new Color(216, 99, 68));
-        label_7.setFont(new Font("等线", Font.PLAIN, 15));
-        label_7.setBounds(143, 130, 159, 23);
-        panel.add(label_7);
+        labCheckRatio = new JLabel("未知");
+        labCheckRatio.setForeground(new Color(216, 99, 68));
+        labCheckRatio.setFont(new Font("等线", Font.PLAIN, 15));
+        labCheckRatio.setBounds(143, 130, 159, 23);
+        panel.add(labCheckRatio);
         
-        JLabel label_8 = new JLabel("今日出勤：");
+        JLabel label_8 = new JLabel("离职工人数量：");
         label_8.setHorizontalAlignment(SwingConstants.RIGHT);
         label_8.setForeground(Color.GRAY);
         label_8.setFont(new Font("等线", Font.PLAIN, 15));
         label_8.setBounds(10, 163, 123, 23);
         panel.add(label_8);
         
-        JLabel label_9 = new JLabel("未知");
-        label_9.setForeground(new Color(216, 99, 68));
-        label_9.setFont(new Font("等线", Font.PLAIN, 15));
-        label_9.setBounds(143, 163, 159, 23);
-        panel.add(label_9);
+        labLeaveCount = new JLabel("未知");
+        labLeaveCount.setForeground(new Color(216, 99, 68));
+        labLeaveCount.setFont(new Font("等线", Font.PLAIN, 15));
+        labLeaveCount.setBounds(143, 163, 159, 23);
+        panel.add(labLeaveCount);
         
         JLabel label_10 = new JLabel("项目名称：");
         label_10.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -275,11 +313,11 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         label_10.setBounds(318, 31, 123, 23);
         panel.add(label_10);
         
-        JLabel label_11 = new JLabel("未知");
-        label_11.setForeground(new Color(216, 99, 68));
-        label_11.setFont(new Font("等线", Font.PLAIN, 15));
-        label_11.setBounds(451, 31, 159, 23);
-        panel.add(label_11);
+        labPn = new JLabel("未知");
+        labPn.setForeground(new Color(216, 99, 68));
+        labPn.setFont(new Font("等线", Font.PLAIN, 15));
+        labPn.setBounds(451, 31, 159, 23);
+        panel.add(labPn);
         
         JLabel label_1 = new JLabel("建设单位：");
         label_1.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -288,11 +326,11 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         label_1.setBounds(318, 64, 123, 23);
         panel.add(label_1);
         
-        JLabel label_3 = new JLabel("未知");
-        label_3.setForeground(new Color(216, 99, 68));
-        label_3.setFont(new Font("等线", Font.PLAIN, 15));
-        label_3.setBounds(451, 64, 159, 23);
-        panel.add(label_3);
+        labDn = new JLabel("未知");
+        labDn.setForeground(new Color(216, 99, 68));
+        labDn.setFont(new Font("等线", Font.PLAIN, 15));
+        labDn.setBounds(451, 64, 159, 23);
+        panel.add(labDn);
         
         JLabel label_12 = new JLabel("施工单位：");
         label_12.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -301,13 +339,14 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         label_12.setBounds(318, 97, 123, 23);
         panel.add(label_12);
         
-        JLabel label_13 = new JLabel("未知");
-        label_13.setForeground(new Color(216, 99, 68));
-        label_13.setFont(new Font("等线", Font.PLAIN, 15));
-        label_13.setBounds(451, 97, 159, 23);
-        panel.add(label_13);
+        labBn = new JLabel("未知");
+        labBn.setForeground(new Color(216, 99, 68));
+        labBn.setFont(new Font("等线", Font.PLAIN, 15));
+        labBn.setBounds(451, 97, 159, 23);
+        panel.add(labBn);
         
         btnPrint = new AnButton("创建工地");
+        btnPrint.setEnabled(false);
         btnPrint.setToolTipText("打印所选择的数据");
         btnPrint.setText("打印数据");
         springLayout.putConstraint(SpringLayout.NORTH, btnPrint, 0, SpringLayout.NORTH, tbSearch);
@@ -380,15 +419,10 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
         btnCreate.addActionListener(e -> {
             if (createWindow==null)createWindow=new SiteCreateWindow();
             createWindow.setVisible(true);
-            createWindow.setCallback(values -> {
-
-                refash();
-            });
+            createWindow.setCallback(values -> refresh());
         });
 
-        btnRefash.addActionListener(e -> {
-            refash();
-        });
+        btnRefresh.addActionListener(e -> refresh());
 
         list.addMouseListener(new MouseAdapter() {
             @Override
@@ -396,11 +430,15 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
                 if (e.getClickCount()>=2){
                     AnListRenderModel model= (AnListRenderModel) listModel.get(list.getSelectedIndex());
                     if (model==null)return;
-                    WindowBuilder.showSiteInfoWindow(model.getTitle(),values -> {
-                        refash();
-                    });
+                    WindowBuilder.showSiteInfoWindow(model.getTitle(),values -> refresh());
                 }
             }
+        });
+
+        list.addListSelectionListener(e -> {
+            if (list.getSelectedIndex()==-1)return;
+            AnListRenderModel model= (AnListRenderModel) listModel.elementAt(list.getSelectedIndex());
+            showSiteInfo(model.getTitle());
         });
         
         btnDelete.addActionListener(e -> {
@@ -424,11 +462,11 @@ public class SitePanel extends JPanel implements Loadable, ComponentLoader {
                     DBManager.getManager().getCheckInManager().removeSite(id,siteName);
                 }
 
-                DBManager.getManager().deleteBulidingSite(site);
+                DBManager.getManager().deleteBuildingSite(site);
                 //删除子管理器信息
 
                 AnPopDialog.show(this,siteName+" 删除完成！",2000);
-                refash();
+                refresh();
             }
         });
     }

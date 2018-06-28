@@ -21,10 +21,19 @@ import java.util.Vector;
  * <li></li>
  */
 public class AnTable extends JTable{
+	public static final int ALIGNMENT_LEFT=0;
+	public static final int ALIGNMENT_CENTER=1;
+	public static final int ALIGNMENT_RIGHT=2;
 
 	private DefaultTableModel tableModel =null;//默认列表数据模型
 
 	private ArrayList<Point> editPassList=null;//不可编辑的表格
+
+	private ArrayList<CellAlignment> cellAlignments=null;
+
+	private ArrayList<CellAlignment> rowAlignments=null;
+
+	private ArrayList<CellAlignment> columnAlignments=null;
 
 	/**
 	 * 表头
@@ -108,6 +117,10 @@ public class AnTable extends JTable{
 		editPassList=new ArrayList<>();
 		rowEditFiltrate=new ArrayList<>();
 		columnEditFiltrate=new ArrayList<>();
+
+		cellAlignments=new ArrayList<>();
+		rowAlignments=new ArrayList<>();
+		columnAlignments=new ArrayList<>();
 
 		//默认listMod，重写其中的isCellEditable方法，控制单元格的编辑规则
 		tableModel =new DefaultTableModel(){
@@ -524,7 +537,7 @@ public class AnTable extends JTable{
 		}
 	}
 
-	public void removeTableClickLisneter(AnTableClickListener l){
+	public void removeTableClickListener(AnTableClickListener l){
 		clickListeners.remove(l);
 	}
 
@@ -613,8 +626,22 @@ public class AnTable extends JTable{
 				setBorder(null);
 			}
 
+
+			setHorizontalAlignment(JLabel.CENTER);
+
+
 			setText((value == null) ? "" : value.toString());
 			return this;
 		}
+	}
+
+	private class CellAlignment{
+		Point point;
+		/**
+		 * 0 ：left
+		 * 1：center
+		 * 2：right
+		 */
+		int alignment=0;
 	}
 }
