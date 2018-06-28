@@ -23,21 +23,18 @@ import java.util.Vector;
 
 public class WorkerPanel extends JPanel implements Loadable{
 
-	private volatile boolean isSearching=false;//搜索线程运行标记
     private boolean isPropertyRunning =false;//属性正在初始化
-    private volatile int textChanged=0;//文字是否发生改变  -1是删除   0是未改变   1增加
-    private Runnable searchTask=null;//动态搜索Runnable
-    private Runnable searchStateChangeTask=null;//动态搜索监听线程
+    private ArrayList<AnListRenderModel> searchTmpList=null;
 
     private AnTextField searchBox;
-    private AnList<AnListRenderModel> list=null;
+    private AnList list=null;
+    private DefaultListModel<AnListRenderModel> listModel=null;
     private AnButton btnEntry;
     private AnButton btnPrint;
     private AnButton btnRefresh;
     private AnButton btnPropertyAlert;
 
     private JComboBox<String> cobSite;//所属工地筛选器
-    private AnImageLabel anImageLabel;
     private AnLabel labWorkingWorker;
     private AnLabel labGotLivingCostCount;
     private AnLabel labGotLivingCostToday;
@@ -86,6 +83,8 @@ public class WorkerPanel extends JPanel implements Loadable{
         
         list=new AnList<>(new AnInfoCellRenderer(),355,60);
         scrollPane.setViewportView(list);
+        listModel=new DefaultListModel<>();
+        list.setModel(listModel);
 
         AnLabel lblTitle = new AnLabel("工人管理");
         springLayout.putConstraint(SpringLayout.NORTH, lblTitle, 10, SpringLayout.NORTH, this);
@@ -177,8 +176,8 @@ public class WorkerPanel extends JPanel implements Loadable{
         springLayout.putConstraint(SpringLayout.SOUTH, lblNewLabel, 76, SpringLayout.NORTH, this);
         springLayout.putConstraint(SpringLayout.EAST, lblNewLabel, 0, SpringLayout.EAST, this);
         add(lblNewLabel);
-        
-        anImageLabel = new AnImageLabel(new Color(24, 96, 48));
+
+        AnImageLabel anImageLabel = new AnImageLabel(new Color(24, 96, 48));
         springLayout.putConstraint(SpringLayout.NORTH, anImageLabel, 0, SpringLayout.NORTH, this);
         springLayout.putConstraint(SpringLayout.WEST, anImageLabel, 0, SpringLayout.WEST, this);
         springLayout.putConstraint(SpringLayout.SOUTH, anImageLabel, 76, SpringLayout.NORTH, this);
@@ -526,12 +525,12 @@ public class WorkerPanel extends JPanel implements Loadable{
             public void insertUpdate(DocumentEvent e) {
                 if(searchBox.getText().equals("输入名字或身份证信息查找"))
                     return;
-                search(1);
+                search(searchBox.getText());
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
-                search(-1);
+                search(searchBox.getText());
             }
 
             @Override
@@ -539,66 +538,12 @@ public class WorkerPanel extends JPanel implements Loadable{
             }
         });
 
-        //搜索线程方法
-        searchTask= () -> {
-            //锁住List
-            //noinspection SynchronizeOnNonFinalField
-            synchronized (list){
-                list.clear();
-                String value=searchBox.getText();
-                assert DBManager.getManager() != null;
-                for (int i = 0; i<DBManager.getManager().getWorkerListSize(); i++){
 
-                    if(textChanged==-1){
-                        list.clear();
-                        i=0;//复位搜索
-                        textChanged=0;
-                    }
-
-                    Bean bean =DBManager.getManager().loadingWorkerList().get(i);
-                    //获取Info属性
-                    Info name= bean.find("名字");
-                    Info number= bean.find("身份证");
-                    //获取值
-                    String strName=(String) name.getValue();
-                    String strNum=(String)number.getValue();
-                    if(strName.contains(value)||strNum.contains(value)){
-                        AnListRenderModel listDataModel=new AnListRenderModel(strName,strNum);
-                        list.addElement(listDataModel);
-                    }
-                }
-                if(textChanged==1){
-                    list.notify();
-                }
-            }
-            isSearching=false;
-        };
-
-        //搜索状态更改线程
-        searchStateChangeTask=()->{
-
-            //noinspection SynchronizeOnNonFinalField
-            synchronized (list){
-                if(isSearching){
-                    try {
-                        list.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                String value= searchBox.getText();
-                for(int i=0;i<list.getItemSize();i++){
-                    if(!list.getElementAt(i).getTitle().contains(value)||!list.getElementAt(i).getInfo().contains(value)){
-                        list.removeElementAt(i);
-                    }
-                }
-            }
-            textChanged=0;
-        };
 
         //List点击
         list.addListSelectionListener(e -> {
-            AnListRenderModel tmpModel=list.getElementAt(list.getSelectedIndex());
+            if (list.getSelectedIndex()==-1)return;
+            AnListRenderModel tmpModel= listModel.getElementAt(list.getSelectedIndex());
             showWorkerInfo(tmpModel);
         });
 
@@ -607,12 +552,11 @@ public class WorkerPanel extends JPanel implements Loadable{
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount()==2){
-                    AnListRenderModel model=list.getElementAt(list.getSelectedIndex());
+                    if (list.getSelectedIndex()==-1)return;
+                    AnListRenderModel model= listModel.getElementAt(list.getSelectedIndex());
                     String siteName=Objects.requireNonNull(cobSite.getSelectedItem()).toString();
 
-                    WindowBuilder.showWorkWindow(model.getInfo(),siteName,(values)-> {
-                        refresh();
-                    });
+                    WindowBuilder.showWorkWindow(model.getInfo(),siteName,(values)-> refresh());
                 }
             }
         });
@@ -626,9 +570,7 @@ public class WorkerPanel extends JPanel implements Loadable{
 
         cbShowLeave.addActionListener((e)-> loadingList());
 
-        btnPropertyAlert.addActionListener(e->{
-            WindowBuilder.showPropertyWindow();
-        });
+        btnPropertyAlert.addActionListener(e-> WindowBuilder.showPropertyWindow());
 
         btnPrint.addActionListener(e -> {
             Vector<Vector> vectors=new Vector<>();
@@ -650,8 +592,9 @@ public class WorkerPanel extends JPanel implements Loadable{
                 vectors.add(cells);
             }
             //传入打印
-            AnUtils.showPrintWindow(this,vectors);
-            AnPopDialog.show(this,"打印完成！",AnPopDialog.SHORT_TIME);
+            if (AnUtils.showPrintWindow(this,vectors))
+                AnPopDialog.show(this,"打印完成！",AnPopDialog.SHORT_TIME);
+            else AnPopDialog.show(this,"打印取消或失败！",AnPopDialog.SHORT_TIME);
         });
     }
 
@@ -680,69 +623,28 @@ public class WorkerPanel extends JPanel implements Loadable{
 
     /**
      * 搜索工人
-     * @param state 状态
      */
-    private void search(int state){
-        if(list==null)
-            return;
-
-        //设置状态
-        textChanged=state;
-
-        if(isSearching){
-            //搜索线程启动
-            Application.startService(searchStateChangeTask);
-        }else{
-            //线程未启动
-            Application.startService(searchTask);
+    private void search(String text){
+        //1增加字符，0减少字符
+        listModel.clear();
+        if (searchTmpList==null)return;
+        for (AnListRenderModel model:searchTmpList){
+            if (model.getTitle().contains(text)||model.getInfo().contains(text)){
+                if (!cbShowLeave.isSelected()&&DBManager.getManager().isWorkerLeaveAllSite(model.getInfo()))continue;
+                listModel.addElement(model);
+            }
         }
+        list.revalidate();
     }
 
     /**
      * 读取DBManager中的已经装载好的
      */
     private void loadingList(){
-        if(list!=null)
-            list.clear();
-        //读取工人列表
-        /*ArrayList<Bean> beans;
-       if (cobSite ==null){
-           assert DBManager.getManager() != null;
-           beans=DBManager.getManager().loadingWorkerList();
-       }else if(cobSite.getSelectedItem()==null){
-           assert DBManager.getManager() != null;
-           beans=DBManager.getManager().loadingWorkerList();
-       }else if(cobSite.getSelectedItem().equals("全部")){
-           assert DBManager.getManager() != null;
-           beans=DBManager.getManager().loadingWorkerList();
-       }else{
-           String value =(String) cobSite.getSelectedItem();
-           assert DBManager.getManager() != null;
-           DataTable dataTable=DBManager.getManager().getBuildingSite(value);
-           beans=new ArrayList<>();
-           for (Object id:dataTable.findColumn(PropertyFactory.LABEL_ID_CARD).toArray()){
-                beans.add(DBManager.getManager().getWorker((String) id));
-           }
-       }
-       for(Bean bean :beans){
-            //获取Info属性
-            Info name= bean.find("名字");
-            Info number= bean.find("身份证");
-            //获取值
-            String strName=(String) name.getValue();
-            String strNum=(String)number.getValue();
-            //判断离职
-           if (!cbShowLeave.isSelected())
-               if (cobSite.getSelectedItem() == null || cobSite.getSelectedItem().equals("全部")) {
-                   if (DBManager.getManager().isWorkerLeaveAllSite(strNum)) continue;
-               } else if (DBManager.getManager().isWorkerLeave(strNum, cobSite.getSelectedItem().toString())) continue;
-            //转换成列表模型
-            AnListRenderModel model=new AnListRenderModel(strName,strNum);
-            //添加到列表
-            list.addElement(model);
-        }
-        repaint();*/
-
+        if(listModel!=null)
+            listModel.clear();
+        //读取工人、创建副本
+        if (searchTmpList==null)searchTmpList=new ArrayList<>();
        //新逻辑
         String siteName=(cobSite.getSelectedItem()!=null)&&!cobSite.getSelectedItem().equals("全部")?cobSite.getSelectedItem().toString() :"";
         String[] ids=DBManager.getManager().getWorkerIdAt(siteName,cbShowLeave.isSelected());
@@ -750,9 +652,9 @@ public class WorkerPanel extends JPanel implements Loadable{
             //已经筛选出
             for (String id:ids){
                 AnListRenderModel model=new AnListRenderModel(DBManager.getManager().getWorkerName(id),id);
-                list.addElement(model);
+                listModel.addElement(model);
+                searchTmpList.add(model);
             }
-            repaint();
         }
     }
 
@@ -805,7 +707,7 @@ public class WorkerPanel extends JPanel implements Loadable{
             if (DBManager.getManager().isWorkerLeaveAllSite(id))
                 continue;
             if (AnUtils.isDateMDEquality(td, AnUtils.convertBornDate(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_ID_CARD)))){
-                sb.append(DBManager.getBeanInfoStringValue(worker,PropertyFactory.LABEL_NAME)+"今天生日！\n");
+                sb.append(DBManager.getBeanInfoStringValue(worker, PropertyFactory.LABEL_NAME)).append("今天生日！\n");
                 hasBirthday=true;
                 birthdayCount++;
             }
@@ -818,7 +720,6 @@ public class WorkerPanel extends JPanel implements Loadable{
             imgBirthday.setToolTipText(null);
             imgBirthday.setText("无人生日");
         }
-
     }
 
 

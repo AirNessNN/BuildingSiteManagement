@@ -14,8 +14,8 @@ import java.util.Vector;
 public class SiteCreateWindow extends Window implements ComponentLoader {
 	private JTextField tbName;
 	private JTextField tbProjectName;
-	private JTextField tbBuidUnit;
-	private JTextField tbDeginUnit;
+	private JTextField tbBuildUnit;
+	private JTextField tbDeignUnit;
 	private AnButton btnOK;
 	private AnButton btnCancel;
 
@@ -23,7 +23,7 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
 
 	private String[] ids=null;
 	private Vector<Vector> vectors=null;
-	private AnButton btnSeleteWorker;
+	private AnButton btnSelectWorker;
 
 
 
@@ -88,11 +88,11 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
         label_2.setBounds(10, 78, 116, 24);
         getContentPane().add(label_2);
         
-        tbBuidUnit = new JTextField();
-        tbBuidUnit.setFont(new Font("等线", Font.PLAIN, 15));
-        tbBuidUnit.setColumns(10);
-        tbBuidUnit.setBounds(136, 78, 164, 24);
-        getContentPane().add(tbBuidUnit);
+        tbBuildUnit = new JTextField();
+        tbBuildUnit.setFont(new Font("等线", Font.PLAIN, 15));
+        tbBuildUnit.setColumns(10);
+        tbBuildUnit.setBounds(136, 78, 164, 24);
+        getContentPane().add(tbBuildUnit);
         
         JLabel label_3 = new JLabel("建设单位：");
         label_3.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -100,11 +100,11 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
         label_3.setBounds(10, 112, 116, 24);
         getContentPane().add(label_3);
         
-        tbDeginUnit = new JTextField();
-        tbDeginUnit.setFont(new Font("等线", Font.PLAIN, 15));
-        tbDeginUnit.setColumns(10);
-        tbDeginUnit.setBounds(136, 112, 164, 24);
-        getContentPane().add(tbDeginUnit);
+        tbDeignUnit = new JTextField();
+        tbDeignUnit.setFont(new Font("等线", Font.PLAIN, 15));
+        tbDeignUnit.setColumns(10);
+        tbDeignUnit.setBounds(136, 112, 164, 24);
+        getContentPane().add(tbDeignUnit);
         
         btnOK = new AnButton("完成");
         btnOK.setBounds(461, 326, 93, 30);
@@ -115,9 +115,9 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
         btnCancel.setBounds(358, 326, 93, 30);
         getContentPane().add(btnCancel);
         
-        btnSeleteWorker = new AnButton("选择工人");
-        btnSeleteWorker.setBounds(136, 146, 164, 30);
-        getContentPane().add(btnSeleteWorker);
+        btnSelectWorker = new AnButton("选择工人");
+        btnSelectWorker.setBounds(136, 146, 164, 30);
+        getContentPane().add(btnSelectWorker);
 
 
         JLabel label_4 = new JLabel("此工地的名称");
@@ -159,43 +159,11 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
             try {
                 DataTable site=DBManager.getManager().createBuildingSite(siteName);
                 site.setInfosValue(PropertyFactory.LABEL_PROJECT_NAME,tbProjectName.getText());
-                site.setInfosValue(PropertyFactory.LAB_UNIT_OF_BUILD,tbBuidUnit.getText());
-                site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DEIGN,tbDeginUnit.getText());
+                site.setInfosValue(PropertyFactory.LAB_UNIT_OF_BUILD, tbBuildUnit.getText());
+                site.setInfosValue(PropertyFactory.LAB_UNIT_OF_DEIGN, tbDeignUnit.getText());
 
                 if (ids!=null){
                     Application.fillWorkers(this,ids,vectors,siteName);
-                    /*int i=0;
-                    for (String id : ids) {
-                        Vector<String> tmpPn=null;
-                        if (vectors.size()>0)tmpPn=vectors.get(i++);
-
-                        //获取协议工价
-                        double d=0d;
-                        if (tmpPn!=null){
-                            try{
-                                d=Double.valueOf(tmpPn.get(2));
-                            }catch (Exception ex){
-                                AnPopDialog.show(this,"协议工价转换错误，采用默认值：0",AnPopDialog.LONG_TIME);
-                            }
-                        }
-
-                        //获取日期
-                        Date date=new Date();
-                        if (tmpPn!=null){
-                            try {
-                                date=AnUtils.getDate(tmpPn.get(4),Resource.DATE_FORMATE);
-                            } catch (ParseException e1) {
-                                AnPopDialog.show(this,"入职日期转换错误，采用默认值：今天",AnPopDialog.LONG_TIME);
-                            }
-                        }
-
-                        //获取类型
-                        String type="";
-                        if (tmpPn!=null)type=tmpPn.get(3);
-
-                        assert DBManager.getManager() != null;
-                        DBManager.getManager().addWorkerToSite(id,siteName,d,type,date);
-                    }*/
                     AnPopDialog.show(this,"已经添加"+ids.length+"个工人到"+siteName+"。",AnPopDialog.LONG_TIME);
                 }else
                     AnPopDialog.show(this,"工地创建完成！",AnPopDialog.SHORT_TIME);
@@ -208,14 +176,14 @@ public class SiteCreateWindow extends Window implements ComponentLoader {
 
         btnCancel.addActionListener(e -> dispose());
 
-        btnSeleteWorker.addActionListener(e -> {
+        btnSelectWorker.addActionListener(e -> {
             if (chooser!=null) chooser.dispose();
             chooser=new WorkerChooser();
             chooser.initializeData();
             chooser.setVisible(true);
             chooser.setCallback(values -> {
                 String[] ids= (String[]) values[0];
-                btnSeleteWorker.setText("选择了 "+ids.length+" 个工人");
+                btnSelectWorker.setText("选择了 "+ids.length+" 个工人");
                 this.ids=ids;
 
                 Vector<Vector> vectors= (Vector<Vector>) values[1];

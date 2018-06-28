@@ -622,7 +622,6 @@ public class DBManager {
 			}
 		}else {//选择了工地
 			String[] ids=getBuildingSiteWorkers(siteName);
-			DataTable site=getBuildingSite(siteName);
 			for (String id :ids){
 				if (showLeaved){
 					tmpList.add(id);
@@ -1210,6 +1209,11 @@ public class DBManager {
 		ArrayList<IDateValueItem> tmpItems=getCheckInManager().getWorkerDateValueList(id,siteName);//出勤
 		ArrayList<IDateValueItem> tmpSalary=getSalaryManager().getWorkerDateValueList(id,siteName);//工资
 
+        if (tmpItems==null||tmpSalary==null){
+            monthCheckIn=0;
+            gotLivingSalary=0;
+            return;
+        }
 		int maxLength=tmpItems.size()>tmpSalary.size()?tmpItems.size():tmpSalary.size();
 
 		for (int i=0;i<maxLength;i++){

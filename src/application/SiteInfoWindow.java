@@ -393,9 +393,9 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
 
         for (int i=0;i<site.findColumn(PropertyFactory.LABEL_ID_CARD).size();i++){
             if (names[i]==null)continue;
-            String id=(String) site.getSelectedRowAt(PropertyFactory.LABEL_ID_CARD);
             Vector<String> cells=new Vector<>();
             site.selectRow(i);
+            String id=(String) site.getSelectedRowAt(PropertyFactory.LABEL_ID_CARD);
             cells.add(id);
             cells.add(names[i].toString());
             cells.add(site.getSelectedRowAt(PropertyFactory.LABEL_DEAL_SALARY).toString());
@@ -527,6 +527,7 @@ public class SiteInfoWindow extends Window implements ComponentLoader {
     private void updateIds(){
         ids=new String[table.getTableModel().getRowCount()];
         for (int i=0;i<table.getTableModel().getRowCount();i++){
+            if (table.getCell(i,0)==null)continue;
             ids[i]=table.getCell(i,0).toString();
         }
     }
