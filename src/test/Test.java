@@ -103,7 +103,7 @@ public class Test extends JFrame{
 
 
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		User user=new User();
 		user.userName="test";
 		user.password="123456";
@@ -118,8 +118,23 @@ public class Test extends JFrame{
 		}
 
 		ProgressbarDialog.showDialog("测试",0,100);
-		ProgressbarDialog.setState("haha",10);
+		ProgressbarDialog.setState("haha",50);
+		Thread.sleep(3000);
+		ProgressbarDialog.setState("haha",60);
+		Thread.sleep(500);
+		ProgressbarDialog.setState("haha",80);
+		Thread.sleep(500);
+		ProgressbarDialog.setState("haha",100);
 
+		Thread.sleep(3000);
+		ProgressbarDialog.showDialog("测试",0,100);
+		ProgressbarDialog.setState("haha",50);
+		Thread.sleep(3000);
+		ProgressbarDialog.setState("haha",60);
+		Thread.sleep(500);
+		ProgressbarDialog.setState("haha",80);
+		Thread.sleep(500);
+		ProgressbarDialog.setState("haha",100);
 
 	}
 
