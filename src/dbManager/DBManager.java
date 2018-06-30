@@ -622,6 +622,7 @@ public class DBManager {
 			}
 		}else {//选择了工地
 			String[] ids=getBuildingSiteWorkers(siteName);
+			if (ids==null)return null;
 			for (String id :ids){
 				if (showLeaved){
 					tmpList.add(id);

@@ -204,6 +204,11 @@ public class InfoWindow extends Window implements ComponentLoader {
                     }
                 }
                 dispose();
+                try {
+                    finalize();
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
             }
         });
 

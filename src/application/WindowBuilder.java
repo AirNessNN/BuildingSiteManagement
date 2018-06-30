@@ -9,6 +9,8 @@ import dbManager.PropertyFactory;
 import resource.Resource;
 
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -113,10 +115,14 @@ public class WindowBuilder {
         if (infoWindow!=null){
             infoWindow.dispose();
         }
-        infoWindow=new InfoWindow();
-        infoWindow.initializeWorker(id,site);
-        infoWindow.setCallback(callBack);
-        infoWindow.setVisible(true);
+        Application.startService(()->{
+            if (infoWindow==null)infoWindow=new InfoWindow();
+            infoWindow.initializeWorker(id,site);
+            infoWindow.setCallback(callBack);
+            ProgressbarDialog.CloseDialog();
+            infoWindow.setVisible(true);
+        });
+        ProgressbarDialog.showDialog("加载工人信息");
     }
 
     static void closeInfoWindow(){

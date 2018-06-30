@@ -503,6 +503,7 @@ public class WorkerInfoWindow extends Window {
 				String id= (String) values[0];
 				String site= (String) values[1];
 				initializeData(id, site);
+				System.gc();
 			});
 		});
 

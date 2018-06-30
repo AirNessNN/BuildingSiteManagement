@@ -117,7 +117,7 @@ public class Test extends JFrame{
 			e.printStackTrace();
 		}
 
-		ProgressbarDialog.showDialog("测试",0,100);
+		/*ProgressbarDialog.showDialog("测试",0,100);
 		ProgressbarDialog.setState("haha",50);
 		Thread.sleep(3000);
 		ProgressbarDialog.setState("haha",60);
@@ -134,7 +134,8 @@ public class Test extends JFrame{
 		Thread.sleep(500);
 		ProgressbarDialog.setState("haha",80);
 		Thread.sleep(500);
-		ProgressbarDialog.setState("haha",100);
+		ProgressbarDialog.setState("haha",100);*/
+		ProgressbarDialog.showDialog("测试");
 
 	}
 
