@@ -10,12 +10,13 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EventObject;
+import java.util.HashSet;
 
 public class AnDateComboBoxEditor extends JButton implements AnTableCellEditor{
 
     private EventListenerList listenerList = new EventListenerList();
     private ChangeEvent changeEvent = new ChangeEvent(this);
-    private Point location=null;
+    private HashSet<Rank> location=new HashSet<>();
     private AnDateComboPanel dateComboPanel;
     private JDialog frame;
     private boolean cancelFlag=false;//取消标记
@@ -64,14 +65,32 @@ public class AnDateComboBoxEditor extends JButton implements AnTableCellEditor{
 
 
 
+
     @Override
-    public Point getTableCellLocation() {
-        return location;
+    public boolean isCellEditor(int row, int col) {
+        for (Rank rank:location){
+            if (rank.getRow()==row&&rank.getColumn()==col)return true;
+        }
+        return false;
     }
 
     @Override
-    public void setTableCellLocation(int row, int col) {
-        location=new Point(row,col);
+    public void addTableCellLocation(int row, int col) {
+        location.add(new Rank(row,col));
+    }
+
+    @Override
+    public void removeTableCellLocation(int row, int col) {
+        Rank del=null;
+        for (Rank rank:location){
+            if (rank.getRow()==row&&rank.getColumn()==col)del=rank;
+        }
+        location.remove(del);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return false;
     }
 
     @Override

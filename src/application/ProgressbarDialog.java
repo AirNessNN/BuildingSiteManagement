@@ -24,9 +24,9 @@ public class ProgressbarDialog extends JDialog {
         getContentPane().setLayout(null);
         setSize(452,132);
         setLocationRelativeTo(null);
-        getContentPane().setBackground(Color.white);
+        getContentPane().setBackground(Color.LIGHT_GRAY);
         setBackground(Color.GRAY);
-        setForeground(Color.LIGHT_GRAY);
+        setForeground(Color.darkGray);
         
         labTitle = new JLabel("进程正忙");
         labTitle.setFont(new Font("等线", Font.PLAIN, 20));
@@ -72,6 +72,7 @@ public class ProgressbarDialog extends JDialog {
     }
 
     public static void setState(String info,int progress){
+        if (dialog==null)return;
         dialog.labInfo.setText(info);
         dialog.progressBar.setState(progress);
     }
@@ -105,21 +106,20 @@ public class ProgressbarDialog extends JDialog {
                 if (mod==0){
                     synchronized (lock){
                         if (index==maxValue)return;
-                        if (index==value) {
-                            try {
-                                lock.wait();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+                        index=value;
+                        try {
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
-                    index++;
                 }else if(mod==1){
                     for (int i=0;i<4;i++){
                         int x=points[i].x;
                         int m=points[i].y;//增量
 
-                        if (x>getWidth()+(getWidth()*2)&&i==3){
+                        //复原
+                        if (x>getWidth()+(getWidth()*5)&&i==3){
                             points[0].setLocation(0,20);
                             points[1].setLocation(-30,20);
                             points[2].setLocation(-60,20);

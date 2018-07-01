@@ -170,7 +170,7 @@ public class AnButton  extends JLabel implements MouseListener,Runnable{
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        if (isEnabled()){
+        if (isEnabled()&&e.getPoint().x<getWidth()&&e.getPoint().y<getHeight()){
             entered=true;
             paintBorderColor= borderEnterColor;
             if (running)return;
@@ -185,6 +185,7 @@ public class AnButton  extends JLabel implements MouseListener,Runnable{
         if (isEnabled()){
             entered=false;
             paintBorderColor=borderColor;
+            repaint();
         }
     }
 

@@ -6,8 +6,6 @@ import component.ComponentLoader;
 import resource.Resource;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -52,7 +50,7 @@ public class QuickCheckWindow extends Window implements ComponentLoader {
             for (int i=0;i<checkModel.size();i++){
                 tmpArrays[i]= (String) checkModel.get(i);
             }
-            defaultControl.selectedCallback(tmpArrays);
+            defaultControl.onSelectedDataGet(tmpArrays);
         }
     }
 
@@ -172,9 +170,11 @@ public class QuickCheckWindow extends Window implements ComponentLoader {
 
         btnOK.addActionListener(e -> {
             try {
+                if (defaultControl!=null&&!defaultControl.onValueGet(txValue.getText()))return;
                 Date d1=AnUtils.getDate(btnStartDate.getText(),Resource.DATE_FORMATE);
                 Date d2=AnUtils.getDate(btnEndDate.getText(),Resource.DATE_FORMATE);
-                if (defaultControl!=null)defaultControl.fillData(d1,d2);
+
+                if (defaultControl!=null)defaultControl.onDataFill(d1,d2);
                 dispose();
             } catch (ParseException e1) {
                 Application.errorWindow("填充数据时出错："+e1.toString());
@@ -197,31 +197,13 @@ public class QuickCheckWindow extends Window implements ComponentLoader {
                 if (e.getClickCount()>=2) moveListItem(checkList, checkModel, listModel);
             }
         });
-
-        //文本改变
-        txValue.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                if (defaultControl!=null)defaultControl.setValue(txValue.getText());
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                if (defaultControl!=null)defaultControl.setValue(txValue.getText());
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-
-            }
-        });
     }
 
     @Override
     public void initializeData(Object... args) {
 
         listModel=new DefaultListModel();
-        for (String name:(String[]) defaultControl.getSourceData()){
+        for (String name:(String[]) defaultControl.onSourceDataSet()){
             listModel.addElement(name);
         }
         list.setModel(listModel);
@@ -257,19 +239,19 @@ public class QuickCheckWindow extends Window implements ComponentLoader {
      */
     public interface QuickOpaControl{
 
-        Object getSourceData();
+        Object onSourceDataSet();//填充用户的List数据
 
         void setSourceData(Object data);
 
-        void fillData(Date d1,Date d2);
+        void onDataFill(Date d1, Date d2);//完成按钮按下之后调用
 
-        void setValue(Object value);
+        boolean onValueGet(Object value);//完成按钮按下之后先调用文本框的值
 
-        void selectedCallback(String[] arrays);
+        void onSelectedDataGet(String[] arrays);//列表中选择的数据变动一次，调用一次
 
-        boolean onStartDateSet(String dateFormat);
+        boolean onStartDateSet(String dateFormat);//开始时间按钮回调
 
-        boolean onEndDateSet(String dateFormat);
+        boolean onEndDateSet(String dateFormat);//结束时间按钮回调
 
     }
 }

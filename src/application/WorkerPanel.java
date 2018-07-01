@@ -30,6 +30,7 @@ public class WorkerPanel extends JPanel implements Loadable{
     private AnList list=null;
     private DefaultListModel<AnListRenderModel> listModel=null;
     private AnButton btnEntry;
+    private AnButton btnEntryFromExcel;
     private AnButton btnPrint;
     private AnButton btnRefresh;
     private AnButton btnPropertyAlert;
@@ -117,7 +118,6 @@ public class WorkerPanel extends JPanel implements Loadable{
         btnPrint.setBorderEnterColor(enterColor);
         btnPrint.setBorderPressColor(pressColor);
 
-
         btnEntry = new AnButton("添加工人");
         springLayout.putConstraint(SpringLayout.NORTH, btnEntry, 1, SpringLayout.NORTH, searchBox);
         springLayout.putConstraint(SpringLayout.SOUTH, btnEntry, 107, SpringLayout.NORTH, this);
@@ -126,6 +126,17 @@ public class WorkerPanel extends JPanel implements Loadable{
         btnEntry.setBorderColor(normalColor);
         btnEntry.setBorderEnterColor(enterColor);
         btnEntry.setBorderPressColor(pressColor);
+
+        btnEntryFromExcel = new AnButton("导入工人");
+        springLayout.putConstraint(SpringLayout.NORTH, btnEntryFromExcel, 1, SpringLayout.NORTH, searchBox);
+        springLayout.putConstraint(SpringLayout.SOUTH, btnEntryFromExcel, 107, SpringLayout.NORTH, this);
+        springLayout.putConstraint(SpringLayout.WEST, btnEntryFromExcel, -95, SpringLayout.WEST, btnEntry);
+        springLayout.putConstraint(SpringLayout.EAST, btnEntryFromExcel, -10, SpringLayout.WEST, btnEntry);
+        btnEntryFromExcel.setToolTipText("从Excel模板中导入工人");
+        add(btnEntryFromExcel);
+        btnEntryFromExcel.setBorderColor(normalColor);
+        btnEntryFromExcel.setBorderEnterColor(enterColor);
+        btnEntryFromExcel.setBorderPressColor(pressColor);
         
         btnRefresh = new AnButton("刷新");
         springLayout.putConstraint(SpringLayout.WEST, btnPrint, -90, SpringLayout.WEST, btnRefresh);
@@ -504,6 +515,10 @@ public class WorkerPanel extends JPanel implements Loadable{
                     searchBox.setText("输入名字或身份证信息查找");
                 }
             }
+        });
+
+        btnEntryFromExcel.addActionListener(e -> {
+
         });
 
         //入职登记

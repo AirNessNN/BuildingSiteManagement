@@ -331,14 +331,14 @@ public class DBManager {
 		Random r=new Random();
 		for(int i=0;i<50;i++){
 			Bean w= PropertyFactory.createWorker();
-			w.find(PropertyFactory.LABEL_NUMBER).setValue(i);
+			w.find(PropertyFactory.LABEL_NUMBER).onValueGet(i);
 			Info inf1=w.find("名字");
-			inf1.setValue("名字"+r.nextInt(456123));
+			inf1.onValueGet("名字"+r.nextInt(456123));
 			Info inf2=w.find("身份证");
-			inf2.setValue(Test.IDRandom());
-			w.find(PropertyFactory.LABEL_PHONE).setValue("13123376032");
-			w.find(PropertyFactory.LABEL_SEX).setValue(workerProperty.findColumn(PropertyFactory.LABEL_SEX).getValues().get(r.nextInt(workerProperty.findColumn(PropertyFactory.LABEL_SEX).size())));//性别
-			w.find(PropertyFactory.LABEL_BANK_ADDRESS).setValue("乱写的地址");
+			inf2.onValueGet(Test.IDRandom());
+			w.find(PropertyFactory.LABEL_PHONE).onValueGet("13123376032");
+			w.find(PropertyFactory.LABEL_SEX).onValueGet(workerProperty.findColumn(PropertyFactory.LABEL_SEX).getValues().get(r.nextInt(workerProperty.findColumn(PropertyFactory.LABEL_SEX).size())));//性别
+			w.find(PropertyFactory.LABEL_BANK_ADDRESS).onValueGet("乱写的地址");
 			//工地
 			addWorker(w);
 			int ind=r.nextInt(workerProperty.findColumn(PropertyFactory.LABEL_WORKER_TYPE).size());
@@ -363,6 +363,10 @@ public class DBManager {
 		//添加到工地
 		addWorkerToSite(wk.find(PropertyFactory.LABEL_ID_CARD).getValueString(),"测试工地1",200d,"包工",AnUtils.getDate(2016,11,20));
 		addWorkerToSite(wk.find(PropertyFactory.LABEL_ID_CARD).getValueString(),"测试工地2",150d,"包工",AnUtils.getDate(2016,10,20));*/
+	}
+
+	public User getLoadedUser(){
+		return user;
 	}
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -756,7 +760,7 @@ public class DBManager {
 		return tmpList;
 	}
 
-	public void deleteWorker(String id){
+	public boolean deleteWorker(String id){
 		ArrayList<String> list=getWorkerAt(id);
 		if (list.size()==0){
 			Bean delete=null;
@@ -779,7 +783,7 @@ public class DBManager {
 				for (String siteName:list){
 					removeWorkerFrom(id,siteName);
 				}
-			}
+			}else return false;
 			try {
 				updateChildrenManager();
 			} catch (Exception e) {
@@ -787,6 +791,7 @@ public class DBManager {
 			}
 		}
 		updateTmpWorkerList();
+		return true;
 	}
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1222,7 +1227,7 @@ public class DBManager {
 				IDateValueItem item=tmpItems.get(i);
 				Calendar tmpC=Calendar.getInstance();
 				tmpC.setTime(item.getDate());
-				if (tmpC.get(Calendar.MONTH)==monthValue){//月份相等
+				if (tmpC.get(Calendar.MONTH)==monthValue&&tmpC.get(Calendar.YEAR)==calendar.get(Calendar.YEAR)){//月份相等
 					double d= (double) item.getValue();
 					monthCheckIn+=d;
 				}

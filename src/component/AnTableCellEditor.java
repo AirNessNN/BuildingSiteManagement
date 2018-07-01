@@ -6,7 +6,13 @@ import java.awt.*;
 public interface AnTableCellEditor extends TableCellEditor{
 
 
-    Point getTableCellLocation();
+    //Rank getTableCellLocation();
 
-    void setTableCellLocation(int row ,int col);
+    boolean isCellEditor(int row,int col);
+
+    void addTableCellLocation(int row , int col);
+
+    void removeTableCellLocation(int row,int col);
+
+    boolean isEmpty();
 }

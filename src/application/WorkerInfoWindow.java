@@ -4,6 +4,7 @@ import component.*;
 import dbManager.*;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import resource.Resource;
 
 import javax.swing.*;
@@ -567,9 +568,11 @@ public class WorkerInfoWindow extends Window {
 		});
 
 		btnDelete.addActionListener(e -> {
-			DBManager.getManager().deleteWorker(labIDCard.getText());
-			AnPopDialog.show(this,"删除完成！",AnPopDialog.SHORT_TIME);
-			dispose();
+			boolean b=DBManager.getManager().deleteWorker(labIDCard.getText());
+			if (b){
+				AnPopDialog.show(this,"删除完成！",AnPopDialog.SHORT_TIME);
+				dispose();
+			}
 		});
 	}
 
@@ -796,7 +799,7 @@ public class WorkerInfoWindow extends Window {
 	public void print(){
     	ExcelFile excelFile=new ExcelFile(){
 			@Override
-			public void fillDatas(boolean isLoaded, Workbook workbook, Vector<Vector> datas) {
+			public void fillData(boolean isLoaded, XSSFWorkbook workbook, Vector<Vector> data) {
 				if (!isLoaded)return;
 				Sheet info=workbook.getSheet("Sheet1");
 				workbook.setSheetName(0,"工人基本信息");

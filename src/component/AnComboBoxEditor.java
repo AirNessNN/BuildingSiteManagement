@@ -2,7 +2,9 @@ package component;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.HashSet;
 import javax.swing.*;
 import javax.swing.event.*;
 
@@ -16,7 +18,7 @@ public class AnComboBoxEditor extends JComboBox<String> implements AnTableCellEd
 	private static final long serialVersionUID = 1L;
 	
 	
-	private Point location=null;
+	private HashSet<Rank> location=new HashSet<>();
 	private JTextField textField;
 	
 
@@ -118,14 +120,36 @@ public class AnComboBoxEditor extends JComboBox<String> implements AnTableCellEd
         return this;
     }
 
-    @Override
-    public Point getTableCellLocation() {
+    /*@Override
+    public Rank getTableCellLocation() {
         return location;
+    }*/
+
+    @Override
+    public boolean isCellEditor(int row, int col) {
+        for (Rank rank:location){
+            if (rank.getRow()==row&&rank.getColumn()==col)return true;
+        }
+        return false;
     }
 
     @Override
-    public void setTableCellLocation(int row, int col) {
-        location=new Point(row,col);
+    public void addTableCellLocation(int row, int col) {
+        location.add(new Rank(row,col));
+    }
+
+    @Override
+    public void removeTableCellLocation(int row, int col) {
+        Rank delete=null;
+        for (Rank rank:location){
+            if (rank.getColumn()==col&&rank.getRow()==row)delete=rank;
+        }
+        location.remove(delete);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return location.isEmpty();
     }
 
 

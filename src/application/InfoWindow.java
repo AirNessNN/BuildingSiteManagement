@@ -324,6 +324,9 @@ public class InfoWindow extends Window implements ComponentLoader {
 
         int maxSize=tmpCheckIn.size()>tmpSalary.size()?tmpCheckIn.size():tmpSalary.size();
 
+
+        AnDateComboBoxEditor editor=new AnDateComboBoxEditor();
+
         for (int i=0;i<maxSize;i++){
             if (i<tmpCheckIn.size()){
                 IDateValueItem item=tmpCheckIn.get(i);
@@ -333,7 +336,7 @@ public class InfoWindow extends Window implements ComponentLoader {
                 cells.add(item.getTag());
                 checkInRows.add(cells);
 
-                AnDateComboBoxEditor editor=new AnDateComboBoxEditor();
+
                 checkInTable.addComponentCell(editor,checkInRows.size()-1,0);
             }
             if (i<tmpSalary.size()){
@@ -344,7 +347,7 @@ public class InfoWindow extends Window implements ComponentLoader {
                 cells.add(item.getTag());
                 salaryRows.add(cells);
 
-                AnDateComboBoxEditor editor=new AnDateComboBoxEditor();
+
                 salaryTable.addComponentCell(editor,salaryRows.size()-1,0);
             }
         }

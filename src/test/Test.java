@@ -1,8 +1,6 @@
 package test;
 
-import application.AnUtils;
-import application.ProgressbarDialog;
-import application.StartWindow;
+import application.*;
 import dbManager.DBManager;
 import dbManager.User;
 
@@ -103,7 +101,7 @@ public class Test extends JFrame{
 
 
 	
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) {
 		User user=new User();
 		user.userName="test";
 		user.password="123456";
@@ -117,25 +115,10 @@ public class Test extends JFrame{
 			e.printStackTrace();
 		}
 
-		/*ProgressbarDialog.showDialog("测试",0,100);
-		ProgressbarDialog.setState("haha",50);
-		Thread.sleep(3000);
-		ProgressbarDialog.setState("haha",60);
-		Thread.sleep(500);
-		ProgressbarDialog.setState("haha",80);
-		Thread.sleep(500);
-		ProgressbarDialog.setState("haha",100);
 
-		Thread.sleep(3000);
-		ProgressbarDialog.showDialog("测试",0,100);
-		ProgressbarDialog.setState("haha",50);
-		Thread.sleep(3000);
-		ProgressbarDialog.setState("haha",60);
-		Thread.sleep(500);
-		ProgressbarDialog.setState("haha",80);
-		Thread.sleep(500);
-		ProgressbarDialog.setState("haha",100);*/
-		ProgressbarDialog.showDialog("测试");
+		ExcelTemplate excelTemplate=new ExcelTemplate();
+		excelTemplate.createTemplate();
+		Test.printList(new Object(),excelTemplate.getTemplateData()," ");
 
 	}
 

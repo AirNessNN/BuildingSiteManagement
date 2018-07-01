@@ -340,12 +340,33 @@ public class AnTable extends JTable{
 	 * @param column 列
 	 */
 	public void addComponentCell(AnTableCellEditor component, int row, int column){
-		component.setTableCellLocation(row,column);//设置行列，用来确定显示控件的行列
+		/*
+		要添加一个组件，
+		首先判断此组件是否已经存在列表：
+		if（存在）判断其他组件有没有注册到Cell
+			if（已经被注册）撤销其他组件的注册，并且判断被撤销的组件是否没有任何注册的Cell
+				if（空）删除被撤销的组件
+		else（不存在）
+			添加组件到集合
+		注册Cell坐标到组件中
+		 */
+
 		if (components==null)
 			components=new Vector<>();
-		//判重复
-		if (!components.contains(component))
-			components.add(component);
+
+		AnTableCellEditor delete=null;
+
+
+		for (AnTableCellEditor editor:components){
+			if (editor.isCellEditor(row,column)){
+				if (editor.equals(component))return;
+				editor.removeTableCellLocation(row,column);
+				if (editor.isEmpty())delete=editor;
+			}
+		}
+		component.addTableCellLocation(row,column);
+		if (!components.contains(component))components.add(component);
+		if (delete!=null)components.remove(delete);
 	}
 
 	public void clearComponentCell(){
@@ -366,7 +387,6 @@ public class AnTable extends JTable{
 		if (components==null)
 			return;
 		components.remove(component);
-		component.setTableCellLocation(-1,-1);
 	}
 
 
@@ -382,11 +402,15 @@ public class AnTable extends JTable{
 	public void removeComponentCellAt(int row, int column){
 		if (components==null)
 			return;
+		AnTableCellEditor deleteCom=null;
+
 		for (AnTableCellEditor editor:components){
-			if (row==editor.getTableCellLocation().x&&column==editor.getTableCellLocation().y){
-				components.remove(editor);
+			if (editor.isCellEditor(row,column)){
+				editor.removeTableCellLocation(row,column);
+				if (editor.isEmpty())deleteCom=editor;
 			}
 		}
+		components.remove(deleteCom);
 	}
 
 
@@ -568,10 +592,7 @@ public class AnTable extends JTable{
 		}
 
 		for (AnTableCellEditor editor:components){
-			int r=editor.getTableCellLocation().x;
-			int c=editor.getTableCellLocation().y;
-			if (r==row&&c==column)
-				return editor;
+			if (editor.isCellEditor(row,column))return editor;
 		}
 		return genericEditor;
 	}
