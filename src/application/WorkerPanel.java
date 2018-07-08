@@ -1,5 +1,6 @@
 package application;
 
+import com.mysql.fabric.xmlrpc.base.Data;
 import component.*;
 import dbManager.*;
 import resource.Resource;
@@ -518,7 +519,36 @@ public class WorkerPanel extends JPanel implements Loadable{
         });
 
         btnEntryFromExcel.addActionListener(e -> {
+            ExcelTemplate excelTemplate=new ExcelTemplate();
+            excelTemplate.createTemplate();
+            AnUtils.open(ExcelTemplate.filePath);
+            AnPopDialog.show(this,"请在模板中编辑，编辑完成后退出Excel，点击确认。",4000);
+            int r=JOptionPane.showConfirmDialog(this,"是否已经完成编辑？","编辑提示",JOptionPane.OK_CANCEL_OPTION);
+            if (r==JOptionPane.OK_OPTION){
+                Application.startService(()->{
+                    //获取到Excel中的数据
+                    DataTable dataTable=excelTemplate.getTemplateData();
+                    int size=dataTable.getMaxRowCount();
 
+                    int succeedCount=0;
+
+                    for (int i=0;i<size;i++){
+                        Bean worker=PropertyFactory.createWorker();//创建工人
+                        dataTable.selectRow(i);//选中行
+                        for (int j=0;j<dataTable.getSize();j++){
+                            Info info=worker.find(dataTable.getColumn(j).getName());
+                            if (info==null)continue;
+                            info.setValue(dataTable.getSelectedRowAt(j));
+                        }
+                        boolean b=DBManager.getManager().addWorker(worker);
+                       if (b)succeedCount++;
+                    }
+                    AnPopDialog.show(this,"添加完成，成功"+succeedCount+"个，共"+size+"个",3000);
+                    ProgressbarDialog.CloseDialog();
+                });
+               ProgressbarDialog.showDialog("正在添加工人到工人列表中");
+               refresh();
+            }
         });
 
         //入职登记

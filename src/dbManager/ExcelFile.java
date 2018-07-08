@@ -102,6 +102,7 @@ public class ExcelFile {
      */
     public Vector<Vector<String>> getExcelData(int sheetIndex,int rowStart, int rowEnd,int columnStart,int columnEnd){
         Vector<Vector<String>> vectors=new Vector<>();
+        System.out.println("rowStart:"+rowStart+" rowEnd:"+rowEnd+" colStart:"+columnStart+" colEnd:"+columnEnd);
 
         if (isLoaded){
 
@@ -120,6 +121,7 @@ public class ExcelFile {
                     }
                     Cell cell=row.getCell(j);
                     if (cell==null)rows.add("");
+                    else rows.add(cell.toString());
                 }
                 vectors.add(rows);
             }

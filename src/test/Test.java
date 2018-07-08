@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -21,6 +22,8 @@ public class Test extends JFrame{
 
 	private StartWindow startWindow=new StartWindow();
 
+	ExcelTemplate excelTemplate;
+
 	private Test() {
 		getContentPane().setBackground(Color.WHITE);
 		getContentPane().setFont(new Font("微软雅黑 Light", Font.PLAIN, 14));
@@ -32,7 +35,11 @@ public class Test extends JFrame{
 		JButton btnNewButton = new JButton("切换文字");
 		btnNewButton.setBounds(6, 6, 90, 30);
 		getContentPane().add(btnNewButton);
-		btnNewButton.addActionListener(e -> setDialogText());
+		btnNewButton.addActionListener(e -> {
+			excelTemplate=new ExcelTemplate();
+			excelTemplate.createTemplate();
+		});
+
 		
 		textField = new JTextField();
 		textField.addKeyListener(new KeyAdapter() {
@@ -49,6 +56,9 @@ public class Test extends JFrame{
 		button.addActionListener(e -> System.out.println(Test.IDRandom()));
 		button.setBounds(6, 90, 90, 30);
 		getContentPane().add(button);
+		button.addActionListener(e ->{
+			System.out.println(excelTemplate.getTemplateData().toString());
+		});
 
 
 		//startWindow.setVisible(true);
@@ -115,11 +125,7 @@ public class Test extends JFrame{
 			e.printStackTrace();
 		}
 
-
-		ExcelTemplate excelTemplate=new ExcelTemplate();
-		excelTemplate.createTemplate();
-		Test.printList(new Object(),excelTemplate.getTemplateData()," ");
-
+		ProgressbarDialog.showDialog("sad");
 	}
 
 	/**
@@ -193,4 +199,29 @@ class DBUser{
 			this.limits=limits;
 			this.sex=sex;
 		}
+}
+
+
+
+
+class MyClass{
+	public void fun(){
+		System.out.println("使用MyClass的fun方法");
+	}
+}
+
+class YourClass {
+
+	MyClass myClass=new MyClass(){
+		@Override
+		public void fun() {
+			System.out.println("重写的MyClass的fun方法");
+		}
+	};
+
+	void showMyClassFun(){
+		myClass.fun();
+	}
+
+
 }

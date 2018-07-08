@@ -288,6 +288,17 @@ public class DataTable implements Serializable{
     }
 
 
+    public void addColumn(String name,boolean reputable){
+        Column column=new Column(reputable,false,name);
+
+        try {
+            this.addColumn(column);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 
 

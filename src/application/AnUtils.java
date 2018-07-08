@@ -629,13 +629,14 @@ public class AnUtils {
 		strings[2]="start";
 		strings[3]=" ";
 		strings[4]=cmdPath;
-		try {
-			Runtime.getRuntime().exec(strings);
-			return true;
-		} catch (IOException e) {
-			AnUtils.log(Runtime.getRuntime(),e.toString());
-			return false;
-		}
+		new Thread(()->{
+			try {
+				Runtime.getRuntime().exec(strings);
+			} catch (IOException e) {
+				AnUtils.log(Runtime.getRuntime(),e.toString());
+			}
+		}).start();
+		return true;
 	}
 
 
